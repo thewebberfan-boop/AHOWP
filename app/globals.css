@@ -277,21 +277,26 @@ button { cursor: pointer; }
 .school-person-open { align-self: center; color: var(--red); font-style: normal; }
 .school-person-note { margin: 10px 0 0; color: var(--muted); font-size: var(--type-caption); line-height: 1.6; }
 .school-development-layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr); gap: 18px; }
-.school-development-timeline { border-top: 1px solid var(--ink); }
-.school-development-timeline article { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.school-development-timeline, .school-relations { border: 1px solid var(--line); background: var(--paper-light); }
+.school-subpanel-heading { min-height: 66px; padding: 13px 16px; border-bottom: 1px solid var(--ink); background: var(--green-soft); }
+.school-subpanel-heading > span, .school-subpanel-heading > small { display: block; }
+.school-subpanel-heading > span { color: var(--green); font-size: 15px; font-weight: 600; }
+.school-subpanel-heading > small { margin-top: 5px; color: var(--muted); font-size: var(--type-caption); line-height: 1.4; }
+.school-development-timeline article { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 15px; min-height: 105px; padding: 14px 15px; border-bottom: 1px solid var(--line); }
+.school-development-timeline article:last-child { border-bottom: 0; }
 .school-development-timeline article > div:first-child { display: grid; grid-template-columns: 25px 1fr; gap: 8px; align-content: start; }
 .school-development-timeline article > div:first-child span { color: var(--red); font-size: var(--type-caption); }
 .school-development-timeline article > div:first-child b { font-size: 13px; font-weight: 500; line-height: 1.45; }
 .school-development-timeline h4 { margin: 0 0 6px; font-size: 16px; font-weight: 500; }
 .school-development-timeline p { margin: 0; color: #505550; font-size: 14px; line-height: 1.6; }
-.school-relations { border: 1px solid var(--line); background: var(--paper-light); }
-.school-relations > .section-label { padding: 14px 16px 5px; }
-.school-relations > button, .school-relations > article { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) 14px; gap: 6px 9px; width: 100%; padding: 12px 15px; border: 0; border-top: 1px solid var(--line); background: transparent; text-align: left; }
+.school-relations > button, .school-relations > article { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) 14px; gap: 15px; width: 100%; min-height: 105px; padding: 14px 15px; border: 0; border-bottom: 1px solid var(--line); background: transparent; text-align: left; }
+.school-relations > button:last-child, .school-relations > article:last-child { border-bottom: 0; }
 .school-relations > button:hover { background: var(--green-soft); }
-.school-relations h4 { margin: 0; font-size: 15px; font-weight: 500; }
-.school-relations p { grid-column: 1 / -1; margin: 1px 0 0; color: #505550; font-size: 13px; line-height: 1.55; }
-.school-relations i { color: var(--red); font-style: normal; }
-.school-relation-badge { padding: 2px 5px; border: 1px solid var(--red); color: var(--red); font-size: 10px; white-space: nowrap; }
+.school-relation-meta { align-self: start; }
+.school-relations h4 { margin: 0 0 6px; font-size: 16px; font-weight: 500; }
+.school-relations p { margin: 0; color: #505550; font-size: 14px; line-height: 1.6; }
+.school-relations i { align-self: center; color: var(--red); font-style: normal; }
+.school-relation-badge { display: inline-block; padding: 3px 6px; border: 1px solid var(--red); color: var(--red); font-size: 11px; white-space: nowrap; }
 .school-influence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); border: 1px solid var(--line); background: rgba(250, 248, 242, .58); }
 .school-influence-grid article { min-height: 150px; padding: 17px 18px; border-right: 1px solid var(--line); }
 .school-influence-grid article:last-child { border-right: 0; }
@@ -879,6 +884,8 @@ span.inline-token-group {
   .school-person-portrait { width: 64px; height: 80px; }
   .school-development-timeline article { grid-template-columns: 1fr; gap: 8px; }
   .school-development-timeline article > div:first-child { grid-template-columns: 25px 1fr; }
+  .school-relations > button, .school-relations > article { grid-template-columns: 1fr 13px; gap: 8px; }
+  .school-relation-meta { grid-column: 1 / -1; }
   .philosopher-page { padding-top: 16px; }
   .philosopher-sequence-row.has-origin { grid-template-columns: 52px minmax(0, 1fr); }
   .philosopher-sequence { display: flex; overflow-x: auto; }
