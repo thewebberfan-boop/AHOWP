@@ -51,6 +51,15 @@ export const geographyEntries: GeographyEntry[] = [
   place("sicily", "西西里", "Sicily", "region", "意大利西西里大区", 37.6, 14.0, 7, [
     { period: "前 6—3 世纪", ancientOrPeriodName: "Sikelia", politicalContext: "希腊城邦、迦太基势力与本地社群竞争", mapScope: "中地中海", note: "恩培多克勒等大希腊思想家的历史环境。" },
   ]),
+  place("acragas", "阿克拉加斯", "Acragas / Agrigento", "city", "意大利西西里大区阿格里真托", 37.311, 13.576, 11, [
+    { period: "前 6—4 世纪", ancientOrPeriodName: "Akragas", politicalContext: "富裕的西西里希腊城邦，经历僭主、寡头与民主竞争", mapScope: "西西里与中地中海", note: "恩培多克勒的故乡；神庙谷保存了城邦繁荣时期的重要遗迹。" },
+  ]),
+  place("clazomenae", "克拉佐梅奈", "Clazomenae", "city", "土耳其伊兹密尔省乌尔拉附近", 38.36, 26.77, 11, [
+    { period: "前 6—5 世纪", ancientOrPeriodName: "Klazomenai", politicalContext: "爱奥尼亚城邦，先后处于吕底亚和波斯势力范围", mapScope: "爱琴海东岸与小亚细亚", note: "阿那克萨哥拉的出生地，也是爱奥尼亚自然研究进入雅典之前的背景。" },
+  ]),
+  place("lampsacus", "兰普萨库斯", "Lampsacus", "city", "土耳其恰纳卡莱省拉普塞基附近", 40.344, 26.685, 11, [
+    { period: "前 5—4 世纪", ancientOrPeriodName: "Lampsakos", politicalContext: "赫勒斯滂海峡沿岸希腊城邦", mapScope: "爱琴海、黑海入口与小亚细亚", note: "传统称阿那克萨哥拉离开雅典后在此教学并去世。" },
+  ]),
   place("athens", "雅典", "Athens", "city", "希腊阿提卡大区", 37.9838, 23.7275, 11, [
     { period: "前 5—4 世纪", ancientOrPeriodName: "Athenai", politicalContext: "民主城邦与海上帝国", mapScope: "阿提卡、爱琴海和希腊城邦世界", note: "苏格拉底、柏拉图和亚里士多德活动的核心城市。" },
     { period: "前 3—1 世纪", ancientOrPeriodName: "Athens", politicalContext: "希腊化与罗马势力下的学术城市", mapScope: "希腊化地中海", note: "花园学派、斯多葛学派和学院继续在此教学。" },

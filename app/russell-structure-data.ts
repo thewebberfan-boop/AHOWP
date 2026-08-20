@@ -50,7 +50,10 @@ export const russellStructureStages: RussellStructureStage[] = [
         person("empedocles", "恩培多克勒", "Empedocles", ["b1-06"], "以不变元素的组合解释可见变化。"),
         person("anaxagoras", "阿那克萨哥拉", "Anaxagoras", ["b1-08"], "以心灵和种子说明秩序与差异。"),
       ] },
-      { id: "atomists", title: "原子论", english: "Atomism", response: "以原子在虚空中的运动，同时保留不变存在与经验变化。", sharedPattern: "机械因果、不可分微粒与组合解释。", chapterIds: ["b1-09"], philosophers: [] },
+      { id: "atomists", title: "原子论", english: "Atomism", response: "以原子在虚空中的运动，同时保留不变存在与经验变化。", sharedPattern: "机械因果、不可分微粒与组合解释。", chapterIds: ["b1-09"], philosophers: [
+        person("leucippus", "留基伯", "Leucippus", ["b1-09"], "以原子与虚空回应埃利亚学派对运动的限制。"),
+        person("democritus", "德谟克利特", "Democritus", ["b1-09"], "把原子论扩展为自然、认识与伦理的系统。"),
+      ] },
       { id: "sophists", title: "智者运动", english: "Sophistic movement", response: "把注意力从宇宙本原转向语言、公共判断和人的处境。", sharedPattern: "论辩、修辞与相对主义的问题意识。", chapterIds: [], philosophers: [person("protagoras", "普罗泰戈拉", "Protagoras", ["b1-10"], "以人的尺度重新界定知识与判断。") ] },
     ],
   },

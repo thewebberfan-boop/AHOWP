@@ -206,9 +206,20 @@
       "wikidataId": "Q165589",
       "wikidataUrl": "https://www.wikidata.org/wiki/Q165589",
       "description": "5th-century BCE Greek philosopher",
-      "status": "image_metadata_failed",
-      "representationCaution": "古代与中世纪人物的雕像、手稿插图或后世画像通常不是写实肖像，应作为视觉识别符号使用。",
-      "image": null
+      "status": "ready",
+      "representationCaution": "这是一幅十八世纪或更晚的想象性版画，并非留基伯本人的写实肖像；仅作为视觉识别符号使用。",
+      "image": {
+        "localPath": "/visual-archive/figures/leucippus.jpg",
+        "commonsFile": "Leucippus. Line engraving by S. Beyssent after Mlle C. Reyde Wellcome V0003528.jpg",
+        "commonsPage": "https://commons.wikimedia.org/wiki/File:Leucippus._Line_engraving_by_S._Beyssent_after_Mlle_C._Reyde_Wellcome_V0003528.jpg",
+        "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Leucippus._Line_engraving_by_S._Beyssent_after_Mlle_C._Reyde_Wellcome_V0003528.jpg",
+        "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Leucippus._Line_engraving_by_S._Beyssent_after_Mlle_C._Reyde_Wellcome_V0003528.jpg/640px-Leucippus._Line_engraving_by_S._Beyssent_after_Mlle_C._Reyde_Wellcome_V0003528.jpg",
+        "mime": "image/jpeg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "artist": "S. Beyssent, after C. Reydellet",
+        "credit": "Wellcome Collection"
+      }
     },
     {
       "id": "democritus",

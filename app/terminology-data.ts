@@ -97,6 +97,12 @@ export const terminology: TermEntry[] = [
 
   { id: "arche", zh: "本原", en: "archē / first principle", category: "概念", alternatives: ["始基"], note: "早期希腊哲学中万物由之生成或得到统一解释的根本原则。" },
   { id: "logos", zh: "逻各斯", en: "logos", category: "概念", alternatives: ["理则", "道"], note: "可指言说、理由或秩序；在赫拉克利特和基督教语境中含义不同。" },
+  { id: "non-being", zh: "非存在", en: "what-is-not / non-being", category: "概念", note: "巴门尼德认为它不能被认识或充当生成来源；原子论则以虚空重新处理“无”的地位。" },
+  { id: "four-roots", zh: "四根", en: "four roots", category: "概念", note: "恩培多克勒所说火、气、水、土四种不生不灭的基本成分；后世常称四元素。" },
+  { id: "nous", zh: "努斯", en: "Nous / Mind", category: "概念", note: "阿那克萨哥拉体系中不与其他成分混合、具有知识并启动宇宙旋转的原则。" },
+  { id: "atom", zh: "原子", en: "atomon / atom", category: "概念", note: "古代原子论中不可切分、不生不灭的基本实体；不能与现代物理学原子直接等同。" },
+  { id: "void", zh: "虚空", en: "void", category: "概念", note: "原子之间允许分离和运动的空无间隔，是原子论对埃利亚存在论的关键修正。" },
+  { id: "euthymia", zh: "心灵安宁", en: "euthymia / cheerfulness", category: "概念", note: "德谟克利特所重视的稳定愉悦状态，通过衡量、节制与判断训练获得。" },
   { id: "virtue", zh: "德性", en: "virtue / aretē", category: "概念", alternatives: ["美德"], note: "不仅是道德善，也可指一种事物或人的卓越能力。" },
   { id: "ideas-forms", zh: "理念", en: "Ideas / Forms", category: "概念", alternatives: ["形式", "理型"], note: "柏拉图语境中可知、稳定且作为具体事物标准的存在；英译常用 Forms。" },
   { id: "substance", zh: "实体", en: "substance", category: "概念", note: "能独立存在或作为属性承担者的东西；亚里士多德、笛卡尔和斯宾诺莎定义不同。" },
