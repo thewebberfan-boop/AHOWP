@@ -70,6 +70,54 @@ export const geographyEntries: GeographyEntry[] = [
   place("abdera", "阿布德拉", "Abdera", "city", "希腊色雷斯克桑西附近", 40.981, 24.952, 11, [
     { period: "前 5—4 世纪", ancientOrPeriodName: "Abdera", politicalContext: "色雷斯海岸希腊城邦", mapScope: "爱琴海北岸与色雷斯", note: "留基伯和德谟克利特的原子论传统与此地相关。" },
   ]),
+  place("thurii", "图里", "Thurii", "city", "意大利卡拉布里亚大区锡巴里附近", 39.72, 16.49, 11, [
+    { period: "前 444／443 年以后", ancientOrPeriodName: "Thourioi", politicalContext: "雅典支持建立的泛希腊殖民城邦", mapScope: "南意大利与大希腊", note: "古代传统把普罗泰戈拉与该城邦的立法工作联系起来；具体参与程度仍有争议。" },
+  ]),
+  place("potidaea", "波提狄亚", "Potidaea", "city", "希腊哈尔基季基半岛新波提狄亚附近", 40.19, 23.33, 11, [
+    { period: "前 432—429 年", ancientOrPeriodName: "Poteidaia", politicalContext: "雅典围城与伯罗奔尼撒战争前期战场", mapScope: "北爱琴海与哈尔基季基", note: "柏拉图与后世材料把苏格拉底的服役和勇敢表现置于此地。" },
+  ]),
+  place("delium", "德利翁", "Delium", "city", "希腊维奥蒂亚大区德莱西附近", 38.32, 23.68, 11, [
+    { period: "前 424 年", ancientOrPeriodName: "Delion", politicalContext: "雅典与维奥蒂亚军队交战地点", mapScope: "阿提卡北部与维奥蒂亚", note: "苏格拉底参加此战；相关勇敢事迹主要经柏拉图和阿尔西比亚德形象流传。" },
+  ]),
+  place("syracuse", "叙拉古", "Syracuse", "city", "意大利西西里大区锡拉库萨", 37.075, 15.286, 11, [
+    { period: "前 5—4 世纪", ancientOrPeriodName: "Syrakousai", politicalContext: "强大的西西里希腊城邦与僭主政权", mapScope: "西西里与中地中海", note: "柏拉图数次西行所涉的政治实验地点；旅次、动机和成效应按书信证据谨慎判断。" },
+  ]),
+  place("magna-graecia", "大希腊", "Magna Graecia", "region", "意大利南部与西西里的希腊殖民地区", 39.2, 16.2, 6, [
+    { period: "前 8—3 世纪", ancientOrPeriodName: "Megale Hellas", politicalContext: "多个独立希腊殖民城邦构成的文化区域", mapScope: "南意大利、西西里与中地中海", note: "毕达哥拉斯传统、埃利亚学派及柏拉图与意大利思想网络的重要地理背景。" },
+  ]),
+  place("stagira", "斯塔吉拉", "Stagira", "city", "希腊哈尔基季基半岛奥林匹亚达附近", 40.53, 23.75, 11, [
+    { period: "前 4 世纪", ancientOrPeriodName: "Stageira", politicalContext: "哈尔基季基的希腊城邦，后处马其顿势力范围", mapScope: "北爱琴海与马其顿", note: "亚里士多德的出生地；其父与马其顿王室的关系常被用来说明他早年的宫廷联系。" },
+  ]),
+  place("assos", "阿索斯", "Assos", "city", "土耳其恰纳卡莱省贝赫拉姆附近", 39.49, 26.34, 11, [
+    { period: "前 347—345 年左右", ancientOrPeriodName: "Assos", politicalContext: "赫尔米亚斯统治下的小亚细亚希腊城邦", mapScope: "特洛阿斯与爱琴海东北部", note: "亚里士多德离开学院后在此教学研究，并与当地政治和学术圈建立关系。" },
+  ]),
+  place("lesbos", "莱斯沃斯", "Lesbos", "region", "希腊北爱琴大区莱斯沃斯岛", 39.2, 26.3, 9, [
+    { period: "前 4 世纪", ancientOrPeriodName: "Lesbos", politicalContext: "爱琴海东部希腊岛屿与城邦网络", mapScope: "爱琴海东北部与小亚细亚海岸", note: "亚里士多德与泰奥弗拉斯托在岛上从事动物与海洋生物研究。" },
+  ]),
+  place("chalcis", "卡尔基斯", "Chalcis", "city", "希腊埃维亚大区哈尔基斯", 38.463, 23.595, 11, [
+    { period: "前 323—322 年", ancientOrPeriodName: "Chalkis", politicalContext: "马其顿控制下的埃维亚重要城市", mapScope: "埃维亚、阿提卡与中希腊", note: "亚里士多德在雅典反马其顿情绪上升后移居此地，并于次年去世。" },
+  ]),
+  place("sinope", "锡诺普", "Sinope", "city", "土耳其黑海沿岸锡诺普", 42.026, 35.15, 11, [
+    { period: "前 5—4 世纪", ancientOrPeriodName: "Sinope", politicalContext: "黑海沿岸的米利都殖民城邦", mapScope: "黑海、安纳托利亚与爱琴海贸易网络", note: "第欧根尼通常被称为‘锡诺普人’，但其流亡原因主要保存在较晚传记轶事中。" },
+  ]),
+  place("corinth", "科林斯", "Corinth", "city", "希腊伯罗奔尼撒科林斯", 37.906, 22.88, 11, [
+    { period: "前 4 世纪", ancientOrPeriodName: "Korinthos", politicalContext: "控制地峡交通的商业城邦", mapScope: "伯罗奔尼撒、科林斯湾与萨罗尼科斯湾", note: "后世把第欧根尼晚年以及他与亚历山大的著名会面置于此地，细节具有轶事性质。" },
+  ]),
+  place("elis", "埃利斯", "Elis", "region", "希腊西部伊利亚专区", 37.89, 21.37, 9, [
+    { period: "前 4—3 世纪", ancientOrPeriodName: "Elis", politicalContext: "伯罗奔尼撒西部城邦区域", mapScope: "伯罗奔尼撒与奥林匹亚周边", note: "皮浪的故乡和晚年活动地；其生平主要依赖较晚的传记传统。" },
+  ]),
+  place("pitane", "皮塔内", "Pitane", "city", "土耳其伊兹密尔省钱达尔勒附近", 38.93, 26.93, 11, [
+    { period: "前 4—3 世纪", ancientOrPeriodName: "Pitane", politicalContext: "小亚细亚爱奥利亚希腊城邦", mapScope: "爱琴海东岸与密西亚", note: "阿尔克西劳的出生地；他后来赴雅典并成为柏拉图学院领袖。" },
+  ]),
+  place("cyrene", "昔兰尼", "Cyrene", "city", "利比亚东北部沙哈特附近", 32.82, 21.86, 11, [
+    { period: "前 4—2 世纪", ancientOrPeriodName: "Kyrene", politicalContext: "北非希腊城邦，后属托勒密势力范围", mapScope: "利比亚海岸、埃及与东地中海", note: "卡尔内阿德的出生地；昔兰尼也是数学、医学与哲学交流的重要中心。" },
+  ]),
+  place("samos", "萨摩斯", "Samos", "region", "希腊北爱琴大区萨摩斯岛", 37.75, 26.98, 9, [
+    { period: "前 4 世纪", ancientOrPeriodName: "Samos", politicalContext: "爱琴海希腊岛屿，曾有雅典军事殖民者", mapScope: "爱琴海东部与小亚细亚", note: "伊壁鸠鲁出生于岛上的雅典公民家庭，并在此度过早年。" },
+  ]),
+  place("mytilene", "米蒂利尼", "Mytilene", "city", "希腊莱斯沃斯岛米蒂利尼", 39.107, 26.555, 11, [
+    { period: "前 4 世纪末", ancientOrPeriodName: "Mytilene", politicalContext: "莱斯沃斯岛主要城邦", mapScope: "爱琴海东北部与小亚细亚", note: "伊壁鸠鲁早期教学地点之一；其后转往兰普萨库斯，形成重要友人圈。" },
+  ]),
   place("pella", "佩拉／马其顿", "Pella / Macedon", "region", "希腊中马其顿大区", 40.761, 22.526, 9, [
     { period: "前 4 世纪", ancientOrPeriodName: "Makedonia", politicalContext: "腓力二世和亚历山大的马其顿王国", mapScope: "巴尔干、爱琴海与波斯帝国", note: "城邦政治向希腊化帝国世界转变的权力起点。" },
   ]),
