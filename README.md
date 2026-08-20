@@ -1,100 +1,63 @@
-# vinext-starter
+# 《西方哲学史》交互学习笔记
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+这是一个围绕伯特兰·罗素《西方哲学史》建立的中文交互学习网站。它不按“逐章复述”组织内容，而把知识压缩成可下钻的关系结构：
 
-## Prerequisites
+> 历史阶段 → 时代问题 → 哲学流派 → 哲学家 → 概念与论证 → 原书章节
 
-- Node.js `>=22.13.0`
+中文负责解释，中英双语主要用于人名、地名和哲学概念。网站目前以本地使用为主。
 
-## Quick Start
+## 新电脑首次运行
+
+需要 Node.js `>=22.13.0`；项目当前推荐版本为 `.nvmrc` 中的 `24.19.0`。
 
 ```bash
-npm install
+git clone <仓库地址>
+cd ABHOWP
+npm ci
 npm run dev
+```
+
+浏览器打开 [http://localhost:3000](http://localhost:3000)。
+
+若电脑安装了 nvm，可先运行：
+
+```bash
+nvm install
+nvm use
+```
+
+## 常用检查
+
+```bash
 npm run build
+npm run lint
 ```
 
-This starter does not use `wrangler.jsonc`.
+`package-lock.json` 是依赖版本的唯一锁定文件；请使用 `npm ci` 在新电脑恢复依赖，不要提交 `node_modules`、`.next`、`.vinext`、`dist` 或 `.wrangler`。
 
-## Included Shape
+## 两台电脑交替工作
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+开始工作前先确认本机没有未保存改动，再拉取远端；完成一个完整功能后，构建、更新进度文件、提交并推送。不要让两台电脑同时修改同一分支。
 
-## Workspace Auth Headers
+详细步骤见 [docs/MULTI_MACHINE_WORKFLOW.md](docs/MULTI_MACHINE_WORKFLOW.md)。Codex 在任何一台电脑接手时应先阅读 [AGENTS.md](AGENTS.md) 和 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)。
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+## 主要文件
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
+- `app/page.tsx`：页面模式、导航和主要交互组件。
+- `app/globals.css`：全站视觉系统与响应式布局。
+- `app/book-data.ts`：罗素原书三卷、各章与已有章节笔记。
+- `app/russell-structure-data.ts`：基于罗素目录重构的“阶段—流派—人物—章节”关系。
+- `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
+- `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。
+- `app/terminology-data.ts`：中英双语术语。
+- `app/geography-data.ts`：地点、历史语境和地图数据。
+- `visual-archive/figures.json`：人物图像来源、许可和证据说明。
+- `public/visual-archive/figures/`：网站使用的本地人物图像。
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+## 内容原则
 
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+- 罗素原书是叙述主轴，但罗素的评价必须与一般史实、现代研究和学习性重构分开。
+- 不把“观点相似”写成“直接影响”；关系需要标明直接传承、共同传统、同题比较或后世重构。
+- 哲学家页面优先呈现“研究对象 → 逻辑起点 → 推导步骤 → 概念 → 结论”，避免写成连续小传。
+- 古代人物的年代、轶事和肖像常不可靠，页面必须保留证据等级与图像说明。
+- 每次增加内容时优先保证信息密度、信息质量和结构复用，而不是机械追求统一字数。
