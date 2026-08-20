@@ -78,6 +78,20 @@ function loadSet(key: string) {
   catch { return new Set<string>(); }
 }
 
+function loadPreference(key: string, fallback: boolean) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : value === "true";
+  } catch {
+    return fallback;
+  }
+}
+
+function saveLocalValue(key: string, value: string) {
+  try { localStorage.setItem(key, value); }
+  catch { /* Some browsers restrict storage for file:// pages. */ }
+}
+
 function includesText(parts: Array<string | undefined>, needle: string) {
   return parts.filter(Boolean).join(" ").toLowerCase().includes(needle);
 }
@@ -106,7 +120,7 @@ export default function Home() {
     const frame = window.requestAnimationFrame(() => {
       setReviewedStages(loadSet("ahowp-stage-reviewed"));
       setStarredChapters(loadSet("ahowp-starred"));
-      setShowEnglishTerms(localStorage.getItem("ahowp-bilingual-terms") !== "false");
+      setShowEnglishTerms(loadPreference("ahowp-bilingual-terms", true));
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
@@ -159,7 +173,7 @@ export default function Home() {
 
   const persistSet = (key: string, value: Set<string>, setter: (value: Set<string>) => void) => {
     setter(value);
-    localStorage.setItem(key, JSON.stringify([...value]));
+    saveLocalValue(key, JSON.stringify([...value]));
   };
 
   const toggleSet = (id: string, current: Set<string>, key: string, setter: (value: Set<string>) => void) => {
@@ -240,7 +254,7 @@ export default function Home() {
   const toggleEnglishTerms = () => {
     const next = !showEnglishTerms;
     setShowEnglishTerms(next);
-    localStorage.setItem("ahowp-bilingual-terms", String(next));
+    saveLocalValue("ahowp-bilingual-terms", String(next));
   };
 
   const showStructureSidebar = mode === "structure" && !query;

@@ -49,6 +49,8 @@
 - 网站内容数据优先放在对应的 `app/*-data.ts`，不要继续把大量资料直接写进 `app/page.tsx`。
 - 本地偏好可使用 `localStorage`；不要为当前静态学习数据引入数据库。
 - 人物与地图资产需要纳入 Git；生成目录和依赖目录必须保持忽略。
+- `offline-reader/index.html` 是由 `npm run build:offline` 生成并纳入 Git 的交付文件。不要手工编辑；内容或样式变化后重新生成。
+- 离线入口依赖相邻项目中的 `public/` 图片目录，不能只移动这一个 HTML 文件。
 - 完成代码变更后运行 `npm run build`。若修改了可被 lint 检查的逻辑，再运行 `npm run lint` 并只修复与当前任务有关的问题。
 
 ## Git 交接约定

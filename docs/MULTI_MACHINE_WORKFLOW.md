@@ -34,6 +34,8 @@ npm ci
 npm run build
 ```
 
+如果只需阅读而不开发，拉取完成后可以直接双击 `offline-reader/index.html`，无需运行 Node.js。人物图片依赖仓库中的 `public/` 目录，所以应保留完整项目文件夹。
+
 若 `git status --short` 有输出，不要直接 pull，也不要让 Codex 清理；先判断这些改动属于谁。`npm ci` 在 `package-lock.json` 没变化时通常可以省略，但在换电脑或依赖提交变化后应执行。
 
 打开新 Codex 任务时，可以直接说：
@@ -42,7 +44,7 @@ npm run build
 
 ## 一次工作结束时
 
-1. 运行 `npm run build`。
+1. 运行 `npm run build` 和 `npm run build:offline`。
 2. 更新 `docs/PROJECT_STATUS.md`。
 3. 查看改动：`git status --short` 和 `git diff --check`。
 4. 创建一个只描述本轮功能的提交。
@@ -72,6 +74,7 @@ git push <远端名> main
 - `public/visual-archive/` 中实际使用的图片；
 - `visual-archive/figures.json` 中的来源与许可；
 - `scripts/` 中可复用的数据整理工具；
+- `offline/` 的离线构建入口和生成后的 `offline-reader/index.html`；
 - `AGENTS.md`、`README.md` 和 `docs/` 中的项目记忆；
 - `package.json` 与 `package-lock.json`。
 

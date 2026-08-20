@@ -26,10 +26,29 @@ nvm install
 nvm use
 ```
 
+## 直接打开离线阅读版
+
+如果只想阅读，不想启动本地服务器，可以直接双击：
+
+```text
+offline-reader/index.html
+```
+
+浏览器会以 `file://` 地址打开。这个 HTML 已经内嵌网站程序和样式，但人物图片仍从同一项目的 `public/` 文件夹读取，因此不要单独移动 `index.html`；复制或同步时应保留整个项目文件夹。
+
+离线版中的正文、搜索、弹窗、复习和本地人物图片不需要网络。OpenStreetMap 地图、图像来源及外部资料链接仍需联网。
+
+网站内容更新后，用下面的命令重新生成离线入口，并将生成结果一起提交：
+
+```bash
+npm run build:offline
+```
+
 ## 常用检查
 
 ```bash
 npm run build
+npm run build:offline
 npm run lint
 ```
 
@@ -53,6 +72,8 @@ npm run lint
 - `app/geography-data.ts`：地点、历史语境和地图数据。
 - `visual-archive/figures.json`：人物图像来源、许可和证据说明。
 - `public/visual-archive/figures/`：网站使用的本地人物图像。
+- `offline/`：离线阅读版的构建入口与配置。
+- `offline-reader/index.html`：可直接双击的生成版阅读入口。
 
 ## 内容原则
 
