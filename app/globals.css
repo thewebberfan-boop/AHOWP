@@ -688,7 +688,8 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .place-context article small { font-size: var(--type-caption); }
 .historical-map-link { margin-top: 13px; }
 
-/* Bilingual terms must remain one continuous inline reading unit. */
+/* Bilingual terms stay intact; the trailing word joiner in TermText also keeps
+   the first following Han character with the token, avoiding orphaned phrases. */
 span.term-token,
 span.place-token,
 span.term-token > span,

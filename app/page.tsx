@@ -468,12 +468,12 @@ function TermText({ text, showEnglish, onTerm }: { text: string; showEnglish: bo
     const place = geographyByAlias.get(part);
     if (place && onPlace) {
       const openPlace = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onPlace(place); };
-      return <span className="place-token" role="button" tabIndex={0} key={`place-${place.id}-${index}`} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i></span>;
+      return <span className="place-token" role="button" tabIndex={0} key={`place-${place.id}-${index}`} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i>{"\u2060"}</span>;
     }
     const term = terminologyByZh.get(part);
     if (!term) return <span key={`${part}-${index}`}>{part}</span>;
     const open = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onTerm(term); };
-    return <span className="term-token" role="button" tabIndex={0} key={`${term.id}-${index}`} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${term.en}`}><span>{term.zh}</span>{showEnglish && <small>{term.en}</small>}</span>;
+    return <span className="term-token" role="button" tabIndex={0} key={`${term.id}-${index}`} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${term.en}`}><span>{term.zh}</span>{showEnglish && <small>{term.en}</small>}{"\u2060"}</span>;
   })}</>;
 }
 
