@@ -213,23 +213,23 @@ button { cursor: pointer; }
 .philosopher-sequence span { color: var(--red); font-size: var(--type-caption); }
 .philosopher-sequence button.active span { color: #efada4; }
 .philosopher-sequence b { overflow: hidden; font-size: 14px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
-.profile-hero { display: grid; grid-template-columns: 180px minmax(0, 1fr) 245px; gap: 25px; align-items: stretch; padding: 0 0 28px; border-bottom: 1px solid var(--ink); }
+.profile-hero { display: grid; grid-template-columns: 148px minmax(0, 1fr) minmax(250px, .68fr); gap: 18px; align-items: start; padding: 0 0 24px; border-bottom: 1px solid var(--ink); }
 .profile-portrait { display: flex; flex-direction: column; min-width: 0; }
-.profile-portrait > a, .profile-portrait > span { display: block; height: 214px; overflow: hidden; border: 1px solid var(--line); background: var(--green-soft); }
+.profile-portrait > a, .profile-portrait > span { display: block; aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid var(--line); background: var(--green-soft); }
 .profile-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; filter: saturate(.62) contrast(1.05); }
 .profile-portrait > span { display: grid; place-items: center; color: var(--green); font-size: 42px; }
 .profile-portrait small { padding-top: 7px; color: var(--muted); font-size: var(--type-caption); line-height: 1.45; }
-.profile-title { align-self: center; }
+.profile-title { min-width: 0; padding-top: 3px; }
 .profile-title h2 { margin: 0; font-size: var(--type-title); font-weight: 500; line-height: 1.08; letter-spacing: -.025em; }
 .profile-name-line { display: flex; gap: 13px; align-items: baseline; margin: 8px 0 0; color: var(--red); }
 .profile-name-line span { font: 15px Arial, sans-serif; }
 .profile-name-line i { color: var(--muted); font: normal 17px Georgia, serif; }
-.profile-title blockquote { max-width: 720px; margin: 19px 0 0; padding-left: 15px; border-left: 3px solid var(--red); color: #404640; font-size: var(--type-lead); font-weight: 500; line-height: 1.65; }
-.profile-facts { display: grid; grid-template-rows: repeat(4, 1fr); border: 1px solid var(--line); background: var(--paper-light); }
-.profile-facts > div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-content: center; padding: 11px 13px; border-bottom: 1px solid var(--line); }
+.profile-title blockquote { max-width: 720px; margin: 15px 0 0; padding-left: 13px; border-left: 3px solid var(--red); color: #404640; font-size: var(--type-body); font-weight: 500; line-height: 1.62; }
+.profile-facts { display: grid; min-width: 0; border: 1px solid var(--line); background: var(--paper-light); }
+.profile-facts > div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 9px; align-items: start; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 .profile-facts > div:last-child { border-bottom: 0; }
 .profile-facts span { color: var(--red); font-size: var(--type-caption); }
-.profile-facts b { font-size: 13px; font-weight: 500; line-height: 1.5; }
+.profile-facts b { min-width: 0; font-size: 13px; font-weight: 500; line-height: 1.5; overflow-wrap: break-word; }
 .evidence-caution { display: grid; grid-template-columns: 110px 1fr; gap: 20px; margin-top: 14px; padding: 14px 17px; border-left: 3px solid var(--red); background: #eee3dc; }
 .evidence-caution > span { color: var(--red); font-size: var(--type-caption); font-weight: 600; letter-spacing: .08em; }
 .evidence-caution p { margin: 0; color: #604d47; font-size: 14px; line-height: 1.65; }
@@ -243,10 +243,12 @@ button { cursor: pointer; }
 .profile-section > header > span { color: var(--red); font-size: 19px; }
 .profile-section > header h3 { margin: 0; font-size: var(--type-section); font-weight: 500; line-height: 1.3; }
 .profile-section > header .section-label { margin-bottom: 4px; }
-.life-layout { display: grid; grid-template-columns: .78fr 1.22fr; gap: 28px; align-items: start; }
-.profile-prose { margin: 0; color: #454a45; font-size: var(--type-body); line-height: 1.82; }
+.life-layout { display: block; }
 .profile-timeline { border-top: 1px solid var(--ink); }
-.profile-timeline article { display: grid; grid-template-columns: 125px 1fr; gap: 15px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.profile-timeline article { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.profile-timeline article.profile-overview { padding: 16px 14px; background: var(--green-soft); }
+.profile-timeline article.profile-overview h4 { margin-top: 0; }
+.profile-timeline article.profile-overview p { color: #404840; font-size: var(--type-body); line-height: 1.72; }
 .profile-timeline article > div:first-child b, .profile-timeline article > div:first-child span { display: block; }
 .profile-timeline article > div:first-child b { margin-bottom: 7px; color: var(--red); font-size: 13px; font-weight: 500; }
 .certainty { width: fit-content; padding: 2px 5px; border: 1px solid var(--line); color: var(--muted); font-size: 11px; }
@@ -688,10 +690,11 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .place-context article small { font-size: var(--type-caption); }
 .historical-map-link { margin-top: 13px; }
 
-/* Bilingual terms stay intact; the trailing word joiner in TermText also keeps
-   the first following Han character with the token, avoiding orphaned phrases. */
+/* Bilingual terms stay intact. TermText groups a token with the first following
+   Han character so a line cannot end immediately after its English label. */
 span.term-token,
 span.place-token,
+span.inline-token-group,
 span.term-token > span,
 span.term-token > small,
 span.place-token > span,
@@ -700,7 +703,8 @@ span.place-token > i {
   display: inline;
 }
 span.term-token,
-span.place-token {
+span.place-token,
+span.inline-token-group {
   white-space: nowrap;
   vertical-align: baseline;
 }
@@ -709,11 +713,11 @@ span.place-token {
   .app-shell { grid-template-columns: 288px minmax(0, 1fr); }
   .page-wrap { width: calc(100% - 38px); }
   .profile-hero { grid-template-columns: 160px minmax(0, 1fr); }
-  .profile-portrait > a, .profile-portrait > span { height: 196px; }
-  .profile-facts { grid-column: 1 / -1; grid-template-columns: repeat(4, 1fr); grid-template-rows: none; }
-  .profile-facts > div { grid-template-columns: 1fr; gap: 4px; border-right: 1px solid var(--line); border-bottom: 0; }
-  .profile-facts > div:last-child { border-right: 0; }
-  .life-layout { grid-template-columns: 1fr; }
+  .profile-portrait > a, .profile-portrait > span { aspect-ratio: 4 / 5; }
+  .profile-facts { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-facts > div { grid-template-columns: 1fr; gap: 4px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .profile-facts > div:nth-child(2n) { border-right: 0; }
+  .profile-facts > div:nth-last-child(-n+2) { border-bottom: 0; }
   .structure-hero { grid-template-columns: 55px minmax(0, 1fr); }
   .structure-hero > aside { grid-column: 2; }
   .structure-section-heading { gap: 24px; }
@@ -746,7 +750,7 @@ span.place-token {
   .philosopher-sequence { display: flex; overflow-x: auto; }
   .philosopher-sequence button { flex: 0 0 128px; }
   .profile-hero { grid-template-columns: 112px minmax(0, 1fr); gap: 15px; }
-  .profile-portrait > a, .profile-portrait > span { height: 148px; }
+  .profile-portrait > a, .profile-portrait > span { aspect-ratio: 4 / 5; }
   .profile-portrait small { font-size: 10px; }
   .profile-title h2 { font-size: 32px; }
   .profile-name-line { display: grid; gap: 3px; }

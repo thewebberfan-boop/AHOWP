@@ -318,6 +318,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "毕达哥拉斯式生活", en: "Pythagorean way of life", definition: "由共同体、仪式、饮食、自律和学习构成的生活方案；比任何单条数学命题更可靠地属于早期传统。" },
       { zh: "和谐", en: "harmonia", definition: "不同部分依比例结合形成秩序。音乐中的整数关系使“可听见的美”与“可理解的数”发生连接。" },
       { zh: "理论／沉思", en: "theōria", definition: "以理解而非利益或竞争为目的的观看生活。罗素把它视为数学、哲学和后来神学共同抬高的理想。" },
+      { zh: "数与比例", en: "number and ratio", definition: "用离散数及其比例理解音程、形状与宇宙秩序；可靠证据更多属于早期毕达哥拉斯传统，而非都能归给本人。" },
+      { zh: "净化", en: "katharsis / purification", definition: "通过节制、音乐、仪式与学习整顿灵魂，使知识活动同时成为生活和宗教实践。" },
     ],
     lineage: {
       inherited: "罗素强调俄耳甫斯宗教的净化、轮回和共同体传统；也提到南意大利与爱奥尼亚知识交流。现代研究对具体借用关系更谨慎。",
@@ -458,6 +460,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "非存在", en: "what-is-not", definition: "不能被认识、陈述或充当生成来源的“不是”。巴门尼德用它检验解释是否偷偷依赖虚无。" },
       { zh: "真理之路", en: "Way of Truth", definition: "从“存在必定是，非存在不是”出发，以必要推论限定真实结构的探究道路。" },
       { zh: "凡人意见", en: "Opinions of Mortals / doxa", definition: "以光与夜等对立原则解释经验宇宙的部分；它与真理的关系可能是错误、次级模型或对现象的最佳说明。" },
+      { zh: "思想与存在", en: "thinking and being", definition: "能被思想的对象不能彻底落入非存在；这条约束把认识条件转化为对真实结构的限制，也引出长期解释争论。" },
+      { zh: "生成不可能", en: "impossibility of coming-to-be", definition: "若事物从非存在生成，便把不可思的‘无’当作来源；若从存在生成，则它早已存在，因此真正生成被排除。" },
     ],
     lineage: {
       inherited: "继承爱奥尼亚自然哲学的宇宙整体问题，也可能接触毕达哥拉斯式宗教语言；但他的决定性变化是让解释先接受可思与可说条件的审查。",
@@ -731,6 +735,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "约定性质", en: "qualities by convention", definition: "颜色、声音、冷热、甜苦不是孤立原子自带的性质，而在原子结构与感知者身体互动时出现。" },
       { zh: "必然性", en: "necessity", definition: "自然事件由原子运动及先行条件产生，无须诉诸为人安排的目的；它不是宿命预言，而是因果连续性。" },
       { zh: "心灵安宁", en: "euthymia / cheerfulness", definition: "通过节制、衡量、知识和稳定判断获得的平衡愉悦；与后来伊壁鸠鲁的宁静相近但不能完全等同。" },
+      { zh: "物象", en: "eidōla / images", definition: "物体发出的细微原子结构作用于感官，用以说明视觉、梦与表象如何从外物到达身体。" },
+      { zh: "尺度与节制", en: "measure and moderation", definition: "通过比较欲望、能力与后果维持心灵平衡；显示德谟克利特伦理并非由机械原子论简单自动推出。" },
     ],
     lineage: {
       inherited: "直接发展留基伯的原子与虚空，并通过这一框架回答巴门尼德和芝诺；同时延续爱奥尼亚传统以自然过程统一解释天体、生命与人。",
@@ -801,6 +807,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "相反论证", en: "antilogiai / opposing arguments", definition: "同一问题可以形成彼此对立的论证。训练目标不只是获胜，也包括暴露判断对前提和处境的依赖。" },
       { zh: "善于谋划", en: "euboulia / good deliberation", definition: "在家庭和城邦事务中判断行动、语言及其后果的实践能力，是普罗泰戈拉自述的教学目标。" },
       { zh: "诸神不可知", en: "agnosticism about the gods", definition: "由于问题晦暗且人生短暂，无法确定诸神存在、不存在或形貌；这是知识限度声明，不等于证明无神。" },
+      { zh: "政治德性", en: "political virtue", definition: "参与共同生活所需的正义感、羞耻感和判断能力；它被广泛分配，却仍须通过法律、教育与讨论训练。" },
+      { zh: "使弱论证变强", en: "making the weaker argument stronger", definition: "古代争议性标签，可指训练从不利立场提出更有效论证；它既可能服务审辨，也可能被批评为修辞胜过真理。" },
     ],
     lineage: {
       inherited: "继承前苏格拉底关于真理、感觉和世界的争论，却把问题从宇宙结构转到人的经验、语言和政治判断；阿布德拉背景不证明他师从较年轻的德谟克利特。",
@@ -873,6 +881,9 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "灵魂照料", en: "care of the soul", definition: "使人的判断、欲望与行动趋向正义和善，优先于财富、名望及身体利益。" },
       { zh: "助产术", en: "maieutic method", definition: "柏拉图以其母亲职业作比喻：教师不把答案灌入学生，而协助其产出、检验并淘汰思想。" },
       { zh: "神灵征兆", en: "daimonion", definition: "苏格拉底自称从童年起出现、通常阻止某些行动的内在神圣信号；它不是一套可供他人服从的新宗教。" },
+      { zh: "德性即知识", en: "virtue is knowledge", definition: "把正确行动连接到对善与真正利益的认识；它强调伦理可受理性检验，却可能低估欲望冲突与意志软弱。" },
+      { zh: "无人自愿作恶", en: "no one errs willingly", definition: "作恶者是在善与利益上发生误认，而非清楚把坏当坏仍纯粹选择它；其准确范围取决于我们怎样区分苏格拉底与柏拉图。" },
+      { zh: "未经审视的生活", en: "the unexamined life", definition: "生活若不持续检查自身理由、价值排序和公共责任，便不能仅凭生存、财富或名声证明其值得。" },
     ],
     lineage: {
       inherited: "继承智者把语言、教育和城邦放到哲学中心的转向，也吸收自然哲学知识；但拒绝把论辩缩成可出售的成功工具。",
@@ -952,6 +963,10 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "辩证法", en: "dialectic", definition: "通过问答、假设上升与概念区分寻找第一原则的活动；不是后世黑格尔式历史辩证法。" },
       { zh: "灵魂三分", en: "tripartite soul", definition: "理性、意气、欲望三种动力的结构模型，用以连接个人冲突、教育和城邦阶层。" },
       { zh: "哲学王", en: "philosopher-ruler", definition: "掌握善与整体秩序、因而被要求统治的哲学家；它把认识论与政治权威相连，也承受罗素最强烈的批评。" },
+      { zh: "分有", en: "participation / methexis", definition: "个别事物以某种方式具有或呈现理念，由此成为可定义和评价的对象；这种关系如何成立正是理念论的内部难题。" },
+      { zh: "回忆说", en: "recollection / anamnēsis", definition: "学习被描述为灵魂在提问引导下重新把握先前可知结构，用以说明感官经验为何能引出普遍知识。" },
+      { zh: "线喻与洞穴", en: "divided line and cave", definition: "把影像、可见物、数学对象与理念排列为认识层级，同时展示教育是灵魂整体转向，而非简单灌输信息。" },
+      { zh: "模仿", en: "mimēsis / imitation", definition: "艺术、语言或可见事物对对象和形式的再现关系；柏拉图既警惕其远离真理，也在对话和神话中主动使用它。" },
     ],
     lineage: {
       inherited: "从苏格拉底继承概念探问与灵魂照料，从巴门尼德继承稳定可知对象，从赫拉克利特吸收感性流变，从毕达哥拉斯传统吸收数学、轮回和共同体生活。",
@@ -1032,6 +1047,10 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "四因", en: "four causes", definition: "材料、形式、动力和目的四类“为什么”。它们不是互相竞争的四个事件，而是不同层次的解释问题。" },
       { zh: "实体", en: "substance / ousia", definition: "首要存在者和属性承担者。亚里士多德不同著作在具体个体、形式与本质之间调整重心。" },
       { zh: "中道", en: "doctrine of the mean", definition: "实践德性在相对于行动者和情境的过度与不足之间作合理由选择，不是机械平均或永远温和。" },
+      { zh: "三段论", en: "syllogism", definition: "若干前提按一定形式推出结论的论证结构；科学三段论还要求前提真实、首要并说明对象的原因。" },
+      { zh: "幸福", en: "eudaimonia / flourishing", definition: "一生中依德性实现人的理性能力的活动，不是瞬间感受；友谊、政治共同体与一定外部条件也不可完全缺少。" },
+      { zh: "实践智慧", en: "phronēsis / practical wisdom", definition: "在具体处境中看出何者重要、怎样选择合宜手段的判断能力；它连接一般德性与不可重复的行动情境。" },
+      { zh: "政治动物", en: "political animal", definition: "人的语言和正义判断在共同体中展开，城邦因此不只是安全契约，也是实践好生活的制度条件。" },
     ],
     lineage: {
       inherited: "在柏拉图学院中形成问题框架，同时吸收前苏格拉底材料论、希波克拉底医学观察和城邦政制经验；其哲学常以整理并修正前人开始。",
@@ -1095,6 +1114,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "直言", en: "parrhēsia / frank speech", definition: "承担风险公开说真话；不是无代价的冒犯，而是只有不依附权势者较能实践的自由。" },
       { zh: "训练", en: "askēsis", definition: "以耐寒、简食、公开羞耻测试等反复练习重塑欲望，使哲学成为身体和习惯的能力。" },
       { zh: "世界公民", en: "kosmopolitēs / citizen of the world", definition: "拒绝把价值和归属完全锁定在出生城邦；它首先是对排他身份的否定，还不是现代国际法意义的公民权。" },
+      { zh: "依自然而活", en: "living according to nature", definition: "让身体的有限需要而非习俗制造的名望、奢侈和羞耻决定生活；‘自然’在这里首先是一种批判尺度。" },
+      { zh: "改铸通货", en: "defacing the currency / paracharattein to nomisma", definition: "既是流亡传说中的铸币事件，也是重新检验社会通行价值的犬儒比喻；历史事实与哲学象征须分开。" },
     ],
     lineage: {
       inherited: "犬儒派自称继承苏格拉底的简朴、公开审问与灵魂优先，经安提斯泰尼传统进一步把德性从理论转成生活训练。",
@@ -1158,6 +1179,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "不动心", en: "ataraxia / tranquility", definition: "不被相反判断和对绝对得失的执着持续扰动；后期皮浪主义把它描述为悬置之后如影随形的结果。" },
       { zh: "表象", en: "phainomena / appearances", definition: "事物当下如何呈现。怀疑者可以承认‘蜂蜜显得甜’，而不进一步断言蜂蜜本性绝对甜。" },
       { zh: "无定性", en: "indeterminacy", definition: "早期证言中事物被说成无差别、不稳定或不可判定；究竟是世界属性还是人的认识处境仍有争议。" },
+      { zh: "等力", en: "equipollence / isostheneia", definition: "对立说法在说服力上势均力敌，因而没有充分理由选择其中一方；该术语主要由后期皮浪主义系统化。" },
+      { zh: "依表象生活", en: "living by appearances", definition: "不判断事物终极本性，仍可依感觉、习惯、技艺和共同规则行动，从而回应怀疑会使人瘫痪的指控。" },
     ],
     lineage: {
       inherited: "可能受德谟克利特关于安宁、智者与苏格拉底对判断限度的讨论影响；东方旅行提供比较背景，但不能凭相似性直接证明佛教来源。",
@@ -1221,6 +1244,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "全面悬置", en: "universal epochē", definition: "不对任何印象作确定真理的同意；它是否为阿尔克西劳的正面主张，还是辩证结果，仍有争议。" },
       { zh: "合理者", en: "eulogon / the reasonable", definition: "在没有确定知识时指导行动的可辩护表象或方案，不等于已被断言为真实。" },
       { zh: "辩证反驳", en: "dialectical argument", definition: "暂取对手前提，展示其导致矛盾或无法达到目标；论证结论不必是怀疑者自己的教义。" },
+      { zh: "不可区分论证", en: "indistinguishability argument", definition: "若真实印象总可能有一个在主观呈现上完全相同的虚假对应，便不存在仅凭呈现即可保证真理的认知标记。" },
+      { zh: "不行动反驳", en: "reply to the inactivity objection", definition: "悬置确定同意不等于无法行动；行动仍可跟随当下合理、可辩护的表象，而不宣称它不可错。" },
     ],
     lineage: {
       inherited: "重新突出柏拉图对话中的苏格拉底审问者，而非理念体系建构者；也继承学院内部对知识、意见和假设的长期区分。",
@@ -1291,6 +1316,8 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "无冲突印象", en: "undiverted impression", definition: "与周围相关表象没有张力的可信印象，是比单一第一印象更高的审查层级。" },
       { zh: "充分检查", en: "thoroughly explored impression", definition: "在重要问题中逐项核验相关条件、替代解释和反例后仍保持说服力的印象。" },
       { zh: "暂时认可", en: "approval", definition: "按可信印象行动，但不作斯多葛式‘实际为真’的完全同意；是否构成较弱信念，古今均有争议。" },
+      { zh: "正反双论", en: "arguments on both sides", definition: "对同一命题分别建立最强支持与反对理由，以暴露自明性不足；罗马的正义演说是最著名但经后世转述的例子。" },
+      { zh: "实践可错论", en: "practical fallibilism", definition: "在拒绝确定知识后，仍按分层检查过的可信印象行动；这是本站对其结构的现代学习性概括，不是古代自用标签。" },
     ],
     lineage: {
       inherited: "继承阿尔克西劳的学院辩证法和对斯多葛认知印象的攻击，也回到柏拉图对知识与意见、假设与证明的区分。",
@@ -1370,6 +1397,9 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "欲望分类", en: "classification of desires", definition: "自然且必要、自然但非必要、空洞欲望三类；分类帮助把有限需要与名望权力等无终点追逐分开。" },
       { zh: "原子偏斜", en: "atomic swerve / clinamen", definition: "原子在无固定时地发生的最小偏移，用于解释碰撞并可能为自主行动留出空间；本人现存文本未直接保存。" },
       { zh: "互不伤害契约", en: "compact neither to harm nor be harmed", definition: "正义不是脱离共同体的永恒实体，而是在具体条件下保障相互安全的协议和制度。" },
+      { zh: "四重药", en: "tetrapharmakos / four-part cure", definition: "神不足惧、死不足忧、善易获得、痛可忍受的后世格言式压缩，把自然学和欲望训练合为记忆工具。" },
+      { zh: "死亡与我无关", en: "death is nothing to us", definition: "一切善恶经验依赖感觉；死亡发生时感觉主体已不存在，因此不能被想象成死者持续承受的状态。" },
+      { zh: "友谊", en: "philia / friendship", definition: "从互助安全开始并发展为自身可贵的共同生活关系，是花园学派把个人安宁变成可持续实践的社会条件。" },
     ],
     lineage: {
       inherited: "采用德谟克利特原子论，却让自然研究明确服务于解除恐惧；也在希腊伦理关于快乐、审慎和友谊的争论中形成独立方案。",
@@ -1449,6 +1479,9 @@ export const philosopherProfiles: PhilosopherProfile[] = [
       { zh: "原子偏斜", en: "clinamen / atomic swerve", definition: "原子运动中的最小无定时偏移，使碰撞可能并为能动性讨论留下空间。" },
       { zh: "死亡对称论证", en: "symmetry argument", definition: "出生前的无感觉并不使我们痛苦，死亡后的无感觉也不应被想象成主体持续承受的损失。" },
       { zh: "蜜糖与苦艾", en: "honeyed cup", definition: "诗歌如杯缘的蜜，使读者愿意服下起初苦涩的自然哲学；形式不是装饰，而是情绪治疗的技术。" },
+      { zh: "灵魂有死", en: "mortality of the soul", definition: "灵魂由细微原子构成并依赖身体组织，身体解体后不能继续感受；这一自然学结论直接服务于消除死后惩罚恐惧。" },
+      { zh: "多重自然解释", en: "multiple explanations", definition: "当天体现象的具体成因无法由证据唯一决定时，可以保留多个彼此相容的自然原因，只要排除神意干预和逻辑不可能。" },
+      { zh: "文明发生史", en: "natural history of civilization", definition: "语言、火、家庭、法律和技术从需要、模仿与试错中逐步形成，无须预设神一次性授予完整制度。" },
     ],
     lineage: {
       inherited: "公开把伊壁鸠鲁称为解放人类的导师，并通过其传统继承德谟克利特原子论；拉丁史诗形式又与恩尼乌斯等罗马诗歌传统对话。",

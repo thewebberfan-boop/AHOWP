@@ -299,9 +299,12 @@ export default function Home() {
 function PhilosopherView({ profile, onPhilosopher, onChapter, showEnglish, onTerm }: { profile: PhilosopherProfile; onPhilosopher: (id: string) => void; onChapter: (id: string) => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const figure = figureEntries.find((item) => item.id === profile.figureId);
   const termText = (text: string) => <TermText text={text} showEnglish={showEnglish} onTerm={onTerm} />;
+  const profileIndex = philosopherProfiles.findIndex((item) => item.id === profile.id);
+  const sequenceStart = Math.min(Math.max(profileIndex - 2, 0), Math.max(philosopherProfiles.length - 5, 0));
+  const sequenceProfiles = philosopherProfiles.slice(sequenceStart, sequenceStart + 5);
 
   return <article className="philosopher-page page-wrap">
-    <nav className="philosopher-sequence" aria-label="切换哲学家">{philosopherProfiles.map((item) => <button className={item.id === profile.id ? "active" : ""} key={item.id} onClick={() => onPhilosopher(item.id)}><span>{String(item.order).padStart(2, "0")}</span><b>{item.nameZh}</b></button>)}</nav>
+    <nav className="philosopher-sequence" aria-label="当前哲学家前后各两位">{sequenceProfiles.map((item) => <button className={item.id === profile.id ? "active" : ""} key={item.id} onClick={() => onPhilosopher(item.id)} aria-current={item.id === profile.id ? "page" : undefined}><span>{String(item.order).padStart(2, "0")}</span><b>{item.nameZh}</b></button>)}</nav>
 
     <header className="profile-hero">
       <div className="profile-portrait">{figure ? <a href={figure.sourcePage} target="_blank" rel="noreferrer" title="查看图像来源"><img src={figure.imagePath} alt={`${profile.nameZh}的后世画像或代表性图像`} /></a> : <span>{profile.nameZh.slice(0, 1)}</span>}<small>古代人物图像仅作视觉识别，不是写实肖像</small></div>
@@ -314,7 +317,7 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, showEnglish, onTer
 
     <section className="profile-section life-section" id="profile-life">
       <header><span>01</span><div><p className="section-label">LIFE IN HISTORY</p><h3>生平与历史位置</h3></div></header>
-      <div className="life-layout"><p className="profile-prose">{termText(profile.lifeSummary)}</p><div className="profile-timeline">{profile.timeline.map((item) => <article key={`${item.date}-${item.title}`}><div><b>{item.date}</b><span className={`certainty certainty-${item.certainty}`}>{item.certainty}</span></div><div><small>{termText(item.place)}</small><h4>{termText(item.title)}</h4><p>{termText(item.detail)}</p></div></article>)}</div></div>
+      <div className="life-layout"><div className="profile-timeline"><article className="profile-overview"><div><b>整体定位</b><span className="certainty">历史语境</span></div><div><h4>{profile.nameZh}处在什么位置？</h4><p>{termText(profile.lifeSummary)}</p></div></article>{profile.timeline.map((item) => <article key={`${item.date}-${item.title}`}><div><b>{item.date}</b><span className={`certainty certainty-${item.certainty}`}>{item.certainty}</span></div><div><small>{termText(item.place)}</small><h4>{termText(item.title)}</h4><p>{termText(item.detail)}</p></div></article>)}</div></div>
     </section>
 
     <section className="profile-section inquiry-section" id="profile-inquiry">
@@ -464,16 +467,26 @@ function ReviewView({ stage, index, flipped, reviewed, onFlip, onOpen, onNext, s
 
 function TermText({ text, showEnglish, onTerm }: { text: string; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const onPlace = useContext(PlaceInteractionContext);
-  return <>{text.split(inlinePattern).map((part, index) => {
+  const parts = text.split(inlinePattern);
+  const joinedPrefixes = parts.map((part, index) => {
+    if (index === 0) return "";
+    const previous = parts[index - 1];
+    if (!geographyByAlias.has(previous) && !terminologyByZh.has(previous)) return "";
+    return part.match(/^([，。；：、！？）》”’】〕］）]*\p{Script=Han})/u)?.[0] || "";
+  });
+
+  return <>{parts.map((part, index) => {
+    const visiblePart = joinedPrefixes[index] ? part.slice(joinedPrefixes[index].length) : part;
+    const joinedFollowingText = joinedPrefixes[index + 1] || "";
     const place = geographyByAlias.get(part);
     if (place && onPlace) {
       const openPlace = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onPlace(place); };
-      return <span className="place-token" role="button" tabIndex={0} key={`place-${place.id}-${index}`} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i>{"\u2060"}</span>;
+      return <span className="inline-token-group" key={`place-${place.id}-${index}`}><span className="place-token" role="button" tabIndex={0} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i></span>{joinedFollowingText}</span>;
     }
     const term = terminologyByZh.get(part);
-    if (!term) return <span key={`${part}-${index}`}>{part}</span>;
+    if (!term) return visiblePart ? <span key={`${part}-${index}`}>{visiblePart}</span> : null;
     const open = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onTerm(term); };
-    return <span className="term-token" role="button" tabIndex={0} key={`${term.id}-${index}`} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${term.en}`}><span>{term.zh}</span>{showEnglish && <small>{term.en}</small>}{"\u2060"}</span>;
+    return <span className="inline-token-group" key={`${term.id}-${index}`}><span className="term-token" role="button" tabIndex={0} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${term.en}`}><span>{term.zh}</span>{showEnglish && <small>{term.en}</small>}</span>{joinedFollowingText}</span>;
   })}</>;
 }
 
