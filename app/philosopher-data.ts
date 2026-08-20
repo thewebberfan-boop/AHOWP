@@ -1,3 +1,5 @@
+import { laterAncientProfiles } from "./philosopher-data-late-ancient";
+
 export type PhilosopherTimelineItem = {
   date: string;
   place: string;
@@ -69,7 +71,7 @@ const russellSource = (chapter: string): PhilosopherSource => ({
   url: "https://www.russell-j.com/cool/HWP_1945.pdf",
 });
 
-export const philosopherProfiles: PhilosopherProfile[] = [
+const earlierPhilosopherProfiles: PhilosopherProfile[] = [
   {
     id: "thales",
     order: 1,
@@ -1504,5 +1506,7 @@ export const philosopherProfiles: PhilosopherProfile[] = [
     ],
   },
 ];
+
+export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles];
 
 export const philosopherById = Object.fromEntries(philosopherProfiles.map((profile) => [profile.id, profile]));

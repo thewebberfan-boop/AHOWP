@@ -82,8 +82,17 @@ export const russellStructureStages: RussellStructureStage[] = [
     schools: [
       { id: "cynic-sceptic", title: "犬儒主义与怀疑主义", english: "Cynicism and Scepticism", response: "分别通过摆脱社会依赖或悬置判断，减少外部世界对人的支配。", sharedPattern: "把哲学直接转化为心理与生活训练。", chapterIds: ["b1-26"], philosophers: [person("diogenes", "第欧根尼", "Diogenes", ["b1-26"], "以激进简朴反抗社会习俗。"), person("pyrrho", "皮浪", "Pyrrho", ["b1-26"], "以悬置判断追求不受扰动。"), person("arcesilaus", "阿尔克西劳", "Arcesilaus", ["b1-26"], "以反诘认知印象，把学院转向悬置判断。"), person("carneades", "卡尔内阿德", "Carneades", ["b1-26"], "在不可确证的世界中，以可信印象保留审慎行动。") ] },
       { id: "epicurean", title: "伊壁鸠鲁派", english: "Epicureanism", response: "通过理解自然、限制欲望和经营友谊消除恐惧。", sharedPattern: "原子论自然观与节制的快乐伦理。", chapterIds: ["b1-27"], philosophers: [person("epicurus", "伊壁鸠鲁", "Epicurus", ["b1-27"], "把无痛苦与心灵宁静设为生活目标。"), person("lucretius", "卢克莱修", "Lucretius", ["b1-27"], "以诗歌把伊壁鸠鲁自然学转化为解除恐惧的训练。") ] },
-      { id: "stoic", title: "斯多葛主义", english: "Stoicism", response: "区分可控制与不可控制之物，以内在同意保持自由。", sharedPattern: "宇宙理性、必然秩序与意志训练。", chapterIds: ["b1-28"], philosophers: [person("zeno", "芝诺", "Zeno of Citium", [], "建立斯多葛传统。"), person("epictetus", "爱比克泰德", "Epictetus", [], "把自由集中于判断和意志。"), person("aurelius", "马可·奥勒留", "Marcus Aurelius", [], "在帝国责任中实践斯多葛训练。") ] },
-      { id: "neoplatonism", title: "新柏拉图主义", english: "Neoplatonism", response: "以从‘一’流溢并向‘一’回归的层级解释世界和灵魂。", sharedPattern: "形而上等级、内在上升与神秘合一。", chapterIds: [], philosophers: [person("plotinus", "普罗提诺", "Plotinus", ["b1-30"], "把古希腊哲学转化为影响基督教时代的精神体系。") ] },
+      { id: "stoic", title: "斯多葛主义", english: "Stoicism", response: "在必然秩序中，把自由安放在判断、同意与恰当行动。", sharedPattern: "创立—系统化—罗马化—角色实践。", chapterIds: ["b1-28"], philosophers: [
+        person("zeno", "季蒂昂的芝诺", "Zeno of Citium", ["b1-28"], "建立逻辑、物理与伦理相连的斯多葛纲领。"),
+        person("cleanthes", "克里安西斯", "Cleanthes", ["b1-28"], "保存早期教义，并把合乎自然表达为自愿顺应宇宙秩序。"),
+        person("chrysippus", "克律西波斯", "Chrysippus", ["b1-28"], "以命题逻辑、因果与心理分析完成学派系统化。"),
+        person("panaetius", "帕奈提奥斯", "Panaetius", ["b1-28", "b1-29"], "以恰当行动和角色伦理把学派接入罗马公共生活。"),
+        person("posidonius", "波塞多尼奥斯", "Posidonius", ["b1-28"], "重建灵魂、自然科学与历史相连的宇宙综合。"),
+        person("seneca", "塞涅卡", "Seneca", ["b1-28", "b1-29"], "在财富、死亡与宫廷权力中检验哲学操练。"),
+        person("epictetus", "爱比克泰德", "Epictetus", ["b1-28", "b1-29"], "把自由集中于选择能力和印象的使用。"),
+        person("aurelius", "马可·奥勒留", "Marcus Aurelius", ["b1-28", "b1-29"], "在帝国责任中实践判断训练与世界城邦义务。"),
+      ] },
+      { id: "neoplatonism", title: "新柏拉图主义", english: "Neoplatonism", response: "以从太一产生并向太一回归的层级解释世界和灵魂。", sharedPattern: "太一—精神—灵魂；流溢、回归与神秘合一。", chapterIds: ["b1-30"], philosophers: [person("plotinus", "普罗提诺", "Plotinus", ["b1-30"], "以太一、精神与灵魂收束古希腊体系，并为基督教时代提供形而上语言。") ] },
     ],
   },
   {
