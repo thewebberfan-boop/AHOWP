@@ -313,21 +313,21 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, showEnglish, onTer
     </header>
 
     <aside className="evidence-caution"><span>证据边界</span><p>{termText(profile.evidenceCaution)}</p></aside>
-    <nav className="profile-local-nav" aria-label="本页内容"><a href="#profile-life">生平</a><a href="#profile-inquiry">问题与推导</a><a href="#profile-concepts">概念</a><a href="#profile-relations">关系与比较</a><a href="#profile-russell">罗素与校正</a></nav>
+    <nav className="profile-local-nav" aria-label="本页内容"><a href="#profile-life">生平</a><a href="#profile-concepts">概念</a><a href="#profile-inquiry">问题与推导</a><a href="#profile-relations">关系与比较</a><a href="#profile-russell">罗素与校正</a></nav>
 
     <section className="profile-section life-section" id="profile-life">
       <header><span>01</span><div><p className="section-label">LIFE IN HISTORY</p><h3>生平与历史位置</h3></div></header>
-      <div className="life-layout"><div className="profile-timeline"><article className="profile-overview"><div><b>整体定位</b><span className="certainty">历史语境</span></div><div><h4>{profile.nameZh}处在什么位置？</h4><p>{termText(profile.lifeSummary)}</p></div></article>{profile.timeline.map((item) => <article key={`${item.date}-${item.title}`}><div><b>{item.date}</b><span className={`certainty certainty-${item.certainty}`}>{item.certainty}</span></div><div><small>{termText(item.place)}</small><h4>{termText(item.title)}</h4><p>{termText(item.detail)}</p></div></article>)}</div></div>
-    </section>
-
-    <section className="profile-section inquiry-section" id="profile-inquiry">
-      <header><span>02</span><div><p className="section-label">OBJECT → QUESTION → INFERENCE</p><h3>研究对象与推导路径</h3></div></header>
-      <div className="inquiry-list">{profile.inquiries.map((inquiry, inquiryIndex) => <article className="inquiry-card" key={inquiry.object}><header><span>{String(inquiryIndex + 1).padStart(2, "0")}</span><div><small>研究对象 · {termText(inquiry.object)}</small><h4>{termText(inquiry.question)}</h4></div></header><div className="logic-start"><span>逻辑起点</span><p>{termText(inquiry.start)}</p></div><div className="logic-chain">{inquiry.steps.map((step, index) => <div key={step}><span>{index + 1}</span><p>{termText(step)}</p>{index < inquiry.steps.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div><div className="logic-conclusion"><span>推导结果</span><p>{termText(inquiry.conclusion)}</p></div></article>)}</div>
+      <div className="life-layout"><div className="profile-timeline"><article className="profile-overview"><div className="timeline-meta"><b>整体定位</b><span className="certainty">历史语境</span></div><div><h4>{profile.nameZh}处在什么位置？</h4><p>{termText(profile.lifeSummary)}</p></div></article>{profile.timeline.map((item) => <article key={`${item.date}-${item.title}`}><div className="timeline-meta"><b>{item.date}</b><div className="timeline-place">{termText(item.place)}</div><span className={`certainty certainty-${item.certainty}`}>{item.certainty}</span></div><div><h4>{termText(item.title)}</h4><p>{termText(item.detail)}</p></div></article>)}</div></div>
     </section>
 
     <section className="profile-section concept-section" id="profile-concepts">
-      <header><span>03</span><div><p className="section-label">CONCEPT SYSTEM</p><h3>概念不是词表，而是推导节点</h3></div></header>
+      <header><span>02</span><div><p className="section-label">CONCEPT SYSTEM</p><h3>先识别概念，再进入推导</h3></div></header>
       <div className="profile-concept-grid">{profile.concepts.map((concept, index) => <article key={concept.zh}><span>{String(index + 1).padStart(2, "0")}</span><h4><TermText text={concept.zh} showEnglish={false} onTerm={onTerm} /></h4>{showEnglish && <small>{concept.en}</small>}<p>{termText(concept.definition)}</p></article>)}</div>
+    </section>
+
+    <section className="profile-section inquiry-section" id="profile-inquiry">
+      <header><span>03</span><div><p className="section-label">OBJECT → QUESTION → INFERENCE</p><h3>研究对象与推导路径</h3></div></header>
+      <div className="inquiry-list">{profile.inquiries.map((inquiry, inquiryIndex) => <article className="inquiry-card" key={inquiry.object}><header><span>{String(inquiryIndex + 1).padStart(2, "0")}</span><div><small>研究对象 · {termText(inquiry.object)}</small><h4>{termText(inquiry.question)}</h4></div></header><div className="logic-start"><span>逻辑起点</span><p>{termText(inquiry.start)}</p></div><div className="logic-chain">{inquiry.steps.map((step, index) => <div key={step}><span>{index + 1}</span><p>{termText(step)}</p>{index < inquiry.steps.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div><div className="logic-conclusion"><span>推导结果</span><p>{termText(inquiry.conclusion)}</p></div></article>)}</div>
     </section>
 
     <section className="profile-section relation-profile-section" id="profile-relations">

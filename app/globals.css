@@ -245,15 +245,15 @@ button { cursor: pointer; }
 .profile-section > header .section-label { margin-bottom: 4px; }
 .life-layout { display: block; }
 .profile-timeline { border-top: 1px solid var(--ink); }
-.profile-timeline article { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+.profile-timeline article { display: grid; grid-template-columns: 175px minmax(0, 1fr); gap: 18px; padding: 13px 0; border-bottom: 1px solid var(--line); }
 .profile-timeline article.profile-overview { padding: 16px 14px; background: var(--green-soft); }
 .profile-timeline article.profile-overview h4 { margin-top: 0; }
 .profile-timeline article.profile-overview p { color: #404840; font-size: var(--type-body); line-height: 1.72; }
-.profile-timeline article > div:first-child b, .profile-timeline article > div:first-child span { display: block; }
-.profile-timeline article > div:first-child b { margin-bottom: 7px; color: var(--red); font-size: 13px; font-weight: 500; }
+.timeline-meta > b, .timeline-meta > .certainty { display: block; }
+.timeline-meta > b { margin-bottom: 5px; color: var(--red); font-size: 13px; font-weight: 500; }
+.timeline-place { margin-bottom: 7px; color: var(--muted); font-size: var(--type-caption); line-height: 1.5; }
 .certainty { width: fit-content; padding: 2px 5px; border: 1px solid var(--line); color: var(--muted); font-size: 11px; }
 .certainty-较可靠 { border-color: var(--green); color: var(--green); }
-.profile-timeline small { color: var(--muted); font-size: var(--type-caption); }
 .profile-timeline h4 { margin: 3px 0 5px; font-size: 16px; font-weight: 500; }
 .profile-timeline p { margin: 0; color: #565a55; font-size: 14px; line-height: 1.55; }
 .inquiry-list { display: grid; gap: 14px; }
@@ -286,14 +286,14 @@ button { cursor: pointer; }
 .lineage-grid span { color: var(--red); font-size: var(--type-caption); font-weight: 600; letter-spacing: .07em; }
 .lineage-grid p { margin: 10px 0 0; font-size: 14px; line-height: 1.68; }
 .comparison-board { margin-top: 14px; border: 1px solid var(--ink); }
-.comparison-heading, .comparison-board > article { display: grid; grid-template-columns: 150px 105px .78fr 1.22fr; }
+.comparison-heading, .comparison-board > article { display: grid; grid-template-columns: minmax(195px, .72fr) 105px minmax(0, .88fr) minmax(0, 1.4fr); }
 .comparison-heading { background: var(--green); color: white; }
 .comparison-heading span { padding: 8px 11px; border-right: 1px solid #65766c; font-size: var(--type-caption); }
 .comparison-board > article > * { margin: 0; padding: 12px 11px; border-right: 1px solid var(--line); }
 .comparison-board > article > *:last-child, .comparison-heading span:last-child { border-right: 0; }
 .comparison-board > article { border-bottom: 1px solid var(--line); }
 .comparison-board > article:last-child { border-bottom: 0; }
-.comparison-board h4 { font-size: 15px; font-weight: 500; }
+.comparison-board h4 { min-width: 0; font-size: 15px; font-weight: 500; }
 .comparison-board p { color: #505550; font-size: 13px; line-height: 1.58; }
 .relation-badge { align-self: start; margin: 10px !important; padding: 3px 6px !important; border: 1px solid var(--red) !important; color: var(--red); font-size: 11px; text-align: center; }
 .russell-correction { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ink); background: var(--paper-light); }
@@ -763,7 +763,9 @@ span.inline-token-group {
   .profile-local-nav { top: 0; display: flex; overflow-x: auto; }
   .profile-local-nav a { flex: 0 0 120px; }
   .profile-section > header { grid-template-columns: 32px 1fr; }
-  .profile-timeline article { grid-template-columns: 92px 1fr; }
+  .profile-timeline article { grid-template-columns: 1fr; gap: 8px; }
+  .timeline-meta { display: flex; flex-wrap: wrap; gap: 5px 9px; align-items: baseline; }
+  .timeline-meta > b, .timeline-place { margin-bottom: 0; }
   .logic-start, .logic-conclusion { grid-template-columns: 1fr; gap: 5px; }
   .logic-chain { grid-template-columns: 1fr; }
   .logic-chain > div { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
