@@ -44,6 +44,7 @@
 - 已增加可直接双击的 `offline-reader/index.html`；正文、搜索、弹窗、复习和本地人物图片可离线使用。
 - 离线入口由 `npm run build:offline` 重复生成，人物图片复用 Git 中的 `public/` 资源，不重复存储。
 - 已建立项目级 Codex 指引、进度记录和两台电脑交替工作的 Git 流程。
+- GitHub `origin` 是两台电脑的代码同步远端；`sites` 远端继续保留给现有托管配置。
 
 ### 哲学家页面：第一批
 

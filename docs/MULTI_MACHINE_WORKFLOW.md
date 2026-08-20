@@ -4,7 +4,7 @@
 
 ## 一次性准备
 
-两台电脑应使用同一个远端仓库。当前仓库的远端名是 `sites`；如果另一台电脑通过常规 `git clone` 获取，远端名通常会是 `origin`。用以下命令确认：
+两台电脑使用同一个 GitHub 仓库同步代码：`https://github.com/thewebberfan-boop/AHOWP.git`。常规克隆后，它的远端名是 `origin`。项目还保留 `sites` 远端用于 Codex Sites 托管；日常跨电脑同步不要把两者混淆。用以下命令确认：
 
 ```bash
 git remote -v
@@ -13,7 +13,7 @@ git remote -v
 新电脑首次运行：
 
 ```bash
-git clone <仓库地址>
+git clone https://github.com/thewebberfan-boop/AHOWP.git
 cd ABHOWP
 nvm install        # 如果使用 nvm
 nvm use
@@ -29,7 +29,7 @@ npm run dev
 
 ```bash
 git status --short
-git pull --ff-only <远端名> main
+git pull --ff-only origin main
 npm ci
 npm run build
 ```
@@ -55,7 +55,7 @@ npm run build
 ```bash
 git add <本轮相关文件>
 git commit -m "Add second philosopher profile batch"
-git push <远端名> main
+git push origin main
 ```
 
 ## 避免冲突
@@ -87,4 +87,9 @@ git push <远端名> main
 
 ## 远端说明
 
-本项目当前配置了 Codex Sites 远端。它是否能在另一台电脑直接认证，取决于两台电脑是否使用同一工作区与凭据。如果不能访问，最稳妥的方式是由用户另建一个自己控制的 GitHub、GitLab 或其他私有仓库，再把它添加为第二远端；不要删除 `sites` 远端，除非已经确认不再需要 Sites 托管。
+本项目使用两个远端，各司其职：
+
+- `origin`：用户控制的 GitHub 仓库，用于两台电脑之间拉取和推送代码。
+- `sites`：Codex Sites 项目远端，用于现有网站托管配置；不作为日常跨电脑同步入口。
+
+不要删除 `sites`，也不要把 GitHub 认证信息写入仓库文件。GitHub 推送权限由每台电脑各自的凭据管理器、GitHub CLI 或个人访问令牌提供。
