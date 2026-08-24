@@ -573,10 +573,13 @@ export const schoolProfiles: SchoolProfile[] = [
   },
 ];
 
-const targetSchoolOrder = (target: string) =>
+export const findSchoolProfileByTarget = (target: string) =>
   schoolProfiles.find((school) =>
     school.nameZh === target || target.startsWith(school.nameZh) || school.nameZh.startsWith(target)
-  )?.order ?? Number.MAX_SAFE_INTEGER;
+  );
+
+const targetSchoolOrder = (target: string) =>
+  findSchoolProfileByTarget(target)?.order ?? Number.MAX_SAFE_INTEGER;
 
 /**
  * Relations follow the five shared relation categories. Within one category,
@@ -592,4 +595,67 @@ export function sortSchoolRelations(relations: SchoolRelation[]) {
       || left.sourceIndex - right.sourceIndex
     )
     .map(({ relation }) => relation);
+}
+
+export type SchoolGraphEvidence = {
+  profileId: string;
+  detail: string;
+};
+
+export type SchoolGraphEdge = {
+  id: string;
+  fromId: string;
+  toId: string;
+  relation: SchoolRelationType;
+  direction: SchoolRelationMeta["direction"];
+  evidence: SchoolGraphEvidence[];
+};
+
+/**
+ * Build one deduplicated edge table for the eight indexed schools. The index is
+ * chronological enough for the current ancient-school set to orient directed
+ * relations from the earlier resource or branch toward the later tradition.
+ * Reciprocal competition still uses the same canonical order only for stable
+ * storage and rendering.
+ */
+export function buildSchoolGraphEdges(): SchoolGraphEdge[] {
+  const edgeMap = new Map<string, SchoolGraphEdge>();
+
+  schoolProfiles.forEach((profile) => {
+    profile.relations.forEach((relation) => {
+      const target = findSchoolProfileByTarget(relation.target);
+      if (!target || target.id === profile.id) return;
+
+      const [from, to] = profile.order < target.order ? [profile, target] : [target, profile];
+      const id = `${relation.relation}:${from.id}:${to.id}`;
+      const existing = edgeMap.get(id);
+      const evidence = { profileId: profile.id, detail: relation.detail };
+
+      if (existing) {
+        if (!existing.evidence.some((item) => item.profileId === evidence.profileId && item.detail === evidence.detail)) {
+          existing.evidence.push(evidence);
+        }
+        return;
+      }
+
+      edgeMap.set(id, {
+        id,
+        fromId: from.id,
+        toId: to.id,
+        relation: relation.relation,
+        direction: schoolRelationMeta[relation.relation].direction,
+        evidence: [evidence],
+      });
+    });
+  });
+
+  return [...edgeMap.values()].sort((left, right) => {
+    const fromLeft = schoolProfiles.find((school) => school.id === left.fromId)?.order ?? 0;
+    const fromRight = schoolProfiles.find((school) => school.id === right.fromId)?.order ?? 0;
+    const toLeft = schoolProfiles.find((school) => school.id === left.toId)?.order ?? 0;
+    const toRight = schoolProfiles.find((school) => school.id === right.toId)?.order ?? 0;
+    return schoolRelationMeta[left.relation].order - schoolRelationMeta[right.relation].order
+      || fromLeft - fromRight
+      || toLeft - toRight;
+  });
 }
