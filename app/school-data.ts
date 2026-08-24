@@ -4,6 +4,65 @@ export type SchoolSource = {
   url: string;
 };
 
+export type SchoolRelationType = "思想来源" | "竞争" | "分化" | "吸收改造" | "后世重构";
+
+export type SchoolRelationMeta = {
+  order: number;
+  direction: "directed" | "reciprocal";
+  temporal: "先行资源" | "同代或相近时期" | "共同传统的支流" | "选择性继承" | "后世接受";
+  mechanism: "概念输入" | "问题论争" | "谱系分叉" | "功能改写" | "翻译、注释与制度化";
+  description: string;
+};
+
+/**
+ * These semantics are shared by the school page and the future school graph.
+ * `order` controls reading order only; `temporal` describes the relation's
+ * historical posture and must not be mistaken for a strict chronology.
+ */
+export const schoolRelationMeta: Record<SchoolRelationType, SchoolRelationMeta> = {
+  "思想来源": {
+    order: 1,
+    direction: "directed",
+    temporal: "先行资源",
+    mechanism: "概念输入",
+    description: "后来的传统把前人的问题、概念或论证当作资源。",
+  },
+  "竞争": {
+    order: 2,
+    direction: "reciprocal",
+    temporal: "同代或相近时期",
+    mechanism: "问题论争",
+    description: "不同传统围绕相近问题提出互相排斥或持续回应的答案。",
+  },
+  "分化": {
+    order: 3,
+    direction: "directed",
+    temporal: "共同传统的支流",
+    mechanism: "谱系分叉",
+    description: "共同来源内部形成不同路线；方向表示谱系分支，不等于严格年代顺序。",
+  },
+  "吸收改造": {
+    order: 4,
+    direction: "directed",
+    temporal: "选择性继承",
+    mechanism: "功能改写",
+    description: "后来的传统选择性继承概念，并将其放入新的体系或目的中。",
+  },
+  "后世重构": {
+    order: 5,
+    direction: "directed",
+    temporal: "后世接受",
+    mechanism: "翻译、注释与制度化",
+    description: "较晚时代通过翻译、注释、制度或新问题重新解释前一传统。",
+  },
+};
+
+export type SchoolRelation = {
+  target: string;
+  relation: SchoolRelationType;
+  detail: string;
+};
+
 export type SchoolProfile = {
   id: string;
   order: number;
@@ -32,11 +91,7 @@ export type SchoolProfile = {
     interaction: string;
   }>;
   development: Array<{ period: string; title: string; detail: string }>;
-  relations: Array<{
-    target: string;
-    relation: "思想来源" | "分化" | "竞争" | "吸收改造" | "后世重构";
-    detail: string;
-  }>;
+  relations: SchoolRelation[];
   influence: Array<{ field: string; detail: string }>;
   russellView: string;
   modernCorrection: string;
@@ -100,9 +155,9 @@ export const schoolProfiles: SchoolProfile[] = [
     ],
     relations: [
       { target: "柏拉图主义", relation: "思想来源", detail: "理念论同时回应赫拉克利特式流变、巴门尼德式存在和毕达哥拉斯式数学秩序。" },
-      { target: "亚里士多德主义", relation: "吸收改造", detail: "亚里士多德以四因和质料—形式重写早期思想，并由此建立西方哲学最有影响力的前史叙述。" },
       { target: "伊壁鸠鲁主义", relation: "思想来源", detail: "伊壁鸠鲁继承德谟克利特的原子和虚空，但改变物理学以服务自由与安宁。" },
       { target: "斯多葛主义", relation: "思想来源", detail: "斯多葛派吸收赫拉克利特的火与逻各斯，却把它们系统化为天意、决定论和伦理秩序。" },
+      { target: "亚里士多德主义", relation: "吸收改造", detail: "亚里士多德以四因和质料—形式重写早期思想，并由此建立西方哲学最有影响力的前史叙述。" },
     ],
     influence: [
       { field: "问题形式", detail: "本原、变化、存在、一与多成为此后形而上学反复使用的最小问题集。" },
@@ -155,9 +210,9 @@ export const schoolProfiles: SchoolProfile[] = [
       { period: "后世", title: "智者形象被重新评价", detail: "长期以来智者主要经柏拉图的批评被理解；现代研究更重视其语言、法律与政治思想的独立价值。" },
     ],
     relations: [
+      { target: "古代怀疑主义", relation: "思想来源", detail: "承认无知和对立论证后来成为怀疑方法的重要资源，但苏格拉底并不等于后来的悬置判断。" },
       { target: "柏拉图主义", relation: "分化", detail: "柏拉图把苏格拉底式伦理审问扩展为理念、灵魂、知识和政治秩序的系统。" },
       { target: "犬儒主义", relation: "分化", detail: "犬儒派把苏格拉底的自足、坦率与生活一致性推向公开、激进的实践。" },
-      { target: "古代怀疑主义", relation: "思想来源", detail: "承认无知和对立论证后来成为怀疑方法的重要资源，但苏格拉底并不等于后来的悬置判断。" },
       { target: "亚里士多德主义", relation: "吸收改造", detail: "亚里士多德把定义、论证和德性教育纳入系统逻辑、伦理与政治研究。" },
     ],
     influence: [
@@ -216,9 +271,9 @@ export const schoolProfiles: SchoolProfile[] = [
     ],
     relations: [
       { target: "前苏格拉底自然哲学诸传统", relation: "思想来源", detail: "流变、存在、数与努斯分别进入柏拉图的知识、形式和宇宙秩序问题。" },
+      { target: "斯多葛主义", relation: "竞争", detail: "双方围绕知识标准、灵魂、宇宙理性和善展开长期争论，也发生概念互借。" },
       { target: "亚里士多德主义", relation: "分化", detail: "亚里士多德保留形式与目的，却反对把形式作为与具体实体分离的独立世界。" },
       { target: "古代怀疑主义", relation: "分化", detail: "学院怀疑主义是柏拉图学园自身的一段历史，同时又与皮浪传统保持差异。" },
-      { target: "斯多葛主义", relation: "竞争", detail: "双方围绕知识标准、灵魂、宇宙理性和善展开长期争论，也发生概念互借。" },
     ],
     influence: [
       { field: "形而上学", detail: "形式、参与、统一层级与灵魂结构成为古代晚期及中世纪哲学的核心资源。" },
@@ -270,10 +325,10 @@ export const schoolProfiles: SchoolProfile[] = [
       { period: "中世纪", title: "阿拉伯语与拉丁语重构", detail: "翻译、注释和神学争论使亚里士多德成为跨宗教的大学知识骨架。" },
     ],
     relations: [
-      { target: "柏拉图主义", relation: "分化", detail: "共同追求可理解形式与善，却在形式是否分离、经验研究地位和政治方案上分道。" },
       { target: "斯多葛主义", relation: "竞争", detail: "双方都建构逻辑—自然—伦理体系，但在实体、逻辑单位、情绪和外物价值上不同。" },
-      { target: "中世纪经院哲学", relation: "后世重构", detail: "经翻译和注释进入伊斯兰、犹太与拉丁思想，成为信仰—理性关系的主要技术语言。" },
+      { target: "柏拉图主义", relation: "分化", detail: "共同追求可理解形式与善，却在形式是否分离、经验研究地位和政治方案上分道。" },
       { target: "近代科学", relation: "吸收改造", detail: "分类、论证和因果追问被继承，地心宇宙与若干目的论解释则成为突破对象。" },
+      { target: "中世纪经院哲学", relation: "后世重构", detail: "经翻译和注释进入伊斯兰、犹太与拉丁思想，成为信仰—理性关系的主要技术语言。" },
     ],
     influence: [
       { field: "知识组织", detail: "学科划分、定义、范畴与证明方式塑造了长期教育制度。" },
@@ -327,8 +382,8 @@ export const schoolProfiles: SchoolProfile[] = [
     ],
     relations: [
       { target: "智者与苏格拉底转向", relation: "思想来源", detail: "继承苏格拉底的德性优先、言行一致和公共审问。" },
-      { target: "斯多葛主义", relation: "分化", detail: "斯多葛派把犬儒生活训练扩展为逻辑—物理—伦理体系，并重新接纳家庭和政治角色。" },
       { target: "伊壁鸠鲁主义", relation: "竞争", detail: "双方都缩减欲望；犬儒以公开挑衅实现自由，伊壁鸠鲁以友谊共同体和安静生活降低扰动。" },
+      { target: "斯多葛主义", relation: "分化", detail: "斯多葛派把犬儒生活训练扩展为逻辑—物理—伦理体系，并重新接纳家庭和政治角色。" },
     ],
     influence: [
       { field: "哲学作为生活", detail: "思想必须在欲望、身体和公开选择中接受检验。" },
@@ -381,9 +436,9 @@ export const schoolProfiles: SchoolProfile[] = [
       { period: "公元 2—3 世纪", title: "塞克斯都的系统保存", detail: "《皮浪主义纲要》等作品保存模式、反驳和按现象生活的成熟版本。" },
     ],
     relations: [
-      { target: "柏拉图主义", relation: "分化", detail: "学院怀疑主义属于学院史，却对是否存在正面柏拉图教义保持克制。" },
       { target: "斯多葛主义", relation: "竞争", detail: "围绕认知印象、同意和行动标准形成古代最精密的认识论争论之一。" },
       { target: "伊壁鸠鲁主义", relation: "竞争", detail: "伊壁鸠鲁派把感觉当作不可反驳的起点；怀疑派追问从感觉到对象本性的推断是否过强。" },
+      { target: "柏拉图主义", relation: "分化", detail: "学院怀疑主义属于学院史，却对是否存在正面柏拉图教义保持克制。" },
       { target: "近代怀疑与经验主义", relation: "后世重构", detail: "古代论证经文艺复兴重新传播，进入蒙田、笛卡尔和休谟的问题背景，但用途各不相同。" },
     ],
     influence: [

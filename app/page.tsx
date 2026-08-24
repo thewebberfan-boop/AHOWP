@@ -7,7 +7,7 @@ import { geographyByAlias, geographyEntries, geographyMatchers, type GeographyEn
 import { historyStages, longLinks, methodAtlas, stageDetailPanels, type DetailNode, type HistoryStage, type ResponseNode } from "./history-data";
 import { philosopherProfiles, type PhilosopherProfile } from "./philosopher-data";
 import { russellStructureStages, type RussellStructureStage } from "./russell-structure-data";
-import { schoolProfiles, type SchoolProfile } from "./school-data";
+import { schoolProfiles, schoolRelationMeta, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
 
 type Mode = "structure" | "schools" | "philosophers" | "history" | "methods" | "chapters" | "review";
@@ -401,7 +401,26 @@ function SchoolView({ profile, onSchool, onPhilosopher, onChapter, showEnglish, 
 
     <section className="school-section" id="school-development">
       <header><span>04</span><div><p className="section-label">DEVELOPMENT & RELATIONS</p><h3>时间发展、内部变化与流派关系</h3></div></header>
-      <div className="school-development-layout"><div className="school-development-timeline"><header className="school-subpanel-heading"><span>时间发展</span><small>同一传统在不同时期怎样改变重心</small></header>{profile.development.map((phase, index) => <article key={`${phase.period}-${phase.title}`}><div><span>{String(index + 1).padStart(2, "0")}</span><b>{phase.period}</b></div><div><h4>{termText(phase.title)}</h4><p>{termText(phase.detail)}</p></div></article>)}</div><div className="school-relations"><header className="school-subpanel-heading"><span>流派关系</span><small>思想来源、分化、竞争与后世改造</small></header>{profile.relations.map((relation) => { const linkedSchool = schoolByName(relation.target); const content = <><div className="school-relation-meta"><span className={`school-relation-badge relation-${relation.relation}`}>{relation.relation}</span></div><div><h4>{termText(relation.target)}</h4><p>{termText(relation.detail)}</p></div>{linkedSchool && <i aria-hidden="true">→</i>}</>; return linkedSchool ? <button key={`${relation.target}-${relation.relation}`} onClick={() => onSchool(linkedSchool.id)}>{content}</button> : <article key={`${relation.target}-${relation.relation}`}>{content}</article>; })}</div></div>
+      <div className="school-development-layout">
+        <div className="school-development-timeline"><header className="school-subpanel-heading"><span>时间发展</span><small>同一传统在不同时期怎样改变重心</small></header>{profile.development.map((phase, index) => <article key={`${phase.period}-${phase.title}`}><div><span>{String(index + 1).padStart(2, "0")}</span><b>{phase.period}</b></div><div><h4>{termText(phase.title)}</h4><p>{termText(phase.detail)}</p></div></article>)}</div>
+        <div className="school-relations">
+          <header className="school-subpanel-heading"><span>流派关系</span><small>思想来源 → 竞争 → 分化 → 吸收改造 → 后世重构</small></header>
+          {profile.relations.map((relation) => {
+            const linkedSchool = schoolByName(relation.target);
+            const relationMeta = schoolRelationMeta[relation.relation];
+            const relationAttributes = {
+              "data-relation-type": relation.relation,
+              "data-relation-direction": relationMeta.direction,
+              "data-relation-temporal": relationMeta.temporal,
+              "data-relation-mechanism": relationMeta.mechanism,
+              "data-relation-order": relationMeta.order,
+              title: relationMeta.description,
+            };
+            const content = <><div className="school-relation-meta"><span className={`school-relation-badge relation-${relation.relation}`}>{relation.relation}</span></div><div><h4>{termText(relation.target)}</h4><p>{termText(relation.detail)}</p></div>{linkedSchool && <i aria-hidden="true">→</i>}</>;
+            return linkedSchool ? <button key={`${relation.target}-${relation.relation}`} onClick={() => onSchool(linkedSchool.id)} {...relationAttributes}>{content}</button> : <article key={`${relation.target}-${relation.relation}`} {...relationAttributes}>{content}</article>;
+          })}
+        </div>
+      </div>
     </section>
 
     <section className="school-section" id="school-influence">
