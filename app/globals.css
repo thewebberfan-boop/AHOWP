@@ -317,6 +317,38 @@ button { cursor: pointer; }
 .philosopher-map-page .school-map-relation-list [data-relation-type="同题比较"] .school-relation-badge { border-color: #77546d; color: #77546d; }
 .philosopher-map-page .school-map-relation-list [data-relation-type="批评关系"] .school-relation-badge { border-color: #b4772f; color: #8d581a; }
 .philosopher-map-page .school-map-relation-list [data-relation-type="后世重构"] .school-relation-badge { border-color: #4e7080; color: #4e7080; }
+.d3-force-comparison { display: grid; gap: 18px; margin-top: 18px; }
+.d3-force-panel { min-width: 0; border: 1px solid var(--ink); background: var(--paper-light); }
+.d3-force-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 22px; align-items: end; padding: 15px 17px; border-bottom: 1px solid var(--line); background: var(--green-soft); }
+.d3-force-heading > div:first-child { min-width: 0; }
+.d3-force-heading span { color: var(--red); font-size: var(--type-caption); letter-spacing: .08em; }
+.d3-force-heading h3 { margin: 4px 0 0; font-size: 18px; font-weight: 500; line-height: 1.35; }
+.d3-force-heading p { max-width: 740px; margin: 6px 0 0; color: #505550; font-size: 12px; line-height: 1.55; }
+.d3-force-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.d3-force-actions button { min-width: 31px; min-height: 31px; padding: 5px 8px; border: 1px solid var(--green); background: rgba(250, 248, 242, .65); color: var(--green); font-size: var(--type-caption); }
+.d3-force-actions button:hover, .d3-force-actions button:focus-visible, .d3-force-actions button.active { outline: none; background: var(--green); color: white; }
+.d3-force-legend { display: flex; flex-wrap: wrap; gap: 8px 17px; min-height: 39px; padding: 9px 17px; border-bottom: 1px solid var(--line); }
+.d3-force-legend span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: var(--type-caption); }
+.d3-force-legend i { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(38, 47, 41, .2); }
+.d3-force-stage { overflow: auto; background: var(--paper-light); scrollbar-color: var(--line) transparent; }
+.d3-force-svg { display: block; width: 100%; min-width: 900px; height: auto; aspect-ratio: 1000 / 440; touch-action: none; }
+.d3-force-background { fill: #f7f4ec; background: var(--paper-light); }
+.d3-force-root { transform-origin: 0 0; }
+.d3-force-link { opacity: .46; stroke-width: 1.25; }
+.d3-force-link.active { opacity: .92; stroke-width: 2.3; }
+.d3-force-link.muted { opacity: .045; }
+.d3-force-node { cursor: grab; outline: none; }
+.d3-force-node:active { cursor: grabbing; }
+.d3-force-node circle { filter: drop-shadow(2px 2px 1px rgba(49, 75, 61, .16)); transition: opacity .14s ease, stroke-width .14s ease; }
+.d3-force-node:hover circle, .d3-force-node:focus-visible circle { stroke: var(--red); stroke-width: 3px; }
+.d3-force-node.active circle { stroke: var(--red); stroke-width: 4px; opacity: 1; }
+.d3-force-node.muted { opacity: .16; }
+.d3-force-index { pointer-events: none; fill: var(--paper-light); font: 8px/1 Arial, sans-serif; }
+.d3-force-node-relation .d3-force-index { fill: var(--red); }
+.d3-force-label { pointer-events: none; fill: var(--ink); font: 500 11px/1.2 Arial, "PingFang SC", sans-serif; paint-order: stroke; stroke: rgba(250, 248, 242, .92); stroke-width: 3px; stroke-linejoin: round; }
+.d3-force-sublabel { fill: var(--muted); font-size: 8px; font-weight: 400; }
+.d3-force-panel footer { display: flex; flex-wrap: wrap; gap: 7px 20px; padding: 8px 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
+.d3-force-panel footer span::before { content: "·"; margin-right: 6px; color: var(--red); }
 .school-hero { display: grid; grid-template-columns: 70px minmax(0, 1fr) minmax(255px, .62fr); gap: 22px; align-items: start; padding: 4px 0 27px; border-bottom: 1px solid var(--ink); }
 .school-hero-index { display: grid; gap: 8px; justify-items: start; color: var(--red); }
 .school-hero-index > span { font-size: 24px; }
@@ -368,9 +400,10 @@ button { cursor: pointer; }
 .school-philosopher-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 9px; }
 .school-philosopher-grid > button { position: relative; display: grid; grid-template-columns: 74px minmax(0, 1fr) 16px; gap: 13px; min-width: 0; padding: 12px; border: 1px solid var(--line); background: rgba(250, 248, 242, .6); text-align: left; }
 .school-philosopher-grid > button:hover, .school-philosopher-grid > button:focus-visible { outline: none; border-color: var(--green); background: var(--paper-light); }
-.school-person-portrait { display: block; width: 74px; height: 90px; overflow: hidden; background: var(--green-soft); }
+.school-person-portrait { position: relative; display: block; width: 74px; height: 90px; overflow: hidden; background: var(--green-soft); }
 .school-person-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; filter: saturate(.62) contrast(1.05); }
 .school-person-portrait > i { display: grid; place-items: center; height: 100%; color: var(--green); font: normal 26px var(--serif); }
+.school-person-rating { position: absolute; right: 4px; bottom: 4px; max-width: calc(100% - 8px); overflow: hidden; padding: 3px 4px 2px; background: rgba(250, 248, 242, .88); color: #6f6858; font: 9px/1 Georgia, serif; letter-spacing: .2px; white-space: nowrap; }
 .school-person-copy { min-width: 0; }
 .school-person-copy > small { display: block; color: var(--red); font-size: var(--type-caption); }
 .school-person-copy > b { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: baseline; margin-top: 4px; font-size: 17px; font-weight: 500; }
@@ -998,6 +1031,8 @@ span.place-token {
   .school-map-hero > aside { width: 100%; max-width: none; }
   .school-map-toolbar { align-items: stretch; flex-direction: column; }
   .school-map-toolbar > button { align-self: flex-start; }
+  .d3-force-heading { grid-template-columns: 1fr; gap: 12px; align-items: start; }
+  .d3-force-actions { justify-content: flex-start; }
   .school-map-relation-list { grid-template-columns: 1fr; }
   .school-map-relation-list article, .school-map-relation-list article:nth-child(2n), .school-map-relation-list article:nth-last-child(-n + 2) { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
   .school-map-relation-list article:last-child { border-bottom: 0; }

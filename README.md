@@ -60,7 +60,7 @@ npm run lint
 
 详细步骤见 [docs/MULTI_MACHINE_WORKFLOW.md](docs/MULTI_MACHINE_WORKFLOW.md)。Codex 在任何一台电脑接手时应先阅读 [AGENTS.md](AGENTS.md) 和 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)。
 
-若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录当前所有页面模式、人物与流派图谱、Section 01—06、搜索、星级、滚动位置恢复、离线构建和视觉响应式约束。
+若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录当前所有页面模式、顶部导航默认进入人物／流派图谱、Section 01—06、搜索、星级、滚动位置恢复、离线构建和视觉响应式约束。
 
 ## 主要文件
 
@@ -73,6 +73,8 @@ npm run lint
 - `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
 - `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。
 - `app/philosopher-data-medieval.ts`：第二卷 24 位人物的结构化资料、关系、星级和来源。
+- `app/d3-force-graph.tsx`：两种可复用的 D3.js 力导向图、拖拽、缩放、复位与同步聚焦。
+- `app/philosopher-graph.tsx`、`app/school-graph.tsx`：各自的关系数据适配、双图比较和详情下钻。
 - `app/terminology-data.ts`：中英双语术语。
 - `app/geography-data.ts`：地点、历史语境和地图数据。
 - `visual-archive/figures.json`：人物图像来源、许可和证据说明。
@@ -85,5 +87,5 @@ npm run lint
 - 罗素原书是叙述主轴，但罗素的评价必须与一般史实、现代研究和学习性重构分开。
 - 不把“观点相似”写成“直接影响”；人物传承关系须区分影响后继与承接前人，并与同题比较、批评关系、后世重构分开。
 - 哲学家页面优先呈现“研究对象 → 逻辑起点 → 推导步骤 → 概念 → 结论”，避免写成连续小传。
-- 古代人物的年代、轶事和肖像常不可靠，页面必须保留证据等级与图像说明。
+- 古代和中世纪人物的年代、轶事和肖像常不可靠，页面必须保留证据等级与图像说明；当前 53 位人物中 52 位已有许可与来源记录，罗瑟林仍明确保留图像缺口。
 - 每次增加内容时优先保证信息密度、信息质量和结构复用，而不是机械追求统一字数。

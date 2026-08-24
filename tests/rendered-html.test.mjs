@@ -33,28 +33,45 @@ test("server-renders the current learning map shell", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, graph, medieval, medievalSchools, schoolGraph, spec, status] = await Promise.all([
+  const [page, graph, forceGraph, medieval, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/d3-force-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-data-medieval.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("docs/SYSTEM_SPEC.md", projectRoot), "utf8"),
     readFile(new URL("docs/PROJECT_STATUS.md", projectRoot), "utf8"),
+    readFile(new URL("visual-archive/figures.json", projectRoot), "utf8"),
   ]);
 
   assert.match(page, /PhilosopherGraphView/);
   assert.match(page, /哲学家图谱/);
+  assert.match(page, /onClick=\{openPhilosopherGraph\}>哲学家/);
+  assert.match(page, /onClick=\{openSchoolGraph\}>哲学流派/);
+  assert.match(page, /school-person-rating/);
   assert.match(graph, /承接前人/);
   assert.match(graph, /影响后继/);
-  assert.match(graph, /显示全部关系/);
+  assert.match(graph, /D3\.js 多类型节点力导向网络图/);
+  assert.match(graph, /D3\.js 力导向人物关系图/);
+  assert.match(forceGraph, /forceSimulation/);
+  assert.match(forceGraph, /zoomIdentity/);
+  assert.match(forceGraph, /drag/);
+  assert.match(forceGraph, /全部关系/);
+  assert.match(forceGraph, /const width = 1000/);
+  assert.match(forceGraph, /const height = 440/);
   assert.match(medieval, /托马斯·阿奎那/);
   assert.match(medieval, /帕多瓦的马西略/);
   assert.match(medievalSchools, /教父哲学与拉丁基督教传统/);
   assert.match(medievalSchools, /伊斯兰哲学：法尔萨法与卡拉姆批评/);
   assert.match(medievalSchools, /方济各会经院哲学与唯名论/);
   assert.match(schoolGraph, /schoolProfiles\.length/);
+  assert.match(schoolGraph, /D3\.js 力导向流派关系图/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /53 位人物/);
   assert.match(status, /17 个流派/);
+
+  const { figures } = JSON.parse(figuresText);
+  assert.equal(figures.find((figure) => figure.id === "philo-alexandria")?.status, "ready");
+  assert.equal(figures.find((figure) => figure.id === "duns-scotus")?.status, "ready");
 });

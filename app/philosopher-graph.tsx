@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { philosopherProfiles, type PhilosopherComparison } from "./philosopher-data";
+import { D3ForceGraph, type ForceGraphLink, type ForceGraphNode } from "./d3-force-graph";
 
 type PhilosopherGraphRelation = PhilosopherComparison["relation"];
 type PhilosopherGraphEdge = {
@@ -13,11 +14,6 @@ type PhilosopherGraphEdge = {
   evidence: Array<{ profileId: string; detail: string }>;
 };
 
-const graphWidth = 1120;
-const nodeWidth = 148;
-const nodeHeight = 76;
-const columns = 6;
-const graphHeight = Math.max(760, 48 + Math.ceil(philosopherProfiles.length / columns) * 145);
 const relationTypes: PhilosopherGraphRelation[] = ["承接前人", "影响后继", "同题比较", "批评关系", "后世重构"];
 const relationDescriptions: Record<PhilosopherGraphRelation, string> = {
   "承接前人": "当前人物从前人处接收问题、概念或生活方案。",
@@ -33,14 +29,6 @@ const relationColors: Record<PhilosopherGraphRelation, string> = {
   "批评关系": "#b4772f",
   "后世重构": "#4e7080",
 };
-const relationMarkerIds: Record<PhilosopherGraphRelation, string> = {
-  "承接前人": "philosopher-map-arrow-inherit",
-  "影响后继": "philosopher-map-arrow-influence",
-  "同题比较": "philosopher-map-arrow-compare",
-  "批评关系": "philosopher-map-arrow-critique",
-  "后世重构": "philosopher-map-arrow-reconstruct",
-};
-
 const findPhilosopher = (target: string) => philosopherProfiles.find((profile) => profile.nameZh === target || target.startsWith(profile.nameZh) || profile.nameZh.startsWith(target));
 
 const buildPhilosopherGraphEdges = () => {
@@ -70,31 +58,35 @@ const buildPhilosopherGraphEdges = () => {
   });
 };
 
-const nodePosition = (order: number) => {
-  const index = order - 1;
-  return { x: 22 + (index % columns) * 181, y: 24 + Math.floor(index / columns) * 145 };
-};
-
-const edgePath = (edge: PhilosopherGraphEdge) => {
-  const from = philosopherProfiles.find((profile) => profile.id === edge.fromId);
-  const to = philosopherProfiles.find((profile) => profile.id === edge.toId);
-  if (!from || !to) return "";
-  const start = nodePosition(from.order);
-  const end = nodePosition(to.order);
-  const startX = start.x + nodeWidth;
-  const startY = start.y + nodeHeight / 2;
-  const endX = end.x;
-  const endY = end.y + nodeHeight / 2;
-  const controlX = startX + (endX - startX) / 2;
-  return `M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}`;
+const philosopherGroup = (order: number) => {
+  if (order <= 10) return "前苏格拉底";
+  if (order <= 14) return "古典希腊";
+  if (order <= 29) return "希腊化—罗马";
+  if (order <= 38) return "教父与早期中世纪";
+  if (order <= 42) return "伊斯兰与犹太";
+  return "经院与政教";
 };
 
 export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { initialPhilosopherId: string; onPhilosopher: (id: string) => void }) {
   const edges = useMemo(() => buildPhilosopherGraphEdges(), []);
   const [focusedId, setFocusedId] = useState<string | null>(initialPhilosopherId);
+  const graphNodes = useMemo<ForceGraphNode[]>(() => philosopherProfiles.map((profile) => ({
+    id: profile.id,
+    order: profile.order,
+    label: profile.nameZh,
+    subtitle: profile.school,
+    group: philosopherGroup(profile.order),
+  })), []);
+  const graphLinks = useMemo<ForceGraphLink[]>(() => edges.map((edge) => ({
+    id: edge.id,
+    source: edge.fromId,
+    target: edge.toId,
+    relation: edge.relation,
+    directed: !edge.reciprocal,
+    reciprocal: edge.reciprocal,
+  })), [edges]);
   const focused = philosopherProfiles.find((profile) => profile.id === focusedId);
   const focusedEdges = focused ? edges.filter((edge) => edge.fromId === focused.id || edge.toId === focused.id) : edges;
-  const connectedIds = new Set(focusedEdges.flatMap((edge) => [edge.fromId, edge.toId]));
 
   return <article className="school-map-page philosopher-map-page page-wrap">
     <header className="school-map-hero">
@@ -102,29 +94,30 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
       <aside><div><span>人物节点</span><b>{philosopherProfiles.length}</b></div><div><span>关系边</span><b>{edges.length}</b></div><div><span>关系类型</span><b>{relationTypes.length}</b></div></aside>
     </header>
 
-    <section className="school-map-panel" aria-label="哲学家关系图">
-      <header className="school-map-toolbar">
-        <div className="school-map-legend" aria-label="人物关系类型图例">{relationTypes.map((type) => <span key={type} data-relation-type={type}><i aria-hidden="true" />{type}</span>)}</div>
-        <button className={!focusedId ? "active" : ""} aria-pressed={!focusedId} onClick={() => setFocusedId(null)}>显示全部关系</button>
-      </header>
-      <div className="school-map-scroll">
-        <div className="school-map-canvas philosopher-map-canvas" style={{ width: graphWidth, height: graphHeight }}>
-          <svg className="school-map-lines" viewBox={`0 0 ${graphWidth} ${graphHeight}`} aria-hidden="true">
-            <defs>{relationTypes.map((type) => <marker key={type} id={relationMarkerIds[type]} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M 0 0 L 8 4 L 0 8 z" fill={relationColors[type]} /></marker>)}</defs>
-            {edges.map((edge) => {
-              const active = !focusedId || edge.fromId === focusedId || edge.toId === focusedId;
-              return <path key={edge.id} d={edgePath(edge)} className={`philosopher-map-edge ${active ? "active" : "muted"}`} data-relation-type={edge.relation} markerEnd={!edge.reciprocal ? `url(#${relationMarkerIds[edge.relation]})` : undefined} />;
-            })}
-          </svg>
-          {philosopherProfiles.map((profile) => {
-            const position = nodePosition(profile.order);
-            const active = profile.id === focusedId;
-            const connected = !focusedId || connectedIds.has(profile.id);
-            return <button key={profile.id} className={`philosopher-map-node${active ? " active" : ""}${connected ? " connected" : " muted"}`} style={{ left: position.x, top: position.y, width: nodeWidth, minHeight: nodeHeight }} aria-pressed={active} aria-label={`聚焦哲学家：${profile.nameZh}`} onClick={() => setFocusedId(profile.id)}><span>{String(profile.order).padStart(2, "0")}</span><b>{profile.nameZh}</b><small>{profile.school}</small></button>;
-          })}
-        </div>
-      </div>
-    </section>
+    <div className="d3-force-comparison" aria-label="两种 D3.js 哲学家图谱方案比较">
+      <D3ForceGraph
+        variant="typed"
+        title="D3.js 多类型节点力导向网络图"
+        description="按六个历史阶段形成多中心聚类，优先观察人物在时代群组中的位置与跨组连接。"
+        ariaLabel="哲学家多类型节点力导向网络图"
+        nodes={graphNodes}
+        links={graphLinks}
+        relationColors={relationColors}
+        focusedId={focusedId}
+        onFocus={setFocusedId}
+      />
+      <D3ForceGraph
+        variant="relation"
+        title="D3.js 力导向人物关系图"
+        description="由人物关系边决定布局，节点大小随连接数量变化，优先观察中心人物与局部关系团簇。"
+        ariaLabel="哲学家力导向人物关系图"
+        nodes={graphNodes}
+        links={graphLinks}
+        relationColors={relationColors}
+        focusedId={focusedId}
+        onFocus={setFocusedId}
+      />
+    </div>
 
     <section className="school-map-detail philosopher-map-detail" aria-live="polite">
       {focused ? <>

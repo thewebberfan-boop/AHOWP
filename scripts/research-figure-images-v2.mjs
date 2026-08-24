@@ -4,8 +4,27 @@ import path from "node:path";
 
 const projectRoot = process.cwd();
 const termSource = await readFile(path.join(projectRoot, "app/terminology-data.ts"), "utf8");
-const people = [...termSource.matchAll(/\{ id: "([^"]+)", zh: "([^"]+)", en: "([^"]+)", category: "人物"/g)]
+const terminologyPeople = [...termSource.matchAll(/\{ id: "([^"]+)", zh: "([^"]+)", en: "([^"]+)", category: "人物"/g)]
   .map(([, id, zh, en]) => ({ id, zh, en }));
+const medievalProfilePeople = [
+  { id: "philo-alexandria", zh: "亚历山大的斐洛", en: "Philo of Alexandria" },
+  { id: "origen", zh: "奥利金", en: "Origen" },
+  { id: "ambrose", zh: "米兰的安布罗斯", en: "Ambrose of Milan" },
+  { id: "jerome", zh: "哲罗姆", en: "Jerome" },
+  { id: "boethius", zh: "波爱修斯", en: "Boethius" },
+  { id: "gregory-great", zh: "大格列高利", en: "Gregory the Great" },
+  { id: "anselm", zh: "坎特伯雷的安瑟伦", en: "Anselm of Canterbury" },
+  { id: "roscelin", zh: "罗瑟林", en: "Roscelin" },
+  { id: "abelard", zh: "彼得·阿伯拉尔", en: "Peter Abelard" },
+  { id: "bernard-clairvaux", zh: "克莱尔沃的伯尔纳", en: "Bernard of Clairvaux" },
+  { id: "al-ghazali", zh: "安萨里", en: "al-Ghazali" },
+  { id: "maimonides", zh: "迈蒙尼德", en: "Maimonides" },
+  { id: "albert-great", zh: "大阿尔伯特", en: "Albert the Great" },
+  { id: "bonaventure", zh: "波那文图拉", en: "Bonaventure" },
+  { id: "duns-scotus", zh: "邓斯·司各脱", en: "Duns Scotus" },
+  { id: "marsilius-padua", zh: "帕多瓦的马西略", en: "Marsilius of Padua" },
+];
+const people = [...new Map([...terminologyPeople, ...medievalProfilePeople].map((person) => [person.id, person])).values()];
 const pageOverrides = {
   anaximenes: "Anaximenes of Miletus",
   zeno: "Zeno of Citium",
@@ -14,6 +33,23 @@ const pageOverrides = {
   benedict: "Benedict of Nursia",
   eriugena: "John Scotus Eriugena",
   aurelius: "Marcus Aurelius",
+  "philo-alexandria": "Philo",
+  ambrose: "Ambrose",
+  "gregory-great": "Pope Gregory I",
+  anselm: "Anselm of Canterbury",
+  "bernard-clairvaux": "Bernard of Clairvaux",
+  "al-ghazali": "Al-Ghazali",
+  "albert-great": "Albertus Magnus",
+  "marsilius-padua": "Marsilius of Padua",
+};
+const manualCommonsFiles = {
+  "philo-alexandria": "PhiloThevet.jpg",
+  anselm: "Anselm of Canterbury.jpg",
+  abelard: "Piotr Abelard (cropped).jpg",
+  "bernard-clairvaux": "Bernard of Clairvaux - Gutenburg - 13206.jpg",
+  "al-ghazali": "Al Ghazzali illustration.gif",
+  maimonides: "Maimonides-2.jpg",
+  "duns-scotus": "Scoto (Duns Scoto).jpg",
 };
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const stripHtml = (value = "") => value.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").trim();
@@ -55,13 +91,19 @@ try {
 
 const records = await mapLimit(people, 1, async (person) => {
   const existing = existingById.get(person.id);
-  if (existing?.status === "ready" && existing.image?.localPath && existsSync(path.join(projectRoot, "public", existing.image.localPath.replace(/^\//, "")))) return existing;
+  const manualFile = manualCommonsFiles[person.id];
+  if (existing?.status === "ready"
+    && existing.image?.localPath
+    && (!manualFile || existing.image.commonsFile === manualFile)
+    && existsSync(path.join(projectRoot, "public", existing.image.localPath.replace(/^\//, "")))) return existing;
   const pageTitle = pageOverrides[person.id] || person.en.replace(/\s*\(.+?\)\s*/g, " ").replace(/^Saint /, "").trim();
   const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(pageTitle.replaceAll(" ", "_"))}`;
   const summaryResponse = await fetchWithRetry(summaryUrl, { headers: { "User-Agent": "AHOWP-study-archive/1.0 (educational local project)" } });
   if (!summaryResponse.ok) return { id: person.id, zh: person.zh, en: person.en, status: "needs_manual_image", pageTitle, representationCaution: "尚未自动找到可靠的公共图像。" };
   const summary = await summaryResponse.json();
   const sourceImage = summary.originalimage?.source || summary.thumbnail?.source || null;
+  const commonsFile = manualCommonsFiles[person.id]
+    || (sourceImage ? decodeURIComponent(new URL(sourceImage).pathname.split("/").at(-1)).replaceAll("_", " ") : null);
   const base = {
     id: person.id,
     zh: person.zh,
@@ -71,13 +113,11 @@ const records = await mapLimit(people, 1, async (person) => {
     wikidataId: summary.wikibase_item || null,
     wikidataUrl: summary.wikibase_item ? `https://www.wikidata.org/wiki/${summary.wikibase_item}` : null,
     description: summary.description || null,
-    status: sourceImage ? "ready" : "needs_manual_image",
+    status: commonsFile ? "ready" : "needs_manual_image",
     representationCaution: "古代与中世纪人物的雕像、手稿插图或后世画像通常不是写实肖像，应作为视觉识别符号使用。",
     image: null,
   };
-  if (!sourceImage) return base;
-
-  const commonsFile = decodeURIComponent(new URL(sourceImage).pathname.split("/").at(-1)).replaceAll("_", " ");
+  if (!commonsFile) return base;
   const commonsUrl = new URL("https://commons.wikimedia.org/w/api.php");
   commonsUrl.search = new URLSearchParams({ action: "query", titles: `File:${commonsFile}`, prop: "imageinfo", iiprop: "url|extmetadata|mime", iiurlwidth: "900", format: "json", origin: "*" });
   const commonsResponse = await fetchWithRetry(commonsUrl, { headers: { "User-Agent": "AHOWP-study-archive/1.0 (educational local project)" } });
@@ -89,10 +129,10 @@ const records = await mapLimit(people, 1, async (person) => {
 
   const assetUrl = info.thumburl || info.url;
   const mime = info.thumbmime || info.mime || "image/jpeg";
-  const extension = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
+  const extension = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : mime.includes("gif") ? "gif" : "jpg";
   const filename = `${person.id}.${extension}`;
   const localPath = path.join(imageDir, filename);
-  if (!existsSync(localPath)) {
+  if (!existsSync(localPath) || existing?.image?.commonsFile !== commonsFile) {
     const assetResponse = await fetchWithRetry(assetUrl, { headers: { "User-Agent": "AHOWP-study-archive/1.0 (educational local project)" } });
     if (assetResponse.ok) await writeFile(localPath, Buffer.from(await assetResponse.arrayBuffer()));
   }
