@@ -105,7 +105,7 @@ function includesText(parts: Array<string | undefined>, needle: string) {
 }
 
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("structure");
+  const [mode, setMode] = useState<Mode>("schools");
   const [structureStageId, setStructureStageId] = useState("hellenistic-roman");
   const [schoolId, setSchoolId] = useState("stoicism");
   const [philosopherId, setPhilosopherId] = useState("thales");
