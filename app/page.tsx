@@ -5,6 +5,7 @@ import { bookLabels, chapters, notes, type BookKey } from "./book-data";
 import { figureEntries, figuresForChapter, type FigureEntry } from "./figure-data";
 import { geographyByAlias, geographyEntries, geographyMatchers, type GeographyEntry } from "./geography-data";
 import { historyStages, longLinks, methodAtlas, stageDetailPanels, type DetailNode, type HistoryStage, type ResponseNode } from "./history-data";
+import { formatLanguageLabel } from "./language-label";
 import { philosopherProfiles, type PhilosopherProfile } from "./philosopher-data";
 import { russellStructureStages, type RussellStructureStage } from "./russell-structure-data";
 import { SchoolGraphView } from "./school-graph";
@@ -476,7 +477,13 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, originLabel, onBac
 
     <section className="profile-section concept-section" id="profile-concepts">
       <header><span>02</span><div><p className="section-label">CONCEPT SYSTEM</p><h3>先识别概念，再进入推导</h3></div></header>
-      <div className="profile-concept-grid">{profile.concepts.map((concept, index) => <article key={concept.zh}><span>{String(index + 1).padStart(2, "0")}</span><h4><TermText text={concept.zh} showEnglish={false} onTerm={onTerm} /></h4>{showEnglish && <small>{concept.en}</small>}<p>{termText(concept.definition)}</p></article>)}</div>
+      <div className="profile-concept-grid">{profile.concepts.map((concept, index) => {
+        const label = formatLanguageLabel(concept.en);
+        const knownTerm = terminologyByZh.get(concept.zh);
+        const conceptTerm: TermEntry = knownTerm ? { ...knownTerm, en: label.english, original: knownTerm.original || label.original } : { id: `${profile.id}-${index}`, zh: concept.zh, en: label.english, original: label.original, category: "概念", note: concept.definition };
+        const openConcept = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onTerm(conceptTerm); };
+        return <article key={concept.zh}><span>{String(index + 1).padStart(2, "0")}</span><h4><span className="term-token" role="button" tabIndex={0} onClick={openConcept} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openConcept(event); }} aria-label={`查看术语：${conceptTerm.zh}，${conceptTerm.en}`}><span>{concept.zh}</span></span></h4>{showEnglish && label.english && <small>{label.english}</small>}<p>{termText(concept.definition)}</p></article>;
+      })}</div>
     </section>
 
     <section className="profile-section inquiry-section" id="profile-inquiry">
@@ -622,25 +629,17 @@ function ReviewView({ stage, index, flipped, reviewed, onFlip, onOpen, onNext, s
 function TermText({ text, showEnglish, onTerm }: { text: string; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const onPlace = useContext(PlaceInteractionContext);
   const parts = text.split(inlinePattern);
-  const joinedPrefixes = parts.map((part, index) => {
-    if (index === 0) return "";
-    const previous = parts[index - 1];
-    if (!geographyByAlias.has(previous) && !terminologyByZh.has(previous)) return "";
-    return part.match(/^([，。；：、！？）》”’】〕］）]*\p{Script=Han})/u)?.[0] || "";
-  });
-
   return <>{parts.map((part, index) => {
-    const visiblePart = joinedPrefixes[index] ? part.slice(joinedPrefixes[index].length) : part;
-    const joinedFollowingText = joinedPrefixes[index + 1] || "";
     const place = geographyByAlias.get(part);
     if (place && onPlace) {
       const openPlace = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onPlace(place); };
-      return <span className="inline-token-group" key={`place-${place.id}-${index}`}><span className="place-token" role="button" tabIndex={0} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i></span>{joinedFollowingText}</span>;
+      return <span className="place-token" key={`place-${place.id}-${index}`} role="button" tabIndex={0} onClick={openPlace} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") openPlace(event); }} aria-label={`查看地点：${place.nameZh}，${place.nameEn}`}><span>{part}</span>{showEnglish && <small>{place.nameEn}</small>}<i aria-hidden="true">⌖</i></span>;
     }
     const term = terminologyByZh.get(part);
-    if (!term) return visiblePart ? <span key={`${part}-${index}`}>{visiblePart}</span> : null;
+    if (!term) return part ? <span key={`${part}-${index}`}>{part}</span> : null;
     const open = (event: SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); onTerm(term); };
-    return <span className="inline-token-group" key={`${term.id}-${index}`}><span className="term-token" role="button" tabIndex={0} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${term.en}`}><span>{term.zh}</span>{showEnglish && <small>{term.en}</small>}</span>{joinedFollowingText}</span>;
+    const label = formatLanguageLabel(term.en);
+    return <span className="term-token" key={`${term.id}-${index}`} role="button" tabIndex={0} onClick={open} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") open(event); }} aria-label={`查看术语：${term.zh}，${label.english}`}><span>{term.zh}</span>{showEnglish && label.english && <small>{label.english}</small>}</span>;
   })}</>;
 }
 
@@ -655,7 +654,9 @@ function TermModal({ term, onClose }: { term: TermEntry; onClose: () => void }) 
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [onClose]);
 
-  return <div className="term-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="term-modal" role="dialog" aria-modal="true" aria-labelledby="term-modal-title"><button className="modal-close" aria-label="关闭术语卡" onClick={onClose}>×</button><p className="eyebrow">{term.category} · BILINGUAL TERM</p><h2 id="term-modal-title">{term.zh}</h2><p className="term-english">{term.en}</p>{term.alternatives?.length && <div className="term-alternatives"><span>其他常见译法</span><p>{term.alternatives.join(" / ")}</p></div>}<div className="term-note"><span>在本网站中的识别线索</span><p>{term.note}</p></div><button className="modal-done" onClick={onClose}>理解了，返回阅读</button></section></div>;
+  const label = formatLanguageLabel(term.en);
+  const original = term.original || label.original;
+  return <div className="term-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="term-modal" role="dialog" aria-modal="true" aria-labelledby="term-modal-title"><button className="modal-close" aria-label="关闭术语卡" onClick={onClose}>×</button><p className="eyebrow">{term.category} · BILINGUAL TERM</p><h2 id="term-modal-title">{term.zh}</h2><p className="term-english">{label.english}</p>{original && <div className="term-original"><span>原文术语</span><p>{original}</p></div>}{term.alternatives?.length && <div className="term-alternatives"><span>其他常见译法</span><p>{term.alternatives.join(" / ")}</p></div>}<div className="term-note"><span>在本网站中的识别线索</span><p>{term.note}</p></div><button className="modal-done" onClick={onClose}>理解了，返回阅读</button></section></div>;
 }
 
 function osmEmbedUrl(place: GeographyEntry) {

@@ -4,6 +4,7 @@ export type TermEntry = {
   id: string;
   zh: string;
   en: string;
+  original?: string;
   category: TermCategory;
   alternatives?: string[];
   note: string;

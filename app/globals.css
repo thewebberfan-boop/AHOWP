@@ -669,9 +669,9 @@ button { cursor: pointer; }
 .term-modal { position: relative; width: min(610px, 100%); padding: 39px 43px 35px; border: 1px solid var(--ink); background: var(--paper-light); box-shadow: 12px 12px 0 var(--red); }
 .term-modal h2 { margin: 0; font: 400 clamp(38px, 5vw, 58px)/1.15 var(--serif); letter-spacing: -.035em; }
 .term-english { margin: 8px 0 30px; color: var(--green); font: italic 20px/1.45 var(--serif); }
-.term-alternatives, .term-note { display: grid; grid-template-columns: 135px 1fr; gap: 18px; padding: 17px 0; border-top: 1px solid var(--line); }
-.term-alternatives > span, .term-note > span { color: var(--red); font-size: 8px; letter-spacing: .1em; }
-.term-alternatives p, .term-note p { margin: 0; font: 14px/1.75 var(--serif); }
+.term-original, .term-alternatives, .term-note { display: grid; grid-template-columns: 135px 1fr; gap: 18px; padding: 17px 0; border-top: 1px solid var(--line); }
+.term-original > span, .term-alternatives > span, .term-note > span { color: var(--red); font-size: 8px; letter-spacing: .1em; }
+.term-original p, .term-alternatives p, .term-note p { margin: 0; font: 14px/1.75 var(--serif); }
 .place-modal-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 22px; background: rgba(29, 32, 28, .76); backdrop-filter: blur(5px); }
 .place-modal { position: relative; width: min(980px, 100%); max-height: calc(100vh - 44px); overflow: auto; padding: 34px 38px 29px; border: 1px solid var(--ink); background: var(--paper-light); box-shadow: 12px 12px 0 var(--green); }
 .place-modal > header { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 23px; border-bottom: 1px solid var(--ink); }
@@ -865,11 +865,10 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .place-context article small { font-size: var(--type-caption); }
 .historical-map-link { margin-top: 13px; }
 
-/* Bilingual terms stay intact. TermText groups a token with the first following
-   Han character so a line cannot end immediately after its English label. */
+/* Keep a Chinese term and its English gloss together, but never force the
+   following Chinese text onto the same line. */
 span.term-token,
 span.place-token,
-span.inline-token-group,
 span.term-token > span,
 span.term-token > small,
 span.place-token > span,
@@ -878,8 +877,7 @@ span.place-token > i {
   display: inline;
 }
 span.term-token,
-span.place-token,
-span.inline-token-group {
+span.place-token {
   white-space: nowrap;
   vertical-align: baseline;
 }
