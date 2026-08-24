@@ -12,7 +12,7 @@
 
 ```bash
 git clone <仓库地址>
-cd ABHOWP
+cd AHOWP
 npm ci
 npm run dev
 ```
@@ -59,6 +59,8 @@ npm run lint
 项目使用 [GitHub 仓库](https://github.com/thewebberfan-boop/AHOWP) 在两台电脑之间同步。开始工作前先确认本机没有未保存改动，再从 `origin` 拉取；完成一个完整功能后，构建、更新进度文件、提交并推送。不要让两台电脑同时修改同一分支。
 
 详细步骤见 [docs/MULTI_MACHINE_WORKFLOW.md](docs/MULTI_MACHINE_WORKFLOW.md)。Codex 在任何一台电脑接手时应先阅读 [AGENTS.md](AGENTS.md) 和 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)。
+
+若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录当前所有页面模式、人物与流派图谱、Section 01—06、搜索、星级、滚动位置恢复、离线构建和视觉响应式约束。
 
 ## 主要文件
 

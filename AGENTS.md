@@ -64,4 +64,4 @@
 
 ## 当前阅读入口
 
-完整现状、已完成范围、已知缺口和下一步见 `docs/PROJECT_STATUS.md`。跨电脑操作流程见 `docs/MULTI_MACHINE_WORKFLOW.md`。
+完整现状、已完成范围、已知缺口和下一步见 `docs/PROJECT_STATUS.md`；若需要复刻完整产品行为，继续阅读 `docs/SYSTEM_SPEC.md`。跨电脑操作流程见 `docs/MULTI_MACHINE_WORKFLOW.md`。

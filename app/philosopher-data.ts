@@ -29,6 +29,15 @@ export type PhilosopherComparison = {
   difference: string;
 };
 
+export type PhilosopherCulturalNote = {
+  kind: "轶事" | "名言" | "例子" | "生活印象";
+  title: string;
+  text: string;
+  caveat?: string;
+};
+
+export type PhilosopherStarRating = 1 | 2 | 3 | 4 | 5;
+
 export type PhilosopherSource = {
   label: string;
   kind: "原书" | "补充";
@@ -60,6 +69,8 @@ export type PhilosopherProfile = {
     parallel: string;
   };
   comparisons: PhilosopherComparison[];
+  stars?: PhilosopherStarRating;
+  culturalNotes?: PhilosopherCulturalNote[];
   russellView: string;
   modernCorrection: string;
   sources: PhilosopherSource[];
@@ -1507,6 +1518,103 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
   },
 ];
 
-export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles];
+const culturalNotesById: Record<string, PhilosopherCulturalNote[]> = {
+  thales: [
+    { kind: "轶事", title: "仰望星空与脚下的井", text: "柏拉图转述，有人嘲笑泰勒斯一边观星一边走路，结果掉进井里；旁边的色雷斯女仆笑他只想知道天上的事，却看不见脚下。", caveat: "这是后世用来讲哲学家形象的寓言式轶事，不是可核实的生平记录。" },
+  ],
+  pythagoras: [
+    { kind: "例子", title: "“毕达哥拉斯定理”", text: "今天课堂里最容易辨认的毕达哥拉斯标签，是直角三角形三边关系的定理名称；它让一个古代共同体的名字进入了日常数学。", caveat: "定理名称不等于本人首次发现或证明；古代多种文明已有相关几何知识。" },
+  ],
+  heraclitus: [
+    { kind: "名言", title: "“人不能两次踏进同一条河流”", text: "这句流行译法把赫拉克利特变成最容易被引用的“变化哲学家”：河水在流，踏入河中的人也在变化。", caveat: "这不是现存残篇中的完整原句，而是后世根据相关片段形成的概括。" },
+  ],
+  empedocles: [
+    { kind: "轶事", title: "跳入埃特纳火山？", text: "晚期传说说恩培多克勒为了让人相信自己已经成神，跳进埃特纳火山，只留下青铜鞋；这个故事把他的科学、诗歌和神秘形象浓缩在一起。", caveat: "火山故事很可能是哲人传奇；它的辨识度高于史实可靠性。" },
+  ],
+  democritus: [
+    { kind: "生活印象", title: "“笑的哲学家”", text: "后世常把德谟克利特画成“笑的哲学家”，仿佛他用笑声回应人类把财富、名声和恐惧看得过重。这个称号让抽象的原子论者有了鲜明的世俗形象。", caveat: "称号主要来自后世道德化肖像，不能当作本人始终面带笑容的事实。" },
+  ],
+  protagoras: [
+    { kind: "名言", title: "“人是万物的尺度”", text: "这句短语至今常被用来讨论“真理是否依赖观察者”与“价值是否因人而异”，也是普罗泰戈拉最具公众辨识度的哲学标签。", caveat: "原文只以残篇和柏拉图转述保存；“人”的含义与命题范围仍有争论。" },
+  ],
+  socrates: [
+    { kind: "轶事", title: "雅典街头的“牛虻”", text: "苏格拉底把自己比作叮咬迟钝马匹的牛虻：不停追问，让城邦不要在自满中沉睡。这个形象比任何术语都更容易说明他的公共角色。", caveat: "“牛虻”来自《申辩篇》的文学性自我描述；我们对历史苏格拉底的认识仍依赖多种作者。" },
+    { kind: "名言", title: "“我只知道自己一无所知”", text: "这句流行名言把苏格拉底式谦逊压缩成一句日常警语：先承认不知道，才有继续追问的可能。", caveat: "它是后世对《申辩篇》相关论述的简化转述，不是现存文本中的逐字原句。" },
+  ],
+  plato: [
+    { kind: "例子", title: "洞穴里的影子", text: "“洞穴寓言”已经脱离《理想国》成为日常比喻：人们可能把墙上的影子当成全部现实，而教育像转身走向洞外。", caveat: "这是哲学寓言的现代通俗化使用，不能直接等同于柏拉图完整的知识论和政治论。" },
+  ],
+  aristotle: [
+    { kind: "生活印象", title: "亚历山大的老师", text: "“亚历山大的老师”是亚里士多德最有世俗辨识度的身份：哲学家不只在书斋里写作，也曾为未来的征服者授课。", caveat: "师生关系的具体内容和影响范围，不能由这一称号全部推断。" },
+  ],
+  diogenes: [
+    { kind: "轶事", title: "请别挡住我的阳光", text: "传说亚历山大大帝来见第欧根尼，问他想要什么；哲学家只回答“请别挡住我的阳光”。这则故事把权力与少欲望的对照变成一句人人能懂的回答。", caveat: "故事有多个古代版本，重点在犬儒派的表演性价值观，不在逐字核验。" },
+  ],
+  pyrrho: [
+    { kind: "轶事", title: "朋友要把他从车前拉开", text: "关于皮浪的传奇说，他因为不判断事情好坏，连马车迎面而来时也不躲，朋友只好把他拖开；这正好构成对“彻底悬置判断”的反讽。", caveat: "这是后世用来攻击或调侃怀疑主义的哲人轶事。" },
+  ],
+  epicurus: [
+    { kind: "生活印象", title: "花园里的简单快乐", text: "“伊壁鸠鲁主义”在日常语言中常被误解为奢侈享乐；花园、朋友、面包和水构成的简朴生活，反而更接近他要表达的快乐尺度。", caveat: "花园不是与世隔绝的度假地，而是有教学、友谊和照顾关系的共同体。" },
+  ],
+  lucretius: [
+    { kind: "例子", title: "蜜糖与苦艾", text: "卢克莱修说，诗歌像杯沿的蜜，让读者愿意喝下起初苦涩的自然哲学；这也成为今天解释科普写作为何需要故事和形式的经典比喻。", caveat: "这是《物性论》的自我比喻，不是后世凭空附会。" },
+  ],
+  zeno: [
+    { kind: "轶事", title: "一场沉船把他推向哲学", text: "传说芝诺在货物沉船后来到雅典，看见苏格拉底的画像，便问自己应当追随怎样的人；这个故事把损失转写成新生活的起点。", caveat: "故事来自后世传记，具体情节不宜当作可核实履历。" },
+  ],
+  cleanthes: [
+    { kind: "轶事", title: "白天汲水，夜里听课", text: "传统说克里安西斯白天靠汲水和体力劳动生活，夜里再去听芝诺讲学；这让他成为“把哲学带进贫困日常”的斯多葛形象。", caveat: "劳动细节带有哲人传记的塑形色彩，但与其贫困和长期从学的传统形象相符。" },
+  ],
+  chrysippus: [
+    { kind: "轶事", title: "对驴子吃无花果发笑", text: "一则传说说，克律西波斯先看驴子吃无花果，又让人给它酒，随后因自己的玩笑而笑死；荒诞故事恰好冲淡了“逻辑巨匠”的严肃面孔。", caveat: "这是晚期轶事，不能当作死因事实。" },
+  ],
+  seneca: [
+    { kind: "生活印象", title: "富有的斯多葛主义者", text: "塞涅卡常被公众记成一个矛盾人物：他宣讲简朴与内在自由，却拥有巨额财富并服务于尼禄。这个反差让斯多葛伦理可以被拿来检验真实生活，而不只是背诵格言。", caveat: "财富来源、政治责任和道德评价都有历史争议，不能用一句“伪君子”结束讨论。" },
+  ],
+  epictetus: [
+    { kind: "轶事", title: "奴隶身份与断腿故事", text: "传统说爱比克泰德曾被主人拧腿，他平静地提醒“腿要断了”，腿真的断后仍继续生活；故事把“外物不能替你决定判断”变成身体层面的极端例子。", caveat: "故事版本不一，史料不足以确认每个细节。" },
+  ],
+  aurelius: [
+    { kind: "名言", title: "皇帝写给自己的提醒", text: "《沉思录》最有辨识度的地方，是皇帝把自己当作需要反复提醒的普通人：不要被赞誉牵走，先处理眼前该做的事。它因此常被现代读者当作私人日记式的生活读物。", caveat: "《沉思录》不是为公众出版的格言集，中文流行引文常经过改写。" },
+  ],
+};
+
+const philosopherStarsById: Record<string, PhilosopherStarRating> = {
+  thales: 4,
+  anaximander: 4,
+  anaximenes: 2,
+  pythagoras: 5,
+  heraclitus: 5,
+  parmenides: 5,
+  empedocles: 4,
+  anaxagoras: 3,
+  leucippus: 2,
+  democritus: 4,
+  protagoras: 4,
+  socrates: 5,
+  plato: 5,
+  aristotle: 5,
+  diogenes: 4,
+  pyrrho: 3,
+  arcesilaus: 2,
+  carneades: 3,
+  epicurus: 5,
+  lucretius: 5,
+  zeno: 4,
+  cleanthes: 3,
+  chrysippus: 4,
+  panaetius: 2,
+  posidonius: 2,
+  seneca: 5,
+  epictetus: 5,
+  aurelius: 5,
+  plotinus: 5,
+};
+
+export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles].map((profile) => ({
+  ...profile,
+  stars: philosopherStarsById[profile.id] || 1,
+  culturalNotes: culturalNotesById[profile.id],
+}));
 
 export const philosopherById = Object.fromEntries(philosopherProfiles.map((profile) => [profile.id, profile]));
