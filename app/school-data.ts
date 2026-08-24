@@ -572,3 +572,24 @@ export const schoolProfiles: SchoolProfile[] = [
     sources: [russellSource("第一卷第二十五、二十八至二十九章"), { label: "Stanford Encyclopedia · Stoicism", kind: "现代研究", url: "https://plato.stanford.edu/entries/stoicism/" }, { label: "Internet Encyclopedia of Philosophy · Stoicism", kind: "现代研究", url: "https://iep.utm.edu/stoicism/" }],
   },
 ];
+
+const targetSchoolOrder = (target: string) =>
+  schoolProfiles.find((school) =>
+    school.nameZh === target || target.startsWith(school.nameZh) || school.nameZh.startsWith(target)
+  )?.order ?? Number.MAX_SAFE_INTEGER;
+
+/**
+ * Relations follow the five shared relation categories. Within one category,
+ * linked schools follow the same order as the left-hand school index; targets
+ * outside the current index keep their source-data order at the end.
+ */
+export function sortSchoolRelations(relations: SchoolRelation[]) {
+  return relations
+    .map((relation, sourceIndex) => ({ relation, sourceIndex }))
+    .sort((left, right) =>
+      schoolRelationMeta[left.relation.relation].order - schoolRelationMeta[right.relation.relation].order
+      || targetSchoolOrder(left.relation.target) - targetSchoolOrder(right.relation.target)
+      || left.sourceIndex - right.sourceIndex
+    )
+    .map(({ relation }) => relation);
+}
