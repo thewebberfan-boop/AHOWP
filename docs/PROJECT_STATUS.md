@@ -43,6 +43,7 @@
 ### 本地运行与跨电脑交接
 
 - 开发版继续通过 `npm run dev` 在 localhost 运行。
+- `node_modules`（当前约 465MB）和 `dist`（当前约 7MB）已移出 OneDrive，统一放在 `/Users/simon/Library/Application Support/AHOWP-local-runtime`；项目内保留本地链接，跨电脑按 `docs/MULTI_MACHINE_WORKFLOW.md` 重建。两者大小会随依赖和构建内容变化。
 - 已增加可直接双击的 `offline-reader/index.html`；正文、搜索、弹窗、复习和本地人物图片可离线使用。
 - 离线入口由 `npm run build:offline` 重复生成，人物图片复用 Git 中的 `public/` 资源，不重复存储。
 - 已建立项目级 Codex 指引、进度记录和两台电脑交替工作的 Git 流程。

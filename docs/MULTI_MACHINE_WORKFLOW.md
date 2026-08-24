@@ -14,14 +14,36 @@ git remote -v
 
 ```bash
 git clone https://github.com/thewebberfan-boop/AHOWP.git
-cd ABHOWP
+cd AHOWP
 nvm install        # 如果使用 nvm
 nvm use
-npm ci
+npm ci --prefix "/Users/simon/Library/Application Support/AHOWP-local-runtime" --no-audit --no-fund
+ln -sfn "/Users/simon/Library/Application Support/AHOWP-local-runtime/node_modules" node_modules
+ln -sfn "/Users/simon/Library/Application Support/AHOWP-local-runtime/dist" dist
 npm run dev
 ```
 
-不要复制 `node_modules`、`.next`、`.vinext`、`dist` 或 `.wrangler`。它们是机器相关的生成物，另一台电脑应由锁文件重新生成。
+### 本地运行目录（OneDrive 之外）
+
+为避免 OneDrive 的在线占位文件阻塞 Node.js，依赖和构建产物不放在同步目录中。当前约定的本地运行目录是：
+
+`/Users/simon/Library/Application Support/AHOWP-local-runtime`
+
+项目目录中的 `node_modules` 和 `dist` 是指向该目录的本地链接；它们被 `.gitignore` 忽略，不进入 Git。另一台 Mac 的 Codex 可以按同一固定路径找到它们；如果用户名不同，只需把路径中的 `simon` 换成该 Mac 的用户名。
+
+首次准备或依赖需要重建时，在项目根目录运行：
+
+```bash
+runtime_root="/Users/simon/Library/Application Support/AHOWP-local-runtime"
+mkdir -p "$runtime_root"
+cp package.json package-lock.json "$runtime_root/"
+npm ci --prefix "$runtime_root" --no-audit --no-fund
+mkdir -p "$runtime_root/dist"
+ln -sfn "$runtime_root/node_modules" node_modules
+ln -sfn "$runtime_root/dist" dist
+```
+
+不要把 `node_modules`、`.next`、`.vinext`、`dist` 或 `.wrangler` 复制回 OneDrive；它们是机器相关的依赖或生成物。
 
 ## 每次从另一台电脑接手
 
@@ -30,13 +52,13 @@ npm run dev
 ```bash
 git status --short
 git pull --ff-only origin main
-npm ci
+npm ci --prefix "/Users/simon/Library/Application Support/AHOWP-local-runtime" --no-audit --no-fund
 npm run build
 ```
 
 如果只需阅读而不开发，拉取完成后可以直接双击 `offline-reader/index.html`，无需运行 Node.js。人物图片依赖仓库中的 `public/` 目录，所以应保留完整项目文件夹。
 
-若 `git status --short` 有输出，不要直接 pull，也不要让 Codex 清理；先判断这些改动属于谁。`npm ci` 在 `package-lock.json` 没变化时通常可以省略，但在换电脑或依赖提交变化后应执行。
+若 `git status --short` 有输出，不要直接 pull，也不要让 Codex 清理；先判断这些改动属于谁。上面的 `npm ci --prefix` 在 `package-lock.json` 没变化时通常可以省略，但在换电脑或依赖提交变化后应执行。若项目链接尚未建立，先按上面的“本地运行目录”步骤完成准备。
 
 打开新 Codex 任务时，可以直接说：
 
