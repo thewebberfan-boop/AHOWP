@@ -349,12 +349,12 @@ button { cursor: pointer; }
 .d3-force-sublabel { fill: var(--muted); font-size: 8px; font-weight: 400; }
 .d3-force-panel footer { display: flex; flex-wrap: wrap; gap: 7px 20px; padding: 8px 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; }
 .d3-force-panel footer span::before { content: "·"; margin-right: 6px; color: var(--red); }
-.school-hero { display: grid; grid-template-columns: 70px minmax(0, 1fr) minmax(255px, .62fr); gap: 22px; align-items: start; padding: 4px 0 27px; border-bottom: 1px solid var(--ink); }
+.school-hero { display: grid; grid-template-columns: 70px minmax(0, 1fr) minmax(255px, .62fr); gap: 22px; align-items: stretch; padding: 4px 0 27px; border-bottom: 1px solid var(--ink); }
 .school-hero-index { display: grid; gap: 8px; justify-items: start; color: var(--red); }
 .school-hero-index > span { font-size: 24px; }
 .school-hero-index > small { writing-mode: vertical-rl; color: var(--muted); font: 9px/1 Arial, sans-serif; letter-spacing: .14em; }
 .school-hero-title { min-width: 0; }
-.school-hero-title h2 { margin: 0; font-size: var(--type-title); font-weight: 500; line-height: 1.12; letter-spacing: -.025em; }
+.school-hero-title h2 { margin: 0; font-size: var(--school-title-size, var(--type-title)); font-weight: 500; line-height: 1.12; letter-spacing: -.025em; }
 .school-english { margin: 8px 0 0; color: var(--red); font: 15px/1.35 Arial, sans-serif; }
 .school-hero-title blockquote { max-width: 720px; margin: 16px 0 0; padding-left: 14px; border-left: 3px solid var(--red); color: #404640; font-size: var(--type-body); font-weight: 500; line-height: 1.68; }
 .school-facts { display: grid; border: 1px solid var(--line); background: var(--paper-light); }
@@ -362,6 +362,10 @@ button { cursor: pointer; }
 .school-facts > div:last-child { border-bottom: 0; }
 .school-facts span { color: var(--red); font-size: var(--type-caption); }
 .school-facts b { font-size: 13px; font-weight: 500; line-height: 1.5; }
+@media (min-width: 1051px) {
+  .school-hero-title h2 { white-space: nowrap; }
+  .school-facts { height: 100%; }
+}
 .school-boundary { display: grid; grid-template-columns: 110px 1fr; gap: 20px; margin-top: 14px; padding: 14px 17px; border-left: 3px solid var(--red); background: #eee3dc; }
 .school-boundary > span { color: var(--red); font-size: var(--type-caption); font-weight: 600; letter-spacing: .08em; }
 .school-boundary p { margin: 0; color: #604d47; font-size: 14px; line-height: 1.65; }

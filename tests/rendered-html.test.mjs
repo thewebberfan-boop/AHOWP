@@ -50,6 +50,10 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /onClick=\{openPhilosopherGraph\}>哲学家/);
   assert.match(page, /onClick=\{openSchoolGraph\}>哲学流派/);
   assert.match(page, /school-person-rating/);
+  assert.match(page, /openSchool\(school\.id, true\)/);
+  assert.match(page, /setPendingSchoolScroll\(preserveScroll \? window\.scrollY : null\)/);
+  assert.match(page, /function AdaptiveSchoolTitle/);
+  assert.match(page, /ResizeObserver/);
   assert.match(graph, /承接前人/);
   assert.match(graph, /影响后继/);
   assert.match(graph, /D3\.js 多类型节点力导向网络图/);
