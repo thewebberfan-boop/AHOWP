@@ -32,10 +32,13 @@ test("server-renders the current learning map shell", async () => {
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
 });
 
-test("keeps the philosopher graph and replication specification in the project", async () => {
-  const [page, graph, spec, status] = await Promise.all([
+test("keeps the complete philosopher and school graphs in the project", async () => {
+  const [page, graph, medieval, medievalSchools, schoolGraph, spec, status] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
+    readFile(new URL("app/school-data-medieval.ts", projectRoot), "utf8"),
+    readFile(new URL("app/school-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("docs/SYSTEM_SPEC.md", projectRoot), "utf8"),
     readFile(new URL("docs/PROJECT_STATUS.md", projectRoot), "utf8"),
   ]);
@@ -45,6 +48,13 @@ test("keeps the philosopher graph and replication specification in the project",
   assert.match(graph, /承接前人/);
   assert.match(graph, /影响后继/);
   assert.match(graph, /显示全部关系/);
+  assert.match(medieval, /托马斯·阿奎那/);
+  assert.match(medieval, /帕多瓦的马西略/);
+  assert.match(medievalSchools, /教父哲学与拉丁基督教传统/);
+  assert.match(medievalSchools, /伊斯兰哲学：法尔萨法与卡拉姆批评/);
+  assert.match(medievalSchools, /方济各会经院哲学与唯名论/);
+  assert.match(schoolGraph, /schoolProfiles\.length/);
   assert.match(spec, /系统复刻说明/);
-  assert.match(status, /29 位人物/);
+  assert.match(status, /53 位人物/);
+  assert.match(status, /17 个流派/);
 });

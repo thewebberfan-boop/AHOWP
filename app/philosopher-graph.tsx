@@ -14,10 +14,10 @@ type PhilosopherGraphEdge = {
 };
 
 const graphWidth = 1120;
-const graphHeight = 760;
 const nodeWidth = 148;
 const nodeHeight = 76;
 const columns = 6;
+const graphHeight = Math.max(760, 48 + Math.ceil(philosopherProfiles.length / columns) * 145);
 const relationTypes: PhilosopherGraphRelation[] = ["承接前人", "影响后继", "同题比较", "批评关系", "后世重构"];
 const relationDescriptions: Record<PhilosopherGraphRelation, string> = {
   "承接前人": "当前人物从前人处接收问题、概念或生活方案。",
@@ -98,7 +98,7 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
 
   return <article className="school-map-page philosopher-map-page page-wrap">
     <header className="school-map-hero">
-      <div><p className="eyebrow">PHILOSOPHER RELATION ATLAS</p><h2>哲学家关系图谱</h2><p>以人物索引顺序为骨架，把 29 位哲学家之间的承接、影响、比较、批评与后世重构放在同一张图中。点击节点聚焦，再从下方关系说明进入人物页面。</p></div>
+      <div><p className="eyebrow">PHILOSOPHER RELATION ATLAS</p><h2>哲学家关系图谱</h2><p>以人物索引顺序为骨架，把 {philosopherProfiles.length} 位哲学家之间的承接、影响、比较、批评与后世重构放在同一张图中。点击节点聚焦，再从下方关系说明进入人物页面。</p></div>
       <aside><div><span>人物节点</span><b>{philosopherProfiles.length}</b></div><div><span>关系边</span><b>{edges.length}</b></div><div><span>关系类型</span><b>{relationTypes.length}</b></div></aside>
     </header>
 

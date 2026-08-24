@@ -12,9 +12,11 @@ import {
 } from "./school-data";
 
 const graphWidth = 1080;
-const graphHeight = 520;
-const nodeWidth = 118;
+const nodeWidth = 148;
 const nodeHeight = 86;
+const columns = 6;
+const rowGap = 165;
+const graphHeight = Math.max(520, 80 + Math.ceil(schoolProfiles.length / columns) * rowGap);
 const relationTypes = Object.keys(schoolRelationMeta) as SchoolRelationType[];
 
 const relationColors: Record<SchoolRelationType, string> = {
@@ -33,10 +35,10 @@ const relationMarkerIds: Record<SchoolRelationType, string> = {
   "后世重构": "school-map-arrow-reconstruct",
 };
 
-const nodePosition = (order: number) => ({
-  x: 25 + (order - 1) * 133,
-  y: order % 2 === 1 ? 88 : 346,
-});
+const nodePosition = (order: number) => {
+  const index = order - 1;
+  return { x: 25 + (index % columns) * 175, y: 44 + Math.floor(index / columns) * rowGap };
+};
 
 const edgePath = (edge: SchoolGraphEdge) => {
   const from = schoolProfiles.find((school) => school.id === edge.fromId);
@@ -73,7 +75,7 @@ export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId
 
   return <article className="school-map-page page-wrap">
     <header className="school-map-hero">
-      <div><p className="eyebrow">SCHOOL RELATION ATLAS</p><h2>流派关系图谱</h2><p>以左侧索引为时间骨架，把八种古代传统之间的来源、竞争、分化与后世转译放在同一张图中。点击节点可聚焦关系，再进入完整流派页。</p></div>
+      <div><p className="eyebrow">SCHOOL RELATION ATLAS</p><h2>流派关系图谱</h2><p>以左侧索引为时间骨架，把 {schoolProfiles.length} 种古代至中世纪传统之间的来源、竞争、分化与后世转译放在同一张图中。点击节点可聚焦关系，再进入完整流派页。</p></div>
       <aside><div><span>核心节点</span><b>{schoolProfiles.length}</b></div><div><span>内部关系</span><b>{edges.length}</b></div><div><span>外部延伸</span><b>{allExternalRelations.length}</b></div></aside>
     </header>
 

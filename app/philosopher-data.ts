@@ -1,4 +1,5 @@
 import { laterAncientProfiles } from "./philosopher-data-late-ancient";
+import { medievalProfiles } from "./philosopher-data-medieval";
 
 export type PhilosopherTimelineItem = {
   date: string;
@@ -1611,10 +1612,10 @@ const philosopherStarsById: Record<string, PhilosopherStarRating> = {
   plotinus: 5,
 };
 
-export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles].map((profile) => ({
+export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles, ...medievalProfiles].map((profile) => ({
   ...profile,
-  stars: philosopherStarsById[profile.id] || 1,
-  culturalNotes: culturalNotesById[profile.id],
-}));
+  stars: philosopherStarsById[profile.id] || profile.stars || 1,
+  culturalNotes: culturalNotesById[profile.id] || profile.culturalNotes,
+})).sort((left, right) => left.order - right.order);
 
 export const philosopherById = Object.fromEntries(philosopherProfiles.map((profile) => [profile.id, profile]));

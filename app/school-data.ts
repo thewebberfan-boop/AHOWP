@@ -1,3 +1,5 @@
+import { medievalSchoolProfiles } from "./school-data-medieval";
+
 export type SchoolSource = {
   label: string;
   kind: "原书" | "现代研究";
@@ -105,7 +107,7 @@ const russellSource = (chapters: string): SchoolSource => ({
   url: "https://www.russell-j.com/cool/HWP_1945.pdf",
 });
 
-export const schoolProfiles: SchoolProfile[] = [
+const ancientSchoolProfiles: SchoolProfile[] = [
   {
     id: "presocratic-traditions",
     order: 1,
@@ -545,7 +547,7 @@ export const schoolProfiles: SchoolProfile[] = [
       { id: "posidonius", role: "跨学科扩展者", contribution: "连接自然、情绪、历史与地理，重新重视非理性心理动力。", interaction: "影响罗马知识网络，但具体教义常由后世间接保存。" },
       { id: "seneca", role: "罗马道德写作者", contribution: "以书信和短论处理财富、愤怒、死亡、权力与每日自省。", interaction: "把系统教义转化为不完美实践者可重复的训练。" },
       { id: "epictetus", role: "同意与控制训练者", contribution: "把‘取决于我们／不取决于我们’压缩成行动纪律，突出角色与选择能力。", interaction: "其学生阿里安保存讲课；马可·奥勒留把相关练习用于帝国职责。" },
-      { id: "marcus-aurelius", role: "帝国角色实践者", contribution: "以私人笔记反复练习整体视角、死亡意识和对共同体的责任。", interaction: "不是理论创新者，而是检验斯多葛伦理在最高权力与持续压力下如何运作。" },
+      { id: "aurelius", role: "帝国角色实践者", contribution: "以私人笔记反复练习整体视角、死亡意识和对共同体的责任。", interaction: "不是理论创新者，而是检验斯多葛伦理在最高权力与持续压力下如何运作。" },
     ],
     development: [
       { period: "约前 300—前 207", title: "创立与系统化", detail: "芝诺提出纲领，克里安西斯保存，克律西波斯建立成熟逻辑、物理和伦理接口。" },
@@ -572,6 +574,9 @@ export const schoolProfiles: SchoolProfile[] = [
     sources: [russellSource("第一卷第二十五、二十八至二十九章"), { label: "Stanford Encyclopedia · Stoicism", kind: "现代研究", url: "https://plato.stanford.edu/entries/stoicism/" }, { label: "Internet Encyclopedia of Philosophy · Stoicism", kind: "现代研究", url: "https://iep.utm.edu/stoicism/" }],
   },
 ];
+
+export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles]
+  .sort((left, right) => left.order - right.order);
 
 export const findSchoolProfileByTarget = (target: string) =>
   schoolProfiles.find((school) =>
@@ -612,9 +617,9 @@ export type SchoolGraphEdge = {
 };
 
 /**
- * Build one deduplicated edge table for the eight indexed schools. The index is
- * chronological enough for the current ancient-school set to orient directed
- * relations from the earlier resource or branch toward the later tradition.
+ * Build one deduplicated edge table for all indexed schools. The index is
+ * chronological enough to orient directed relations from the earlier resource
+ * or branch toward the later tradition, including long-running overlaps.
  * Reciprocal competition still uses the same canonical order only for stable
  * storage and rendering.
  */
