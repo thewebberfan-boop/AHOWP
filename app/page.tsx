@@ -487,7 +487,7 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, originLabel, onBac
     <section className="profile-section relation-profile-section" id="profile-relations">
       <header><span>04</span><div><p className="section-label">LINEAGE & PARALLELS</p><h3>流派、影响与同题比较</h3></div></header>
       <div className="lineage-grid"><article><span>思想来源</span><p>{termText(profile.lineage.inherited)}</p></article><article><span>流派位置</span><p>{termText(profile.lineage.school)}</p></article><article><span>影响去向</span><p>{termText(profile.lineage.influenced)}</p></article><article><span>非影响关系</span><p>{termText(profile.lineage.parallel)}</p></article></div>
-      <div className="comparison-board"><div className="comparison-heading"><span>比较对象</span><span>关系性质</span><span>共同问题或结构</span><span>关键差异</span></div>{profile.comparisons.map((comparison) => <article key={`${comparison.target}-${comparison.relation}`}><h4>{termText(comparison.target)}</h4><span className={`relation-badge relation-${comparison.relation}`}>{comparison.relation}</span><p>{termText(comparison.shared)}</p><p>{termText(comparison.difference)}</p></article>)}</div>
+      <div className="comparison-board">{profile.comparisons.map((comparison) => <article key={`${comparison.target}-${comparison.relation}`}><header className="comparison-identity"><h4>{termText(comparison.target)}</h4><span className={`relation-badge relation-${comparison.relation}`}>{comparison.relation}</span></header><div className="comparison-detail"><div><span>共同问题或结构</span><p>{termText(comparison.shared)}</p></div><div><span>关键差异</span><p>{termText(comparison.difference)}</p></div></div></article>)}</div>
     </section>
 
     <section className="profile-section russell-profile-section" id="profile-russell">
