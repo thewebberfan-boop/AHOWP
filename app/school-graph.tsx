@@ -26,7 +26,11 @@ const schoolGroup = (order: number) => {
   if (order <= 11) return "教父、修道与新柏拉图";
   if (order <= 13) return "伊斯兰与犹太传统";
   if (order <= 16) return "中世纪经院路线";
-  return "政教权力思想";
+  if (order <= 17) return "政教权力思想";
+  if (order <= 21) return "文艺复兴、改革与新科学";
+  if (order <= 24) return "近代国家、理性与经验";
+  if (order <= 27) return "自由、观念论与价值批判";
+  return "工业社会与现代方法";
 };
 
 export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId: string; onSchool: (id: string) => void }) {
@@ -64,7 +68,7 @@ export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId
 
   return <article className="school-map-page page-wrap">
     <header className="school-map-hero">
-      <div><p className="eyebrow">SCHOOL RELATION ATLAS</p><h2>流派关系图谱</h2><p>以左侧索引为时间骨架，把 {schoolProfiles.length} 种古代至中世纪传统之间的来源、竞争、分化与后世转译放在同一张图中。点击节点可聚焦关系，再进入完整流派页。</p></div>
+      <div><p className="eyebrow">SCHOOL RELATION ATLAS</p><h2>流派关系图谱</h2><p>以左侧索引为时间骨架，把 {schoolProfiles.length} 种古代至现代传统之间的来源、竞争、分化与后世转译放在同一张图中。点击节点可聚焦关系，再进入完整流派页。</p></div>
       <aside><div><span>核心节点</span><b>{schoolProfiles.length}</b></div><div><span>内部关系</span><b>{edges.length}</b></div><div><span>外部延伸</span><b>{allExternalRelations.length}</b></div></aside>
     </header>
 

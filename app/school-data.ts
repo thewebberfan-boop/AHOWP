@@ -1,4 +1,5 @@
 import { medievalSchoolProfiles } from "./school-data-medieval";
+import { modernSchoolProfiles } from "./school-data-modern";
 
 export type SchoolSource = {
   label: string;
@@ -596,9 +597,24 @@ const schoolStarsById: Record<string, SchoolStarRating> = {
   "dominican-aristotelian-synthesis": 4,
   "franciscan-scholastic-nominalism": 4,
   "medieval-church-state-thought": 3,
+  "renaissance-political-realism": 5,
+  "christian-humanism": 3,
+  "protestant-reformation-thought": 5,
+  "scientific-revolution-method": 5,
+  "mechanistic-political-philosophy": 4,
+  "continental-rationalism": 5,
+  "british-empiricism-liberalism": 5,
+  "romanticism-republican-freedom": 4,
+  "critical-idealism": 5,
+  "will-value-philosophy": 5,
+  utilitarianism: 5,
+  "historical-materialism": 5,
+  "life-intuition-philosophy": 3,
+  pragmatism: 5,
+  "logical-analysis": 5,
 };
 
-export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles]
+export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles, ...modernSchoolProfiles]
   .map((profile) => ({ ...profile, stars: schoolStarsById[profile.id] || profile.stars || 1 }))
   .sort((left, right) => left.order - right.order);
 

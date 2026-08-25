@@ -33,7 +33,7 @@ test("server-renders the current learning map shell", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, historyData, structureData, graph, forceGraph, medieval, modern, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, historyData, structureData, graph, forceGraph, medieval, modern, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
@@ -42,6 +42,7 @@ test("keeps the complete philosopher and school graphs in the project", async ()
     readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-modern.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-data-medieval.ts", projectRoot), "utf8"),
+    readFile(new URL("app/school-data-modern.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("docs/SYSTEM_SPEC.md", projectRoot), "utf8"),
     readFile(new URL("docs/PROJECT_STATUS.md", projectRoot), "utf8"),
@@ -95,13 +96,15 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(medievalSchools, /教父哲学与拉丁基督教传统/);
   assert.match(medievalSchools, /伊斯兰哲学：法尔萨法与卡拉姆批评/);
   assert.match(medievalSchools, /方济各会经院哲学与唯名论/);
+  assert.match(modernSchools, /科学革命与经验方法/);
+  assert.match(modernSchools, /逻辑分析哲学/);
   assert.match(schoolGraph, /schoolProfiles\.length/);
   assert.match(schoolGraph, /D3\.js 多类型节点力导向网络图/);
   assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
   assert.match(spec, /流派星级表示学习辨识度/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /82 位人物/);
-  assert.match(status, /17 个流派/);
+  assert.match(status, /32 个流派/);
 
   const { figures } = JSON.parse(figuresText);
   assert.equal(figures.find((figure) => figure.id === "philo-alexandria")?.status, "ready");

@@ -70,6 +70,7 @@ npm run lint
 - `app/russell-structure-data.ts`：基于罗素目录重构的“阶段—流派—人物—章节”关系。
 - `app/school-data.ts`：流派页类型、8 个古代流派／传统页、星级，以及全站流派汇总入口。
 - `app/school-data-medieval.ts`：第二卷 9 个教父、修道、伊斯兰、犹太与经院传统页。
+- `app/school-data-modern.ts`：第三卷 15 个现代问题传统、知识网络与方法转型页；明确标注不属于严格学派的分类边界。
 - `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
 - `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。
 - `app/philosopher-data-medieval.ts`：第二卷 24 位人物的结构化资料、关系、星级和来源。
