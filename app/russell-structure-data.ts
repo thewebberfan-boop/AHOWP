@@ -190,3 +190,23 @@ export const russellStructureChapterIds = russellStructureStages.flatMap((stage)
     ...school.philosophers.flatMap((philosopher) => philosopher.chapterIds),
   ]),
 ]);
+
+/**
+ * The history overview uses eleven teaching stages, while Russell's table of
+ * contents is more naturally grouped into nine frames. Keeping the bridge as
+ * explicit data preserves that difference without maintaining a duplicate
+ * top-level page.
+ */
+export const russellStructureStageIdsByHistoryStage: Record<string, string[]> = {
+  origins: ["greek-origins"],
+  athens: ["classical-athens"],
+  hellenistic: ["hellenistic-roman"],
+  roman: ["hellenistic-roman"],
+  patristic: ["early-christianity"],
+  "early-medieval": ["medieval-scholasticism"],
+  scholastic: ["medieval-scholasticism"],
+  "renaissance-science": ["renaissance-science"],
+  "early-modern": ["reason-empiricism"],
+  "revolution-idealism": ["romantic-idealism"],
+  "industrial-modern": ["industrial-modern"],
+};

@@ -7,16 +7,15 @@ import { geographyByAlias, geographyEntries, geographyMatchers, type GeographyEn
 import { historyResponseLinks, historyStages, longLinks, methodAtlas, stageDetailPanels, type DetailNode, type HistoryStage, type ResponseNode } from "./history-data";
 import { formatLanguageLabel } from "./language-label";
 import { philosopherProfiles, type PhilosopherProfile } from "./philosopher-data";
-import { russellStructureStages, type RussellStructureStage } from "./russell-structure-data";
+import { russellStructureStageIdsByHistoryStage, russellStructureStages } from "./russell-structure-data";
 import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
 import { schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
 
-type Mode = "structure" | "schools" | "philosophers" | "history" | "methods" | "chapters" | "review";
+type Mode = "schools" | "philosophers" | "history" | "methods" | "chapters" | "review";
 type ChapterOrigin = {
   mode: Exclude<Mode, "chapters">;
-  structureStageId: string;
   schoolId: string;
   philosopherId: string;
   stageId: string;
@@ -24,6 +23,7 @@ type ChapterOrigin = {
   methodId: string;
   reviewIndex: number;
   label: string;
+  scrollY: number;
 };
 type HistoryOrigin = { stageId: string; responseId: string; scrollY: number; label: string };
 type PhilosopherOrigin =
@@ -47,43 +47,6 @@ const lowerRomanNumerals = ["i", "ii", "iii", "iv", "v", "vi"];
 const inlineMatchers = [...new Set([...terminologyMatchers, ...geographyMatchers])].sort((a, b) => b.length - a.length);
 const inlinePattern = new RegExp(`(${inlineMatchers.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
 const PlaceInteractionContext = createContext<((place: GeographyEntry) => void) | null>(null);
-
-type StructureDetailPanel = { events: DetailNode[]; problems: DetailNode[] };
-
-const pickDetailNodes = (panelId: string, group: keyof StructureDetailPanel, ids: string[]) => {
-  const nodes = stageDetailPanels[panelId]?.[group] || [];
-  return ids.map((id) => nodes.find((node) => node.id === id)).filter((node): node is DetailNode => Boolean(node));
-};
-
-const structureDetailPanels: Record<string, StructureDetailPanel> = {
-  "greek-origins": stageDetailPanels.origins,
-  "classical-athens": stageDetailPanels.athens,
-  "hellenistic-roman": {
-    events: [
-      ...pickDetailNodes("hellenistic", "events", ["alexander", "roman-expansion"]),
-      ...pickDetailNodes("roman", "events", ["third-century-crisis"]),
-    ],
-    problems: [
-      ...pickDetailNodes("hellenistic", "problems", ["inner-freedom", "tranquility-certainty"]),
-      ...pickDetailNodes("roman", "problems", ["higher-reality"]),
-    ],
-  },
-  "early-christianity": stageDetailPanels.patristic,
-  "medieval-scholasticism": {
-    events: [
-      ...pickDetailNodes("early-medieval", "events", ["islamic-expansion"]),
-      ...pickDetailNodes("scholastic", "events", ["universities", "papal-decline"]),
-    ],
-    problems: [
-      ...pickDetailNodes("scholastic", "problems", ["faith-reason", "universal-individual"]),
-      ...pickDetailNodes("early-medieval", "problems", ["two-powers"]),
-    ],
-  },
-  "renaissance-science": stageDetailPanels["renaissance-science"],
-  "reason-empiricism": stageDetailPanels["early-modern"],
-  "romantic-idealism": stageDetailPanels["revolution-idealism"],
-  "industrial-modern": stageDetailPanels["industrial-modern"],
-};
 
 function loadSet(key: string) {
   try { return new Set<string>(JSON.parse(localStorage.getItem(key) || "[]")); }
@@ -117,8 +80,7 @@ function includesText(parts: Array<string | undefined>, needle: string) {
 }
 
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("schools");
-  const [structureStageId, setStructureStageId] = useState("hellenistic-roman");
+  const [mode, setMode] = useState<Mode>("history");
   const [schoolId, setSchoolId] = useState("stoicism");
   const [showSchoolGraph, setShowSchoolGraph] = useState(true);
   const [philosopherId, setPhilosopherId] = useState("thales");
@@ -139,6 +101,7 @@ export default function Home() {
   const [pendingHistoryScroll, setPendingHistoryScroll] = useState<number | null>(null);
   const [pendingSchoolScroll, setPendingSchoolScroll] = useState<number | null>(null);
   const [pendingPhilosopherScroll, setPendingPhilosopherScroll] = useState<number | null>(null);
+  const [pendingModeScroll, setPendingModeScroll] = useState<number | null>(null);
   const [showPhilosopherGraph, setShowPhilosopherGraph] = useState(true);
   const [showEnglishTerms, setShowEnglishTerms] = useState(true);
   const [activeTerm, setActiveTerm] = useState<TermEntry | null>(null);
@@ -198,8 +161,22 @@ export default function Home() {
     };
   }, [mode, philosopherId, pendingPhilosopherScroll]);
 
+  useEffect(() => {
+    if ((mode !== "methods" && mode !== "review") || pendingModeScroll === null) return;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        scrollWithoutAnimation(pendingModeScroll);
+        setPendingModeScroll(null);
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [mode, methodId, reviewIndex, pendingModeScroll]);
+
   const selectedStage = historyStages.find((stage) => stage.id === stageId) || historyStages[0];
-  const selectedStructureStage = russellStructureStages.find((stage) => stage.id === structureStageId) || russellStructureStages[0];
   const selectedSchool = schoolProfiles.find((school) => school.id === schoolId) || schoolProfiles[0];
   const selectedPhilosopher = philosopherProfiles.find((profile) => profile.id === philosopherId) || philosopherProfiles[0];
   const selectedResponse = selectedStage.responses.find((response) => response.id === responseId) || selectedStage.responses[0];
@@ -275,13 +252,6 @@ export default function Home() {
     setResponseId(preferredResponse && stage.responses.some((item) => item.id === preferredResponse) ? preferredResponse : stage.responses[0].id);
     setMode("history");
     setPendingHistoryScroll(null);
-    setQuery("");
-    setCopied(false);
-  };
-
-  const openStructureStage = (id: string) => {
-    setStructureStageId(id);
-    setMode("structure");
     setQuery("");
     setCopied(false);
   };
@@ -381,9 +351,7 @@ export default function Home() {
 
   const openChapter = (id: string) => {
     if (mode !== "chapters") {
-      const label = mode === "structure"
-        ? `原书结构 · ${selectedStructureStage.title}`
-        : mode === "schools"
+      const label = mode === "schools"
           ? `哲学流派 · ${selectedSchool.nameZh}`
         : mode === "philosophers"
           ? `哲学家 · ${selectedPhilosopher.nameZh}`
@@ -392,20 +360,20 @@ export default function Home() {
         : mode === "methods"
           ? `方法图谱 · ${selectedMethod.title}`
           : `关系复习 · ${reviewStage.title}`;
-      setChapterOrigin({ mode, structureStageId, schoolId, philosopherId, stageId, responseId, methodId, reviewIndex, label });
+      setChapterOrigin({ mode, schoolId, philosopherId, stageId, responseId, methodId, reviewIndex, label, scrollY: window.scrollY });
     }
     setChapterId(id);
     setMode("chapters");
     setQuery("");
     setCopied(false);
+    scrollWithoutAnimation(0);
   };
 
   const returnFromChapter = () => {
     if (!chapterOrigin) {
-      setMode("structure");
+      setMode("history");
       return;
     }
-    setStructureStageId(chapterOrigin.structureStageId);
     setSchoolId(chapterOrigin.schoolId);
     setPhilosopherId(chapterOrigin.philosopherId);
     setStageId(chapterOrigin.stageId);
@@ -413,6 +381,10 @@ export default function Home() {
     setMethodId(chapterOrigin.methodId);
     setReviewIndex(chapterOrigin.reviewIndex);
     setMode(chapterOrigin.mode);
+    if (chapterOrigin.mode === "history") setPendingHistoryScroll(chapterOrigin.scrollY);
+    if (chapterOrigin.mode === "schools") setPendingSchoolScroll(chapterOrigin.scrollY);
+    if (chapterOrigin.mode === "philosophers") setPendingPhilosopherScroll(chapterOrigin.scrollY);
+    if (chapterOrigin.mode === "methods" || chapterOrigin.mode === "review") setPendingModeScroll(chapterOrigin.scrollY);
     setQuery("");
     setCopied(false);
   };
@@ -434,10 +406,9 @@ export default function Home() {
     saveLocalValue("ahowp-bilingual-terms", String(next));
   };
 
-  const showStructureSidebar = mode === "structure" && !query;
   const showSchoolSidebar = mode === "schools" && !query;
   const showPhilosopherSidebar = mode === "philosophers" && !query;
-  const showStageSidebar = mode !== "chapters" && mode !== "structure" && mode !== "schools" && mode !== "philosophers" && !query;
+  const showStageSidebar = mode !== "chapters" && mode !== "schools" && mode !== "philosophers" && !query;
 
   return (
     <PlaceInteractionContext.Provider value={setActivePlace}>
@@ -450,18 +421,16 @@ export default function Home() {
 
         <div className="sidebar-scroll">
           {query ? <div className="search-results"><div className="results-label"><span>跨层搜索</span><b>{searchResults.length}</b></div>{!searchResults.length && <div className="empty-result">没有匹配内容。试试“自由”“freedom”“帝国”或“Kant”。</div>}{searchResults.map((result) => <button className="search-result" key={`${result.kind}-${result.id}`} onClick={() => openSearchResult(result)}><span>{result.kind === "stage" ? "阶段" : result.kind === "response" ? "回应" : result.kind === "school" ? "流派" : result.kind === "philosopher" ? "哲学家" : result.kind === "method" ? "方法" : result.kind === "term" ? "术语" : result.kind === "place" ? "地点" : "章节"}</span><b>{result.title}</b><small>{result.meta}</small></button>)}</div>
-          : showStructureSidebar ? <nav className="structure-nav" aria-label="基于罗素目录重构的历史阶段"><div className="results-label"><span>第一层 · 历史阶段</span><b>{russellStructureStages.length}</b></div><div className="structure-notice">学习重构 · 章节依据罗素原目录</div>{russellStructureStages.map((stage, index) => <button className={stage.id === structureStageId ? "stage-link active" : "stage-link"} key={stage.id} onClick={() => openStructureStage(stage.id)}><span className="stage-index">{String(index + 1).padStart(2, "0")}</span><span><small>{stage.years}</small><b>{stage.title}</b><em>{stage.russellRange}</em></span><i>{stage.schools.length} 流派</i></button>)}</nav>
           : showSchoolSidebar ? <nav className="school-index" aria-label="哲学流派与传统索引"><div className="results-label"><span>第二层 · 流派与传统</span><b>{schoolProfiles.length}</b></div><button className={showSchoolGraph ? "school-map-index-link active" : "school-map-index-link"} onClick={openSchoolGraph}><span>◇</span><b>流派图谱</b><small>按关系密度合并 · 明确分类边界</small></button>{schoolProfiles.map((school) => { const stars = school.stars || 1; return <button className={!showSchoolGraph && school.id === schoolId ? "school-index-link active" : "school-index-link"} key={school.id} onClick={() => openSchool(school.id, true, true)} aria-label={`${school.nameZh}，${stars}星`}><span>{String(school.order).padStart(2, "0")}<small className="school-index-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</small></span><b>{school.nameZh}</b><em>{school.nameEn}</em><i>{school.kind}</i></button>; })}</nav>
           : showPhilosopherSidebar ? <nav className="philosopher-nav" aria-label="哲学家索引"><div className="results-label"><span>人物页面 · 已收录</span><b>{philosopherProfiles.length}</b></div><button className={showPhilosopherGraph ? "school-map-index-link active" : "school-map-index-link"} onClick={openPhilosopherGraph}><span aria-hidden="true">↔</span><b>哲学家图谱</b><small>按人物索引整理 · 查看承接与影响</small></button><div className="structure-notice">依原书出现顺序 · 证据分层整理</div>{philosopherProfiles.map((profile) => { const figure = figureEntries.find((item) => item.id === profile.figureId); const stars = profile.stars || 1; return <button className={!showPhilosopherGraph && profile.id === philosopherId ? "philosopher-link active" : "philosopher-link"} key={profile.id} onClick={() => openPhilosopher(profile.id, false, true)}><span className="philosopher-link-visual">{figure ? <img src={figure.imagePath} alt="" /> : <span className="philosopher-link-monogram">{profile.nameZh.slice(0, 1)}</span>}<span className="philosopher-link-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</span></span><span><small>{String(profile.order).padStart(2, "0")} · {profile.dates}</small><b>{profile.nameZh}</b><em>{profile.nameEn}</em></span><i>{profile.school}</i></button>; })}</nav>
-          : showStageSidebar ? <nav className="stage-nav" aria-label="历史概览阶段"><div className="results-label"><span>辅助视图 · 历史概览</span><b>{historyStages.length}</b></div>{historyStages.map((stage, index) => <button className={stage.id === stageId ? "stage-link active" : "stage-link"} key={stage.id} onClick={() => openStage(stage.id)}><span className="stage-index">{String(index + 1).padStart(2, "0")}</span><span><small>{stage.years}</small><b>{stage.title}</b><em>{stage.transition}</em></span><i>{stage.coverage === "personal" ? "笔记" : "原书"}</i></button>)}</nav>
+          : showStageSidebar ? <nav className="stage-nav" aria-label="历史概览阶段"><div className="results-label"><span>主线 · 历史概览</span><b>{historyStages.length}</b></div>{historyStages.map((stage, index) => <button className={stage.id === stageId ? "stage-link active" : "stage-link"} key={stage.id} onClick={() => openStage(stage.id)}><span className="stage-index">{String(index + 1).padStart(2, "0")}</span><span><small>{stage.years}</small><b>{stage.title}</b><em>{stage.transition}</em></span><i>{stage.coverage === "personal" ? "笔记" : "原书"}</i></button>)}</nav>
           : <div className="chapter-list" aria-label="全书章节"><div className="results-label"><span>原书目录</span><b>{filteredChapters.length}</b></div>{bookOrder.map((book) => { const items = filteredChapters.filter((chapter) => chapter.book === book); if (!items.length) return null; return <section key={book} className="chapter-group"><p className="group-title">{bookNumber[book]} · {bookLabels[book].title}</p>{items.map((chapter) => { const chapterFigures = figuresForChapter(chapter.title); return <button className={`${chapter.id === selectedChapter.id ? "chapter-link active" : "chapter-link"}${chapterFigures.length ? " has-portrait" : ""}`} key={chapter.id} onClick={() => openChapter(chapter.id)}>{chapterFigures.length > 0 && <span className="chapter-thumbnails" aria-hidden="true">{chapterFigures.slice(0, 2).map((figure) => <img key={figure.id} src={figure.imagePath} alt="" />)}</span>}<span className="chapter-roman">{chapter.roman}</span><span className="chapter-name">{chapter.title}<small>{chapter.english}</small></span><span className="chapter-status">{starredChapters.has(chapter.id) ? "★" : notes[chapter.id] ? "●" : ""}</span></button>; })}</section>; })}</div>}
         </div>
         <div className="sidebar-footer"><span>骨架：罗素目录＋历史</span><span>阶段 → 流派 → 人物 → 章节</span></div>
       </aside>
 
       <section className="reading-pane">
-        <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={() => setMode("history")}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "structure" ? "active" : ""} onClick={() => setMode("structure")}>原书结构</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "structure" ? selectedStructureStage.title : mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
-        {mode === "structure" && <RussellStructureView key={selectedStructureStage.id} stage={selectedStructureStage} onStage={openStructureStage} onChapter={openChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
+        <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={() => setMode("history")}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
         {mode === "schools" && (showSchoolGraph ? <SchoolGraphView initialSchoolId={selectedSchool.id} onSchool={openSchool} /> : <SchoolView profile={selectedSchool} onSchool={(id) => openSchool(id, false, true)} onPhilosopher={openPhilosopherFromSchool} onChapter={openChapter} originLabel={schoolOrigin?.label} onBack={schoolOrigin ? returnFromSchool : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onPhilosopher={(id) => openPhilosopher(id, true)} onChapter={openChapter} originLabel={philosopherOrigin?.label} onBack={philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
@@ -669,70 +638,14 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, originLabel, onBac
   </article>;
 }
 
-function RussellStructureView({ stage, onStage, onChapter, showEnglish, onTerm }: { stage: RussellStructureStage; onStage: (id: string) => void; onChapter: (id: string) => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
-  const [schoolId, setSchoolId] = useState(stage.schools[0]?.id || "");
-  const [activeDetail, setActiveDetail] = useState<DetailNode | null>(null);
-  const stageIndex = russellStructureStages.findIndex((item) => item.id === stage.id);
-  const school = stage.schools.find((item) => item.id === schoolId) || stage.schools[0]!;
-  const details = structureDetailPanels[stage.id];
-  const termText = (text: string) => <TermText text={text} showEnglish={showEnglish} onTerm={onTerm} />;
-
-  useEffect(() => {
-    if (!activeDetail) return;
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setActiveDetail(null); };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [activeDetail]);
-
-  const chapterLink = (id: string) => {
-    const chapter = chapters.find((item) => item.id === id);
-    if (!chapter) return null;
-    return <button className="structure-chapter-link" key={id} onClick={() => onChapter(id)}><span>{bookNumber[chapter.book]} · {chapter.roman}</span><b>{termText(chapter.title)}</b><i aria-hidden="true">→</i></button>;
-  };
-
-  return <article className="structure-page page-wrap">
-    <header className="structure-hero">
-      <div className="structure-level"><span>01</span><b>历史阶段</b></div>
-      <div><p className="eyebrow">基于罗素目录的学习重构 · RUSSELL-BASED STRUCTURE</p><h2>{termText(stage.title)}</h2><p className="structure-years">{stage.years}</p><p className="structure-condition">{termText(stage.condition)}</p></div>
-      <aside><span>原书依据</span><b>{stage.russellRange}</b><small>阶段名称与层级关系为学习重构，不是罗素的原始分期。</small></aside>
-    </header>
-
-    <nav className="structure-timeline" aria-label="切换历史阶段">{russellStructureStages.map((item, index) => <button className={item.id === stage.id ? "active" : ""} key={item.id} onClick={() => onStage(item.id)}><span>{String(index + 1).padStart(2, "0")}</span><small>{item.title}</small></button>)}</nav>
-
-    <section className="problem-field">
-      <div className="structure-section-heading"><div><p className="section-label">01 · 历史事件与问题</p><h3>先看同一个世界</h3></div><p>左侧先确定改变共同处境的事件，右侧再看这些变化把什么问题推到哲学面前；下一层的流派，是对这个问题场形成的不同回应。</p></div>
-      <div className="dual-list-grid structure-context-grid">
-        <div className="context-list event-list"><header><span>HISTORY</span><h3>关键历史事件</h3><p>先确定发生了什么</p></header>{details.events.map((item, index) => <button key={item.id} onClick={() => setActiveDetail(item)} aria-haspopup="dialog"><span className="node-number">0{index + 1}</span><span className="node-copy"><small>{item.marker}</small><b><TermText text={item.title} showEnglish={showEnglish} onTerm={onTerm} /></b></span><i aria-hidden="true">＋</i></button>)}</div>
-        <div className="context-list problem-list"><header><span>QUESTIONS</span><h3>时代提出的问题</h3><p>再看这些变化迫使人追问什么</p></header>{details.problems.map((item, index) => <button key={item.id} onClick={() => setActiveDetail(item)} aria-haspopup="dialog"><span className="node-number">0{index + 1}</span><span className="node-copy"><small>{item.marker}</small><b><TermText text={item.title} showEnglish={showEnglish} onTerm={onTerm} /></b></span><i aria-hidden="true">＋</i></button>)}</div>
-      </div>
-      <div className="context-chapters"><p><span>原书中的历史／背景章节</span><small>{stage.contextChapterIds.length ? `${stage.contextChapterIds.length} 章` : "本阶段由相邻章节共同提供背景"}</small></p>{stage.contextChapterIds.length > 0 && <div>{stage.contextChapterIds.map(chapterLink)}</div>}</div>
-    </section>
-
-    <section className="schools-layer">
-      <div className="structure-section-heading"><div><p className="section-label">02 · 哲学流派</p><h3>哪些回应方式稳定为传统？</h3></div><p>流派不是问题的来源，而是共享前提、方法、概念或生活方案的传承关系。</p></div>
-      <nav className="school-tabs" aria-label="本阶段的哲学流派">{stage.schools.map((item, index) => <button role="tab" aria-selected={item.id === school.id} className={item.id === school.id ? "active" : ""} key={item.id} onClick={() => setSchoolId(item.id)}><span>{String(index + 1).padStart(2, "0")}</span><b><TermText text={item.title} showEnglish={false} onTerm={onTerm} /></b>{showEnglish && <small>{item.english}</small>}</button>)}</nav>
-
-      <section className="school-panel" role="tabpanel">
-        <header><div><p className="eyebrow">SCHOOL / TRADITION</p><h3><TermText text={school.title} showEnglish={false} onTerm={onTerm} /></h3>{showEnglish && <p>{school.english}</p>}</div><span>{school.philosophers.length} 位人物节点</span></header>
-        <div className="school-logic"><div><span>对时代问题的回应</span><p>{termText(school.response)}</p></div><div><span>得以传承的共同方式</span><p>{termText(school.sharedPattern)}</p></div></div>
-        {school.chapterIds.length > 0 && <div className="school-source-chapters"><p className="section-label">罗素直接以流派或传统命名的章节</p><div>{school.chapterIds.map(chapterLink)}</div></div>}
-
-        <div className="philosopher-layer"><div className="philosopher-layer-title"><span>03</span><div><p className="section-label">哲学家</p><h4>同一回应方式的具体版本</h4></div></div>{school.philosophers.length > 0 ? <div className="philosopher-grid">{school.philosophers.map((philosopher) => {
-          const figure = figureEntries.find((item) => item.id === philosopher.figureId);
-          return <article className="philosopher-node" key={philosopher.id}><div className="philosopher-portrait">{figure ? <a href={figure.sourcePage} target="_blank" rel="noreferrer" title="查看图像来源"><img src={figure.imagePath} alt={`${philosopher.nameZh}的历史画像或代表性图像`} /></a> : <span aria-hidden="true">{philosopher.nameZh.slice(0, 1)}</span>}</div><div className="philosopher-copy"><h5><TermText text={philosopher.nameZh} showEnglish={false} onTerm={onTerm} /></h5>{showEnglish && <p className="philosopher-english">{philosopher.nameEn}</p>}<p>{termText(philosopher.relation)}</p></div><div className="philosopher-chapters">{philosopher.chapterIds.length > 0 ? philosopher.chapterIds.map(chapterLink) : <small>人物线索收录在本流派章节中</small>}</div></article>;
-        })}</div> : <div className="school-only-note"><span>流派型章节</span><p>罗素在这里以共同传统为叙述单位，没有另设单独的哲学家章节。</p></div>}</div>
-      </section>
-    </section>
-
-    <footer className="structure-legend"><span><i>01</i>历史事件与时代问题</span><b>→</b><span><i>02</i>流派的共享回应</span><b>→</b><span><i>03</i>哲学家的具体版本</span><b>→</b><span><i>04</i>原书章节与论证</span><em>{stageIndex + 1} / {russellStructureStages.length}</em></footer>
-    {activeDetail && <div className="detail-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveDetail(null); }}><section className="detail-modal" role="dialog" aria-modal="true" aria-labelledby="structure-detail-modal-title"><button className="modal-close" aria-label="关闭详情" onClick={() => setActiveDetail(null)}>×</button><p className="eyebrow">{activeDetail.marker}</p><h3 id="structure-detail-modal-title"><TermText text={activeDetail.title} showEnglish={showEnglish} onTerm={onTerm} /></h3><p><TermText text={activeDetail.detail} showEnglish={showEnglish} onTerm={onTerm} /></p><button className="modal-done" onClick={() => setActiveDetail(null)}>读完，回到原书结构</button></section></div>}
-  </article>;
-}
-
 function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onChapter, showEnglish, onTerm }: { stage: HistoryStage; response: ResponseNode; onResponse: (id: string) => void; onSchool: (id: string) => void; onPhilosopher: (id: string) => void; onChapter: (id: string) => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const stageIndex = historyStages.findIndex((item) => item.id === stage.id);
   const linkStart = Math.min(Math.max(0, stageIndex - 1), longLinks.length - 3);
   const details = stageDetailPanels[stage.id];
+  const russellFrames = (russellStructureStageIdsByHistoryStage[stage.id] || []).flatMap((id) => {
+    const frame = russellStructureStages.find((item) => item.id === id);
+    return frame ? [frame] : [];
+  });
   const responseLinks = historyResponseLinks[response.id] || { schoolIds: [], philosopherIds: [] };
   const linkedSchools = responseLinks.schoolIds.map((id) => schoolProfiles.find((item) => item.id === id)).filter((item): item is SchoolProfile => Boolean(item));
   const linkedPhilosophers = responseLinks.philosopherIds.map((id) => philosopherProfiles.find((item) => item.id === id)).filter((item): item is PhilosopherProfile => Boolean(item));
@@ -759,7 +672,8 @@ function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onC
     <section className="relation-section"><div className="section-heading"><p className="section-label">02 · 最短关系链</p><h3><TermText text={stage.commonQuestion} showEnglish={showEnglish} onTerm={onTerm} /></h3></div><div className="relation-chain">{stage.chain.map((link, index) => <div className={`relation-node ${link.kind}`} key={`${link.label}-${link.text}`}><span>{relationNames[link.kind]}</span><b><TermText text={link.text} showEnglish={showEnglish} onTerm={onTerm} /></b>{index < stage.chain.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div></section>
     <section className="responses-section"><div className="section-heading compact"><p className="section-label">03 · 同期比较</p><h3>同一个时代，为什么会有不同答案？</h3><p>先比较问题、方法和生活位置；具体论证留到下一层。</p></div><div className="response-tabs" role="tablist">{stage.responses.map((item, index) => <button role="tab" aria-selected={item.id === response.id} className={item.id === response.id ? "active" : ""} key={item.id} onClick={() => onResponse(item.id)}><span>0{index + 1}</span><b><TermText text={item.title} showEnglish={showEnglish} onTerm={onTerm} /></b><small><TermText text={item.figures} showEnglish={showEnglish} onTerm={onTerm} /></small></button>)}</div><div className="response-detail" role="tabpanel"><div className="response-main"><p className="response-place"><TermText text={`${response.region} · ${response.figures}`} showEnglish={showEnglish} onTerm={onTerm} /></p><h4><TermText text={response.answer} showEnglish={showEnglish} onTerm={onTerm} /></h4><div className="method-pill"><span>使用的方法</span><b><TermText text={response.method} showEnglish={showEnglish} onTerm={onTerm} /></b></div></div><div className="response-why"><p className="section-label">差异从哪里来</p><p><TermText text={response.difference} showEnglish={showEnglish} onTerm={onTerm} /></p>{response.noteCue && <blockquote><span>你的原始笔记线索</span>{response.noteCue}</blockquote>}</div><div className="chapter-evidence"><p className="section-label">下钻到原书</p>{response.chapterIds.map((id) => { const chapter = chapters.find((item) => item.id === id); return chapter ? <button key={id} onClick={() => onChapter(id)}><span>{chapter.roman}</span>{chapter.title}<i>→</i></button> : null; })}</div></div></section>
     <section className="history-explore-section"><header><div><p className="section-label">04 · 从时代回应进入流派与人物</p><h3>继续追踪“<TermText text={response.title} showEnglish={showEnglish} onTerm={onTerm} />”</h3></div><p>流派页展开共享问题、方法与内部变化；人物页进入概念、推导和具体差异。返回键会带你回到这里。</p></header>{hasDetailLinks ? <div className="history-explore-grid"><div className="history-school-links"><p className="section-label">相关哲学流派</p>{linkedSchools.map((school) => { const stars = school.stars || 1; return <button key={school.id} onClick={() => onSchool(school.id)}><span>{String(school.order).padStart(2, "0")}</span><div><small>{school.kind} · {"★".repeat(stars)}</small><b><TermText text={school.nameZh} showEnglish={false} onTerm={onTerm} /></b>{showEnglish && <em>{school.nameEn}</em>}</div><i aria-hidden="true">→</i></button>; })}</div><div className="history-philosopher-links"><p className="section-label">关键哲学家</p><div>{linkedPhilosophers.map((philosopher) => { const figure = figureEntries.find((item) => item.id === philosopher.figureId); const stars = philosopher.stars || 1; return <button key={philosopher.id} onClick={() => onPhilosopher(philosopher.id)}><span className="history-philosopher-portrait">{figure ? <img src={figure.imagePath} alt="" /> : philosopher.nameZh.slice(0, 1)}</span><span><small>{String(philosopher.order).padStart(2, "0")} · {"★".repeat(stars)}</small><b>{philosopher.nameZh}</b>{showEnglish && <em>{philosopher.nameEn}</em>}</span><i aria-hidden="true">→</i></button>; })}</div></div></div> : <aside className="history-link-scope"><b>当前详情页尚未覆盖这一回应</b><p>历史脉络与原书章节已经可读；第三卷流派和人物资料建立后，这里会按同一数据结构开放下钻。</p></aside>}</section>
-    <section className="outputs-section"><div><p className="section-label">05 · 这个阶段留下了什么</p><div className="legacy-list">{stage.legacy.map((item) => <span key={item}><TermText text={item} showEnglish={showEnglish} onTerm={onTerm} /></span>)}</div></div><div><p className="section-label">少数值得跨层保留的连接</p><div className="long-links">{longLinks.slice(linkStart, linkStart + 3).map((link) => <div key={`${link.from}-${link.to}`}><b><TermText text={link.from} showEnglish={showEnglish} onTerm={onTerm} /></b><span>{link.label} · 权重 {link.weight}</span><b><TermText text={link.to} showEnglish={showEnglish} onTerm={onTerm} /></b></div>)}</div></div></section>
+    <section className="russell-bridge-section"><header><div><p className="section-label">05 · 罗素原书中的位置</p><h3>这一时期在原书中如何组织？</h3></div><p>历史概览使用 11 个学习阶段；罗素的目录可重组为 9 个较宽的叙述框架。这里保留两者的差异，并把对应章节直接接回原书。</p></header><div className="russell-frame-list">{russellFrames.map((frame) => <article key={frame.id}><header><div><small>{frame.years}</small><h4>{frame.title}</h4></div><p>{frame.russellRange}</p></header><aside><span>原书的组织线索</span><p><TermText text={frame.condition} showEnglish={showEnglish} onTerm={onTerm} /></p></aside><div className="russell-chapter-groups">{frame.contextChapterIds.length > 0 && <section><header><span>历史与背景</span><small>{frame.contextChapterIds.length} 章</small></header><div>{frame.contextChapterIds.map((id) => { const chapter = chapters.find((item) => item.id === id); return chapter ? <button key={id} onClick={() => onChapter(id)}><span>{bookNumber[chapter.book]} · {chapter.roman}</span><b>{chapter.title}</b><i aria-hidden="true">→</i></button> : null; })}</div></section>}{frame.schools.map((school) => { const chapterIds = [...new Set([...school.chapterIds, ...school.philosophers.flatMap((philosopher) => philosopher.chapterIds)])]; if (!chapterIds.length) return null; return <section key={school.id}><header><span>{school.title}</span><small>{chapterIds.length} 章</small></header><div>{chapterIds.map((id) => { const chapter = chapters.find((item) => item.id === id); return chapter ? <button key={id} onClick={() => onChapter(id)}><span>{bookNumber[chapter.book]} · {chapter.roman}</span><b>{chapter.title}</b><i aria-hidden="true">→</i></button> : null; })}</div></section>; })}</div><footer>阶段名称和层级关系是本站依据罗素目录进行的学习重构，并非罗素亲自给出的九阶段分期。</footer></article>)}</div></section>
+    <section className="outputs-section"><div><p className="section-label">06 · 这个阶段留下了什么</p><div className="legacy-list">{stage.legacy.map((item) => <span key={item}><TermText text={item} showEnglish={showEnglish} onTerm={onTerm} /></span>)}</div></div><div><p className="section-label">少数值得跨层保留的连接</p><div className="long-links">{longLinks.slice(linkStart, linkStart + 3).map((link) => <div key={`${link.from}-${link.to}`}><b><TermText text={link.from} showEnglish={showEnglish} onTerm={onTerm} /></b><span>{link.label} · 权重 {link.weight}</span><b><TermText text={link.to} showEnglish={showEnglish} onTerm={onTerm} /></b></div>)}</div></div></section>
     {activeDetail && <div className="detail-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveDetail(null); }}><section className="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title"><button className="modal-close" aria-label="关闭详情" onClick={() => setActiveDetail(null)}>×</button><p className="eyebrow">{activeDetail.marker}</p><h3 id="detail-modal-title"><TermText text={activeDetail.title} showEnglish={showEnglish} onTerm={onTerm} /></h3><p><TermText text={activeDetail.detail} showEnglish={showEnglish} onTerm={onTerm} /></p><button className="modal-done" onClick={() => setActiveDetail(null)}>读完，回到双列表</button></section></div>}
   </article>;
 }

@@ -672,6 +672,31 @@ button { cursor: pointer; }
 .history-link-scope { padding: 22px 25px; border: 1px solid var(--line); border-left: 3px solid var(--red); background: var(--paper-light); }
 .history-link-scope b { font: 400 17px var(--serif); }
 .history-link-scope p { margin: 7px 0 0; color: var(--muted); font: 13px/1.7 var(--serif); }
+.russell-bridge-section { padding: 52px 0; border-top: 1px solid var(--ink); }
+.russell-bridge-section > header { display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: end; margin-bottom: 28px; }
+.russell-bridge-section > header h3 { margin: 8px 0 0; font: 400 clamp(24px, 2.8vw, 34px)/1.4 var(--serif); }
+.russell-bridge-section > header > p { margin: 0; color: var(--muted); font: 14px/1.75 var(--serif); }
+.russell-frame-list > article { border: 1px solid var(--ink); background: rgba(250, 248, 242, .54); }
+.russell-frame-list > article > header { display: grid; grid-template-columns: minmax(0, .8fr) minmax(280px, 1.2fr); gap: 24px; align-items: end; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+.russell-frame-list > article > header small { color: var(--red); font-size: 10px; letter-spacing: .06em; }
+.russell-frame-list > article > header h4 { margin: 5px 0 0; font: 400 23px/1.35 var(--serif); }
+.russell-frame-list > article > header p { margin: 0; color: var(--green); font: 15px/1.55 var(--serif); text-align: right; }
+.russell-frame-list > article > aside { display: grid; grid-template-columns: 145px 1fr; gap: 18px; padding: 17px 22px; border-bottom: 1px solid var(--line); background: var(--green-soft); }
+.russell-frame-list > article > aside span { color: var(--green); font-size: 10px; font-weight: 650; letter-spacing: .06em; }
+.russell-frame-list > article > aside p { margin: 0; font: 14px/1.65 var(--serif); }
+.russell-chapter-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+.russell-chapter-groups > section { min-width: 0; padding: 18px 22px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.russell-chapter-groups > section:nth-child(2n) { border-right: 0; }
+.russell-chapter-groups > section > header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.russell-chapter-groups > section > header span { font: 600 12px/1.45 var(--serif); }
+.russell-chapter-groups > section > header small { color: var(--muted); font-size: 9px; white-space: nowrap; }
+.russell-chapter-groups > section > div { display: grid; gap: 5px; }
+.russell-chapter-groups button { display: grid; grid-template-columns: auto minmax(0, 1fr) 12px; gap: 9px; align-items: center; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); background: var(--paper); text-align: left; }
+.russell-chapter-groups button:hover, .russell-chapter-groups button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.russell-chapter-groups button > span { color: var(--red); font-size: 9px; white-space: nowrap; }
+.russell-chapter-groups button > b { min-width: 0; overflow: hidden; font: 500 13px/1.4 var(--serif); text-overflow: ellipsis; white-space: nowrap; }
+.russell-chapter-groups button > i { color: var(--red); font-style: normal; }
+.russell-frame-list > article > footer { padding: 13px 22px; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .outputs-section { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; padding: 52px 0; border-top: 1px solid var(--ink); }
 .legacy-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .legacy-list span { padding: 8px 10px; border: 1px solid var(--line); background: var(--paper-light); font: 12px var(--serif); }
@@ -886,6 +911,7 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .relation-section,
 .responses-section,
 .history-explore-section,
+.russell-bridge-section,
 .outputs-section { padding-block: var(--space-section); }
 .dual-list-grid { gap: 14px; }
 .context-list > header { min-height: 118px; padding: 18px 21px; }
@@ -1169,6 +1195,9 @@ span.place-token {
   .response-detail > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .history-explore-section > header, .history-explore-grid { grid-template-columns: 1fr; gap: 16px; }
   .history-philosopher-links > div { grid-template-columns: 1fr; }
+  .russell-bridge-section > header, .russell-frame-list > article > header, .russell-frame-list > article > aside, .russell-chapter-groups { grid-template-columns: 1fr; gap: 12px; }
+  .russell-frame-list > article > header p { text-align: left; }
+  .russell-chapter-groups > section { border-right: 0; }
   .long-links > div { grid-template-columns: 1fr; }
   .long-links span { text-align: left; }
   .method-detail { padding: 30px 22px; border-top: 1px solid var(--ink); border-left: 0; }
