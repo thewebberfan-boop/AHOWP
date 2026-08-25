@@ -238,7 +238,7 @@
 - 当前主要是单页状态切换，不是可独立分享 URL 的多路由详情页。
 - 历史概览到流派、人物的下钻已覆盖三卷现有详情页；后续新增人物或流派时，必须同步补充 `historyResponseLinks`，保持返回链和阶段语境。
 - 离线版的在线地图和外部资料链接在断网时不可用；若需要完全离线地图，需另建地图资源包。
-- Vercel 项目 `webber6/ahowp` 已创建，生产版已发布到 `https://ahowp.vercel.app` 并通过线上 HTTP 200 检查。Vercel 账号仍需在 Login Connections 中连接 GitHub，连接后才能让 `main` 推送自动触发部署；当前手动生产部署已可用。
+- Vercel 项目 `webber6/ahowp` 已创建，生产版已发布到 `https://ahowp.vercel.app` 并通过线上 HTTP 200 检查；GitHub Login Connection 已完成，`main` 推送现可自动触发部署。
 
 ## 建议的下一步
 
@@ -249,7 +249,7 @@
 3. 继续核验罗瑟林及现有历史图像的来源、身份和更合适版本；或
 4. 回到原书索引，补充第二卷关键章节的结构化笔记；或
 5. 为第三卷的流派人物关系补充更细的直接传承、批评与协作证据，并据此校正图谱边。
-6. 在 Vercel Account Settings 的 Login Connections 中连接 GitHub，完成 `thewebberfan-boop/AHOWP` 的自动部署绑定。
+6. 后续继续补充内容时，沿用 `main` 推送触发 Vercel 生产部署，并检查部署记录。
 
 不要仅为覆盖数字继续增加主题章次要人物，也不要把学习用的现代分组写成不存在的同质化学派。
 
