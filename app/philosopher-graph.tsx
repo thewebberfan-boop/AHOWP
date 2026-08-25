@@ -64,7 +64,11 @@ const philosopherGroup = (order: number) => {
   if (order <= 29) return "希腊化—罗马";
   if (order <= 38) return "教父与早期中世纪";
   if (order <= 42) return "伊斯兰与犹太";
-  return "经院与政教";
+  if (order <= 53) return "经院与政教";
+  if (order <= 61) return "文艺复兴与新科学";
+  if (order <= 68) return "理性与经验";
+  if (order <= 74) return "浪漫主义与观念论";
+  return "工业社会与现代分析";
 };
 
 export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { initialPhilosopherId: string; onPhilosopher: (id: string) => void }) {
@@ -98,7 +102,7 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
       <D3ForceGraph
         variant="typed"
         title="D3.js 多类型节点力导向网络图"
-        description="按六个历史阶段形成多中心聚类，优先观察人物在时代群组中的位置与跨组连接。"
+        description="按十个历史阶段形成多中心聚类，优先观察人物在时代群组中的位置与跨组连接。"
         ariaLabel="哲学家多类型节点力导向网络图"
         nodes={graphNodes}
         links={graphLinks}

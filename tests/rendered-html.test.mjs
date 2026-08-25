@@ -33,13 +33,14 @@ test("server-renders the current learning map shell", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, historyData, structureData, graph, forceGraph, medieval, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, historyData, structureData, graph, forceGraph, medieval, modern, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/d3-force-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
+    readFile(new URL("app/philosopher-data-modern.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-data-medieval.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("docs/SYSTEM_SPEC.md", projectRoot), "utf8"),
@@ -88,6 +89,9 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(forceGraph, /const height = 440/);
   assert.match(medieval, /托马斯·阿奎那/);
   assert.match(medieval, /帕多瓦的马西略/);
+  assert.match(modern, /马基雅维利/);
+  assert.match(modern, /柏格森/);
+  assert.match(modern, /Bertrand Russell/);
   assert.match(medievalSchools, /教父哲学与拉丁基督教传统/);
   assert.match(medievalSchools, /伊斯兰哲学：法尔萨法与卡拉姆批评/);
   assert.match(medievalSchools, /方济各会经院哲学与唯名论/);
@@ -96,10 +100,12 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
   assert.match(spec, /流派星级表示学习辨识度/);
   assert.match(spec, /系统复刻说明/);
-  assert.match(status, /53 位人物/);
+  assert.match(status, /82 位人物/);
   assert.match(status, /17 个流派/);
 
   const { figures } = JSON.parse(figuresText);
   assert.equal(figures.find((figure) => figure.id === "philo-alexandria")?.status, "ready");
   assert.equal(figures.find((figure) => figure.id === "duns-scotus")?.status, "ready");
+  assert.equal(figures.find((figure) => figure.id === "galileo")?.status, "ready");
+  assert.equal(figures.find((figure) => figure.id === "bergson")?.status, "ready");
 });

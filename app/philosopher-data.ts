@@ -1,5 +1,6 @@
 import { laterAncientProfiles } from "./philosopher-data-late-ancient";
 import { medievalProfiles } from "./philosopher-data-medieval";
+import { modernProfiles } from "./philosopher-data-modern";
 
 export type PhilosopherTimelineItem = {
   date: string;
@@ -1612,7 +1613,7 @@ const philosopherStarsById: Record<string, PhilosopherStarRating> = {
   plotinus: 5,
 };
 
-export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles, ...medievalProfiles].map((profile) => ({
+export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles, ...medievalProfiles, ...modernProfiles].map((profile) => ({
   ...profile,
   stars: philosopherStarsById[profile.id] || profile.stars || 1,
   culturalNotes: culturalNotesById[profile.id] || profile.culturalNotes,

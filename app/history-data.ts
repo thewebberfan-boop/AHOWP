@@ -46,6 +46,22 @@ export const historyResponseLinks: Record<string, HistoryResponseLinks> = {
   aquinas: { schoolIds: ["dominican-aristotelian-synthesis", "aristotelianism"], philosopherIds: ["albert-great", "aquinas"] },
   franciscans: { schoolIds: ["franciscan-scholastic-nominalism"], philosopherIds: ["roger-bacon", "bonaventure", "duns-scotus", "ockham"] },
   "church-state": { schoolIds: ["medieval-church-state-thought"], philosopherIds: ["ockham", "marsilius-padua"] },
+  machiavelli: { schoolIds: [], philosopherIds: ["machiavelli"] },
+  reformation: { schoolIds: [], philosopherIds: ["erasmus", "thomas-more", "luther"] },
+  "new-science": { schoolIds: [], philosopherIds: ["copernicus", "kepler", "galileo", "francis-bacon"] },
+  hobbes: { schoolIds: [], philosopherIds: ["hobbes"] },
+  rationalists: { schoolIds: [], philosopherIds: ["descartes", "spinoza", "leibniz"] },
+  locke: { schoolIds: [], philosopherIds: ["locke"] },
+  hume: { schoolIds: [], philosopherIds: ["berkeley", "hume"] },
+  rousseau: { schoolIds: [], philosopherIds: ["rousseau"] },
+  kant: { schoolIds: [], philosopherIds: ["kant"] },
+  hegel: { schoolIds: [], philosopherIds: ["hegel"] },
+  romantics: { schoolIds: [], philosopherIds: ["byron", "schopenhauer"] },
+  nietzsche: { schoolIds: [], philosopherIds: ["nietzsche"] },
+  "utilitarian-marx": { schoolIds: [], philosopherIds: ["bentham", "mill", "marx"] },
+  "life-duration": { schoolIds: [], philosopherIds: ["bergson"] },
+  pragmatists: { schoolIds: [], philosopherIds: ["william-james", "dewey"] },
+  analysis: { schoolIds: [], philosopherIds: ["frege", "russell"] },
 };
 
 export type HistoryStage = {
@@ -269,7 +285,7 @@ export const historyStages: HistoryStage[] = [
     ],
     legacy: ["世俗国家", "个人解释权", "数学化自然", "现代哲学寻找新基础的任务"],
     review: "文艺复兴、宗教改革和科学革命看似不同，为什么都可以理解为对统一权威结构的拆解？",
-    coverage: "book",
+    coverage: "personal",
   },
   {
     id: "early-modern",
@@ -294,7 +310,7 @@ export const historyStages: HistoryStage[] = [
     ],
     legacy: ["现代主体", "社会契约", "自由主义", "理性主义—经验主义框架", "康德问题的起点"],
     review: "为什么同样受新科学影响，笛卡尔从理性确定性出发，洛克从经验出发，霍布斯却把方法用于国家建构？",
-    coverage: "book",
+    coverage: "personal",
   },
   {
     id: "revolution-idealism",
@@ -319,7 +335,7 @@ export const historyStages: HistoryStage[] = [
     ],
     legacy: ["现代自由概念的分叉", "先验方法", "历史辩证法", "民族国家与浪漫个人主义"],
     review: "为什么法国革命既能支持个人自由，也能推动卢梭式公意、黑格尔式国家和浪漫主义反理性？",
-    coverage: "book",
+    coverage: "personal",
   },
   {
     id: "industrial-modern",
@@ -339,12 +355,13 @@ export const historyStages: HistoryStage[] = [
     responses: [
       { id: "nietzsche", title: "追溯并重估价值", figures: "尼采", region: "德语欧洲", answer: "传统道德有历史和权力来源，虚无主义需要通过价值创造来克服。", method: "谱系、心理洞察与格言", difference: "不问价值是否符合永恒标准，而问它由何种生命需要产生。", chapterIds: ["b3-25"] },
       { id: "utilitarian-marx", title: "以结果或结构评价社会", figures: "功利主义者、马克思", region: "英国 / 欧洲工人运动", answer: "制度可按总体幸福评价，或按生产关系与阶级支配解释并改变。", method: "后果计算、政治经济学与历史唯物解释", difference: "都把哲学拉向社会改革，却对个人利益和历史结构权重不同。", chapterIds: ["b3-26", "b3-27"] },
+      { id: "life-duration", title: "从绵延内部理解生命", figures: "柏格森", region: "法国", answer: "生活时间是过去渗入现在的质性绵延，不能被钟表单位和静态概念完全替代。", method: "经验描述、直觉与过程比较", difference: "把科学测量与生活经验的适用范围分开，重新突出生成、记忆与创造。", chapterIds: ["b3-28"] },
       { id: "pragmatists", title: "以实践后果理解真理", figures: "威廉·詹姆斯、约翰·杜威", region: "美国", answer: "观念的意义和真理应联系其在经验、行动和共同探究中的作用。", method: "经验实验、功能分析与教育实践", difference: "拒绝脱离生活的二元体系，把认识放回持续调整的环境。", chapterIds: ["b3-29", "b3-30"] },
       { id: "analysis", title: "以逻辑分析澄清问题", figures: "弗雷格传统、罗素与分析哲学", region: "英国及欧洲逻辑传统", answer: "许多哲学困难来自语法表面，揭示逻辑形式可以重构或消除问题。", method: "逻辑形式、定义与语言分析", difference: "不再建立历史整体，而把哲学变成精确的澄清活动。", chapterIds: ["b3-31"] },
     ],
     legacy: ["价值谱系", "社会结构批判", "实用主义", "分析哲学", "现代哲学的多中心格局"],
     review: "为什么工业社会没有产生一个统一哲学，而同时产生了尼采、马克思、实用主义和逻辑分析？",
-    coverage: "book",
+    coverage: "personal",
   },
 ];
 

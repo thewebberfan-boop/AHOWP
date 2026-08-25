@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-24T22:17:01.296Z",
+  "generatedAt": "2026-08-25T00:00:00.000Z",
   "policy": "Representative images resolved from encyclopedia records to Wikimedia Commons; every downloaded image retains its source and license metadata.",
-  "count": 82,
-  "ready": 76,
-  "needsReview": 6,
+  "count": 83,
+  "ready": 78,
+  "needsReview": 5,
   "figures": [
     {
       "id": "thales",
@@ -1096,9 +1096,19 @@
       "wikidataId": "Q307",
       "wikidataUrl": "https://www.wikidata.org/wiki/Q307",
       "description": "Italian physicist and astronomer (1564–1642)",
-      "status": "image_metadata_failed",
-      "representationCaution": "古代与中世纪人物的雕像、手稿插图或后世画像通常不是写实肖像，应作为视觉识别符号使用。",
-      "image": null
+      "status": "ready",
+      "image": {
+        "localPath": "/visual-archive/figures/galileo.jpg",
+        "commonsFile": "Galileo.arp.300pix.jpg",
+        "commonsPage": "https://commons.wikimedia.org/wiki/File:Galileo.arp.300pix.jpg",
+        "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Galileo.arp.300pix.jpg",
+        "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cc/Galileo.arp.300pix.jpg",
+        "mime": "image/jpeg",
+        "license": "Public domain",
+        "licenseUrl": null,
+        "artist": "Justus Sustermans",
+        "credit": "Royal Museums Greenwich portrait collection"
+      }
     },
     {
       "id": "francis-bacon",
@@ -1580,6 +1590,29 @@
         "licenseUrl": null,
         "artist": "Bassano Ltd",
         "credit": "one or more third parties have made copyright claims against Wikimedia Commons in relation to the work from which this is sourced or a purely mechanical reproduction thereof. This may be due to recognition of the \"sweat of the brow\" doctrine, allowing works to be eligible for protection through skill and labour, and not purely by originality as is the case in the United States (where this website is hosted). These claims may or may not be valid in all jurisdictions.\nAs such, use of this image in the jurisdiction of the claimant or other countries may be regarded as copyright infringement. Please see Commons:When to use the PD-Art tag for more information."
+      }
+    },
+    {
+      "id": "bergson",
+      "zh": "柏格森",
+      "en": "Henri Bergson",
+      "wikipediaTitle": "Henri Bergson",
+      "wikipediaUrl": "https://en.wikipedia.org/wiki/Henri_Bergson",
+      "wikidataId": "Q256187",
+      "wikidataUrl": "https://www.wikidata.org/wiki/Q256187",
+      "description": "French philosopher (1859–1941)",
+      "status": "ready",
+      "image": {
+        "localPath": "/visual-archive/figures/bergson.jpg",
+        "commonsFile": "Henri Bergson 02.jpg",
+        "commonsPage": "https://commons.wikimedia.org/wiki/File:Henri_Bergson_02.jpg",
+        "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Henri_Bergson_02.jpg",
+        "thumbnailUrl": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Henri_Bergson_02.jpg",
+        "mime": "image/jpeg",
+        "license": "Public domain",
+        "licenseUrl": null,
+        "artist": "Henri Manuel",
+        "credit": "Library of Congress, ggbain.38388"
       }
     },
     {
