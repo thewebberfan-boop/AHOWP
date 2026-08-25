@@ -580,38 +580,49 @@ const ancientSchoolProfiles: SchoolProfile[] = [
 ];
 
 const schoolStarsById: Record<string, SchoolStarRating> = {
-  "presocratic-traditions": 5,
-  "sophists-socratic-turn": 5,
+  // A logarithmic learning pyramid: 12 × 1★, 9 × 2★, 5 × 3★, 4 × 4★, 2 × 5★.
+  // Stars mark explanatory reach and route-setting value, not philosophical worth.
+  // 5★: the two enduring reference systems for the whole historical map.
   platonism: 5,
   aristotelianism: 5,
-  cynicism: 4,
-  "ancient-skepticism": 4,
-  epicureanism: 5,
-  stoicism: 5,
-  "patristic-christian-tradition": 4,
-  "monastic-pastoral-tradition": 2,
-  "medieval-christian-neoplatonism": 3,
-  "islamic-falsafa-kalam": 4,
-  "medieval-jewish-philosophy": 3,
-  "twelfth-century-dialectic": 3,
-  "dominican-aristotelian-synthesis": 4,
-  "franciscan-scholastic-nominalism": 4,
-  "medieval-church-state-thought": 3,
-  "renaissance-political-realism": 5,
-  "christian-humanism": 3,
-  "protestant-reformation-thought": 5,
-  "scientific-revolution-method": 5,
-  "mechanistic-political-philosophy": 4,
-  "continental-rationalism": 5,
-  "british-empiricism-liberalism": 5,
-  "romanticism-republican-freedom": 4,
-  "critical-idealism": 5,
-  "will-value-philosophy": 5,
-  utilitarianism: 5,
-  "historical-materialism": 5,
-  "life-intuition-philosophy": 3,
-  pragmatism: 5,
-  "logical-analysis": 5,
+
+  // 4★: major historical gateways with wide downstream influence.
+  "presocratic-traditions": 4,
+  stoicism: 4,
+  "continental-rationalism": 4,
+  "critical-idealism": 4,
+
+  // 3★: prominent routes that organise a distinctive recurring problem.
+  "sophists-socratic-turn": 3,
+  epicureanism: 3,
+  "patristic-christian-tradition": 3,
+  "british-empiricism-liberalism": 3,
+  "logical-analysis": 3,
+
+  // 2★: important branches, transitions, or focused methodological programs.
+  cynicism: 2,
+  "ancient-skepticism": 2,
+  "islamic-falsafa-kalam": 2,
+  "dominican-aristotelian-synthesis": 2,
+  "protestant-reformation-thought": 2,
+  "scientific-revolution-method": 2,
+  "mechanistic-political-philosophy": 2,
+  utilitarianism: 2,
+  "historical-materialism": 2,
+
+  // 1★: contextual, specialised, or supplementary traditions.
+  "monastic-pastoral-tradition": 1,
+  "medieval-christian-neoplatonism": 1,
+  "medieval-jewish-philosophy": 1,
+  "twelfth-century-dialectic": 1,
+  "franciscan-scholastic-nominalism": 1,
+  "medieval-church-state-thought": 1,
+  "renaissance-political-realism": 1,
+  "christian-humanism": 1,
+  "romanticism-republican-freedom": 1,
+  "will-value-philosophy": 1,
+  "life-intuition-philosophy": 1,
+  pragmatism: 1,
 };
 
 export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles, ...modernSchoolProfiles]

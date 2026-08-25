@@ -33,12 +33,13 @@ test("server-renders the current learning map shell", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, historyData, structureData, graph, forceGraph, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/d3-force-graph.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/philosopher-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-modern.ts", projectRoot), "utf8"),
     readFile(new URL("app/school-data.ts", projectRoot), "utf8"),
@@ -107,10 +108,20 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(graph, /findSchoolProfilesByPhilosopher/);
   assert.match(schoolGraph, /D3\.js 多类型节点力导向网络图/);
   assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
-  assert.match(spec, /流派星级表示学习辨识度/);
+  assert.match(spec, /流派星级按 12／9／5／4／2 的近似对数金字塔分布/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /82 位人物/);
   assert.match(status, /32 个流派/);
+
+  const starCounts = (source, mapName) => {
+    const block = source.match(new RegExp(`const ${mapName}:[^=]+= \\{([\\s\\S]*?)\\n};`))?.[1] ?? "";
+    return [...block.matchAll(/(?:"[^"]+"|[a-z][\w-]*):\s*([1-5]),/g)]
+      .map((match) => Number(match[1]))
+      .reduce((counts, rating) => ({ ...counts, [rating]: (counts[rating] ?? 0) + 1 }), {});
+  };
+
+  assert.deepEqual(starCounts(philosopherData, "philosopherStarsById"), { 1: 34, 2: 24, 3: 14, 4: 7, 5: 3 });
+  assert.deepEqual(starCounts(schoolData, "schoolStarsById"), { 1: 12, 2: 9, 3: 5, 4: 4, 5: 2 });
 
   const { figures } = JSON.parse(figuresText);
   assert.equal(figures.find((figure) => figure.id === "philo-alexandria")?.status, "ready");
