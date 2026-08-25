@@ -54,7 +54,7 @@ type ForceGraphProps = {
 
 const width = 1000;
 const height = 440;
-const groupPalette = ["#a63d31", "#314b3d", "#77546d", "#b4772f", "#4e7080", "#7b6b3f"];
+const groupPalette = ["#a63d31", "#314b3d", "#77546d", "#b4772f", "#4e7080", "#7b6b3f", "#8b5f3c", "#665c87", "#3f6c72"];
 
 const endpointId = (endpoint: string | RuntimeNode) => typeof endpoint === "string" ? endpoint : endpoint.id;
 

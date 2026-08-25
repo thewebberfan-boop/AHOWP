@@ -5,6 +5,7 @@ import { D3ForceGraph, type ForceGraphLink, type ForceGraphNode } from "./d3-for
 import {
   buildSchoolGraphEdges,
   findSchoolProfileByTarget,
+  schoolAtlasGroup,
   schoolProfiles,
   schoolRelationMeta,
   sortSchoolRelations,
@@ -21,18 +22,6 @@ const relationColors: Record<SchoolRelationType, string> = {
   "后世重构": "#4e7080",
 };
 
-const schoolGroup = (order: number) => {
-  if (order <= 8) return "古代哲学传统";
-  if (order <= 11) return "教父、修道与新柏拉图";
-  if (order <= 13) return "伊斯兰与犹太传统";
-  if (order <= 16) return "中世纪经院路线";
-  if (order <= 17) return "政教权力思想";
-  if (order <= 21) return "文艺复兴、改革与新科学";
-  if (order <= 24) return "近代国家、理性与经验";
-  if (order <= 27) return "自由、观念论与价值批判";
-  return "工业社会与现代方法";
-};
-
 export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId: string; onSchool: (id: string) => void }) {
   const edges = useMemo(() => buildSchoolGraphEdges(), []);
   const [focusedId, setFocusedId] = useState<string | null>(initialSchoolId);
@@ -41,7 +30,7 @@ export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId
     order: school.order,
     label: school.nameZh,
     subtitle: school.kind,
-    group: schoolGroup(school.order),
+    group: schoolAtlasGroup(school.order),
   })), []);
   const graphLinks = useMemo<ForceGraphLink[]>(() => edges.map((edge) => ({
     id: edge.id,

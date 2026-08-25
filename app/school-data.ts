@@ -618,6 +618,23 @@ export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...med
   .map((profile) => ({ ...profile, stars: schoolStarsById[profile.id] || profile.stars || 1 }))
   .sort((left, right) => left.order - right.order);
 
+/** The school pages are the canonical cross-page classification of people. */
+export const findSchoolProfilesByPhilosopher = (philosopherId: string) =>
+  schoolProfiles.filter((school) => school.philosophers.some((person) => person.id === philosopherId));
+
+/** Shared visual grouping for the school and philosopher relation atlases. */
+export const schoolAtlasGroup = (order: number) => {
+  if (order <= 8) return "古代哲学传统";
+  if (order <= 11) return "教父、修道与新柏拉图";
+  if (order <= 13) return "伊斯兰与犹太传统";
+  if (order <= 16) return "中世纪经院路线";
+  if (order <= 17) return "政教权力思想";
+  if (order <= 21) return "文艺复兴、改革与新科学";
+  if (order <= 24) return "近代国家、理性与经验";
+  if (order <= 27) return "自由、观念论与价值批判";
+  return "工业社会与现代方法";
+};
+
 export const findSchoolProfileByTarget = (target: string) =>
   schoolProfiles.find((school) =>
     school.nameZh === target || target.startsWith(school.nameZh) || school.nameZh.startsWith(target)

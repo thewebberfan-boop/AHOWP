@@ -10,7 +10,7 @@ import { philosopherProfiles, type PhilosopherProfile } from "./philosopher-data
 import { russellStructureStageIdsByHistoryStage, russellStructureStages } from "./russell-structure-data";
 import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
-import { schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
+import { findSchoolProfilesByPhilosopher, schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
 
 type Mode = "schools" | "philosophers" | "history" | "methods" | "chapters" | "review";
@@ -26,6 +26,9 @@ type ChapterOrigin = {
   scrollY: number;
 };
 type HistoryOrigin = { stageId: string; responseId: string; scrollY: number; label: string };
+type SchoolOrigin =
+  | ({ source: "history" } & HistoryOrigin)
+  | { source: "philosopher"; philosopherId: string; scrollY: number; label: string };
 type PhilosopherOrigin =
   | ({ source: "school"; schoolId: string } & Pick<HistoryOrigin, "scrollY" | "label">)
   | ({ source: "history" } & HistoryOrigin);
@@ -96,7 +99,7 @@ export default function Home() {
   const [flipped, setFlipped] = useState(false);
   const [copied, setCopied] = useState(false);
   const [chapterOrigin, setChapterOrigin] = useState<ChapterOrigin | null>(null);
-  const [schoolOrigin, setSchoolOrigin] = useState<HistoryOrigin | null>(null);
+  const [schoolOrigin, setSchoolOrigin] = useState<SchoolOrigin | null>(null);
   const [philosopherOrigin, setPhilosopherOrigin] = useState<PhilosopherOrigin | null>(null);
   const [pendingHistoryScroll, setPendingHistoryScroll] = useState<number | null>(null);
   const [pendingSchoolScroll, setPendingSchoolScroll] = useState<number | null>(null);
@@ -310,7 +313,12 @@ export default function Home() {
   });
 
   const openSchoolFromHistory = (id: string) => {
-    setSchoolOrigin(historyOrigin("相关流派"));
+    setSchoolOrigin({ source: "history", ...historyOrigin("相关流派") });
+    openSchool(id, false, true);
+  };
+
+  const openSchoolFromPhilosopher = (id: string) => {
+    setSchoolOrigin({ source: "philosopher", philosopherId: selectedPhilosopher.id, scrollY: window.scrollY, label: `${selectedPhilosopher.nameZh} · 所属流派` });
     openSchool(id, false, true);
   };
 
@@ -330,7 +338,15 @@ export default function Home() {
 
   const returnFromSchool = () => {
     if (!schoolOrigin) return;
-    returnToHistory(schoolOrigin);
+    if (schoolOrigin.source === "history") returnToHistory(schoolOrigin);
+    else {
+      setPhilosopherId(schoolOrigin.philosopherId);
+      setShowPhilosopherGraph(false);
+      setPendingPhilosopherScroll(schoolOrigin.scrollY);
+      setMode("philosophers");
+      setQuery("");
+      setCopied(false);
+    }
     setSchoolOrigin(null);
   };
 
@@ -432,7 +448,7 @@ export default function Home() {
       <section className="reading-pane">
         <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={() => setMode("history")}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
         {mode === "schools" && (showSchoolGraph ? <SchoolGraphView initialSchoolId={selectedSchool.id} onSchool={openSchool} /> : <SchoolView profile={selectedSchool} onSchool={(id) => openSchool(id, false, true)} onPhilosopher={openPhilosopherFromSchool} onChapter={openChapter} originLabel={schoolOrigin?.label} onBack={schoolOrigin ? returnFromSchool : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
-        {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onPhilosopher={(id) => openPhilosopher(id, true)} onChapter={openChapter} originLabel={philosopherOrigin?.label} onBack={philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
+        {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onPhilosopher={(id) => openPhilosopher(id, true)} onSchool={openSchoolFromPhilosopher} onChapter={openChapter} originLabel={philosopherOrigin?.label} onBack={philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "methods" && <MethodsView method={selectedMethod} onMethod={setMethodId} onStage={openStage} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "chapters" && <ChapterView chapter={selectedChapter} note={selectedNote} starred={starredChapters.has(selectedChapter.id)} onStar={() => toggleSet(selectedChapter.id, starredChapters, "ahowp-starred", setStarredChapters)} copied={copied} onCopy={async () => { await navigator.clipboard?.writeText(`《西方哲学史》PDF 第 ${selectedChapter.pdfPage} 页`); setCopied(true); }} onTheme={(theme) => setQuery(theme)} originLabel={chapterOrigin?.label} onBack={returnFromChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
@@ -551,12 +567,13 @@ function SchoolView({ profile, onSchool, onPhilosopher, onChapter, originLabel, 
   </article>;
 }
 
-function PhilosopherView({ profile, onPhilosopher, onChapter, originLabel, onBack, showEnglish, onTerm }: { profile: PhilosopherProfile; onPhilosopher: (id: string) => void; onChapter: (id: string) => void; originLabel?: string; onBack?: () => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
+function PhilosopherView({ profile, onPhilosopher, onSchool, onChapter, originLabel, onBack, showEnglish, onTerm }: { profile: PhilosopherProfile; onPhilosopher: (id: string) => void; onSchool: (id: string) => void; onChapter: (id: string) => void; originLabel?: string; onBack?: () => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const figure = figureEntries.find((item) => item.id === profile.figureId);
   const termText = (text: string) => <TermText text={text} showEnglish={showEnglish} onTerm={onTerm} />;
   const profileIndex = philosopherProfiles.findIndex((item) => item.id === profile.id);
   const sequenceStart = Math.min(Math.max(profileIndex - 2, 0), Math.max(philosopherProfiles.length - 5, 0));
   const sequenceProfiles = philosopherProfiles.slice(sequenceStart, sequenceStart + 5);
+  const linkedSchools = findSchoolProfilesByPhilosopher(profile.id);
   const lineageEndpoint = (relation: "承接前人" | "影响后继") => {
     const targets = profile.comparisons.filter((item) => item.relation === relation).map((item) => item.target);
     const schoolStem = (label: string) => label.replace(/(诸传统|主义|学派|传统|派)$/u, "");
@@ -614,6 +631,10 @@ function PhilosopherView({ profile, onPhilosopher, onChapter, originLabel, onBac
         <article className="lineage-current"><span>当前人物与流派位置</span><h4>{profile.nameZh}</h4><b>{termText(profile.school)}</b><p>{termText(profile.lineage.school)}</p></article>
         <article className="lineage-direction-side lineage-outgoing"><span>影响去向<i aria-hidden="true">→</i></span><h4>{termText(outgoingEndpoint.figures)}</h4><b>{termText(outgoingEndpoint.schools)}</b><p>{termText(profile.lineage.influenced)}</p></article>
       </div>
+      <nav className="profile-school-links" aria-label={`${profile.nameZh}关联的哲学流派`}>
+        <div><p className="section-label">本站关联流派</p><p>从人物的具体论证回到共享问题、方法与内部张力。</p></div>
+        <div>{linkedSchools.map((school) => <button key={school.id} onClick={() => onSchool(school.id)}><span>{String(school.order).padStart(2, "0")}</span><b>{termText(school.nameZh)}</b><small>{school.kind} · {"★".repeat(school.stars || 1)}</small>{showEnglish && <em>{school.nameEn}</em>}<i aria-hidden="true">→</i></button>)}</div>
+      </nav>
       <article className="lineage-parallel"><span>非直接影响与平行关系</span><p>{termText(profile.lineage.parallel)}</p></article>
       <div className="comparison-matrix-wrap">
         <table className="comparison-matrix">

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { philosopherProfiles, type PhilosopherComparison } from "./philosopher-data";
 import { D3ForceGraph, type ForceGraphLink, type ForceGraphNode } from "./d3-force-graph";
+import { findSchoolProfilesByPhilosopher, schoolAtlasGroup } from "./school-data";
 
 type PhilosopherGraphRelation = PhilosopherComparison["relation"];
 type PhilosopherGraphEdge = {
@@ -58,7 +59,7 @@ const buildPhilosopherGraphEdges = () => {
   });
 };
 
-const philosopherGroup = (order: number) => {
+const legacyPhilosopherGroup = (order: number) => {
   if (order <= 10) return "前苏格拉底";
   if (order <= 14) return "古典希腊";
   if (order <= 29) return "希腊化—罗马";
@@ -71,6 +72,10 @@ const philosopherGroup = (order: number) => {
   return "工业社会与现代分析";
 };
 
+const philosopherSchools = (philosopherId: string) => findSchoolProfilesByPhilosopher(philosopherId);
+const philosopherGroup = (profile: (typeof philosopherProfiles)[number]) =>
+  philosopherSchools(profile.id)[0] ? schoolAtlasGroup(philosopherSchools(profile.id)[0].order) : legacyPhilosopherGroup(profile.order);
+
 export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { initialPhilosopherId: string; onPhilosopher: (id: string) => void }) {
   const edges = useMemo(() => buildPhilosopherGraphEdges(), []);
   const [focusedId, setFocusedId] = useState<string | null>(initialPhilosopherId);
@@ -78,8 +83,8 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
     id: profile.id,
     order: profile.order,
     label: profile.nameZh,
-    subtitle: profile.school,
-    group: philosopherGroup(profile.order),
+    subtitle: philosopherSchools(profile.id).map((school) => school.nameZh).join("／") || profile.school,
+    group: philosopherGroup(profile),
   })), []);
   const graphLinks = useMemo<ForceGraphLink[]>(() => edges.map((edge) => ({
     id: edge.id,
@@ -102,7 +107,7 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
       <D3ForceGraph
         variant="typed"
         title="D3.js 多类型节点力导向网络图"
-        description="按十个历史阶段形成多中心聚类，优先观察人物在时代群组中的位置与跨组连接。"
+        description="按与流派图谱一致的九个历史—方法群形成多中心聚类，优先观察人物在共同传统中的位置与跨组连接。"
         ariaLabel="哲学家多类型节点力导向网络图"
         nodes={graphNodes}
         links={graphLinks}
@@ -114,7 +119,7 @@ export function PhilosopherGraphView({ initialPhilosopherId, onPhilosopher }: { 
 
     <section className="school-map-detail philosopher-map-detail" aria-live="polite">
       {focused ? <>
-        <header><div><p className="section-label">FOCUSED CONNECTIONS</p><h3>{focused.nameZh}</h3><p>{focusedEdges.length} 条人物关系 · {focused.school}</p></div><button onClick={() => onPhilosopher(focused.id)}>进入人物页 <span aria-hidden="true">→</span></button></header>
+        <header><div><p className="section-label">FOCUSED CONNECTIONS</p><h3>{focused.nameZh}</h3><p>{focusedEdges.length} 条人物关系 · {philosopherSchools(focused.id).map((school) => school.nameZh).join("／") || focused.school}</p></div><button onClick={() => onPhilosopher(focused.id)}>进入人物页 <span aria-hidden="true">→</span></button></header>
         <div className="school-map-relation-list">{focusedEdges.map((edge) => { const from = philosopherProfiles.find((profile) => profile.id === edge.fromId)!; const to = philosopherProfiles.find((profile) => profile.id === edge.toId)!; const evidence = edge.evidence.find((item) => item.profileId === focused.id) || edge.evidence[0]; return <article key={edge.id} data-relation-type={edge.relation}><span className="school-relation-badge">{edge.relation}</span><h4>{from.nameZh} <i>{edge.reciprocal ? "↔" : "→"}</i> {to.nameZh}</h4><p>{evidence.detail}</p></article>; })}</div>
       </> : <>
         <header><div><p className="section-label">GLOBAL LEGEND</p><h3>五类人物关系</h3><p>{edges.length} 条关系边；点击任一节点查看具体连接。</p></div></header>
