@@ -12,6 +12,42 @@ export type ResponseNode = {
   chapterIds: string[];
 };
 
+export type HistoryResponseLinks = {
+  schoolIds: string[];
+  philosopherIds: string[];
+};
+
+/**
+ * History is the entry layer. These links keep the next step attached to the
+ * currently selected response, rather than treating every school or person in
+ * the same period as interchangeable. IDs point to the canonical detail data.
+ */
+export const historyResponseLinks: Record<string, HistoryResponseLinks> = {
+  milesians: { schoolIds: ["presocratic-traditions"], philosopherIds: ["thales", "anaximander", "anaximenes"] },
+  pythagoras: { schoolIds: ["presocratic-traditions"], philosopherIds: ["pythagoras"] },
+  "flux-being": { schoolIds: ["presocratic-traditions"], philosopherIds: ["heraclitus", "parmenides"] },
+  pluralists: { schoolIds: ["presocratic-traditions"], philosopherIds: ["empedocles", "anaxagoras", "leucippus", "democritus"] },
+  sophists: { schoolIds: ["sophists-socratic-turn"], philosopherIds: ["protagoras"] },
+  socrates: { schoolIds: ["sophists-socratic-turn"], philosopherIds: ["socrates"] },
+  plato: { schoolIds: ["platonism"], philosopherIds: ["plato"] },
+  aristotle: { schoolIds: ["aristotelianism"], philosopherIds: ["aristotle"] },
+  cynics: { schoolIds: ["cynicism"], philosopherIds: ["diogenes"] },
+  sceptics: { schoolIds: ["ancient-skepticism", "platonism"], philosopherIds: ["pyrrho", "arcesilaus", "carneades"] },
+  epicureans: { schoolIds: ["epicureanism"], philosopherIds: ["epicurus", "lucretius"] },
+  stoics: { schoolIds: ["stoicism"], philosopherIds: ["zeno", "cleanthes", "chrysippus", "panaetius", "posidonius"] },
+  "roman-stoics": { schoolIds: ["stoicism"], philosopherIds: ["seneca", "epictetus", "aurelius"] },
+  plotinus: { schoolIds: ["platonism"], philosopherIds: ["plotinus"] },
+  "paul-john": { schoolIds: ["patristic-christian-tradition"], philosopherIds: [] },
+  augustine: { schoolIds: ["patristic-christian-tradition", "medieval-christian-neoplatonism"], philosopherIds: ["augustine"] },
+  "monastic-papacy": { schoolIds: ["monastic-pastoral-tradition", "medieval-church-state-thought"], philosopherIds: ["benedict", "gregory-great"] },
+  "papal-order": { schoolIds: ["monastic-pastoral-tradition", "medieval-church-state-thought"], philosopherIds: ["gregory-great", "anselm"] },
+  "john-scot": { schoolIds: ["medieval-christian-neoplatonism"], philosopherIds: ["eriugena"] },
+  islamic: { schoolIds: ["islamic-falsafa-kalam", "medieval-jewish-philosophy"], philosopherIds: ["avicenna", "al-ghazali", "averroes", "maimonides"] },
+  aquinas: { schoolIds: ["dominican-aristotelian-synthesis", "aristotelianism"], philosopherIds: ["albert-great", "aquinas"] },
+  franciscans: { schoolIds: ["franciscan-scholastic-nominalism"], philosopherIds: ["roger-bacon", "bonaventure", "duns-scotus", "ockham"] },
+  "church-state": { schoolIds: ["medieval-church-state-thought"], philosopherIds: ["ockham", "marsilius-padua"] },
+};
+
 export type HistoryStage = {
   id: string;
   years: string;

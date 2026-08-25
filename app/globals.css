@@ -591,13 +591,6 @@ button { cursor: pointer; }
 .coverage-tag { display: grid; gap: 8px; justify-items: end; padding-top: 25px; }
 .coverage-tag span { padding: 6px 9px; border: 1px solid var(--green); color: var(--green); font-size: 9px; }
 .coverage-tag small { color: var(--muted); font-size: 9px; }
-.timeline { position: relative; display: grid; grid-template-columns: repeat(11, 1fr); margin: 30px 0 62px; }
-.timeline::before { position: absolute; top: 12px; right: 2%; left: 2%; height: 1px; background: var(--line); content: ""; }
-.timeline button { position: relative; z-index: 1; min-width: 0; border: 0; background: none; text-align: center; }
-.timeline span { display: grid; place-items: center; width: 25px; height: 25px; margin: 0 auto 10px; border: 1px solid var(--line); border-radius: 50%; background: var(--paper); color: var(--muted); font: 8px var(--serif); }
-.timeline small { display: block; overflow: hidden; color: var(--muted); font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
-.timeline button.active span { border-color: var(--red); background: var(--red); color: white; }
-.timeline button.active small { color: var(--ink); }
 .world-section { padding: 50px 0; border-top: 1px solid var(--line); }
 .dual-list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .context-list { border: 1px solid var(--line); background: rgba(250, 248, 242, .58); }
@@ -656,6 +649,29 @@ button { cursor: pointer; }
 .chapter-evidence button { display: grid; grid-template-columns: 32px 1fr 12px; gap: 5px; width: 100%; padding: 12px 0; border: 0; border-top: 1px solid var(--line); background: none; font: 12px/1.45 var(--serif); text-align: left; }
 .chapter-evidence button span { color: var(--red); font-size: 9px; }
 .chapter-evidence button i { color: var(--red); font-style: normal; }
+.history-explore-section { padding: 52px 0; border-top: 1px solid var(--ink); }
+.history-explore-section > header { display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: end; margin-bottom: 28px; }
+.history-explore-section > header h3 { margin: 8px 0 0; font: 400 clamp(24px, 2.8vw, 34px)/1.4 var(--serif); }
+.history-explore-section > header > p { margin: 0; color: var(--muted); font: 14px/1.75 var(--serif); }
+.history-explore-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 16px; }
+.history-school-links, .history-philosopher-links { padding: 20px; border: 1px solid var(--line); background: rgba(250,248,242,.54); }
+.history-school-links > .section-label, .history-philosopher-links > .section-label { margin-bottom: 13px; }
+.history-school-links > button { display: grid; grid-template-columns: 34px minmax(0, 1fr) 14px; gap: 12px; align-items: center; width: 100%; min-height: 82px; padding: 13px 8px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; }
+.history-school-links > button > span { color: var(--red); font: 11px var(--serif); }
+.history-school-links > button div { display: grid; gap: 3px; min-width: 0; }
+.history-school-links small, .history-philosopher-links small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.history-school-links b, .history-philosopher-links b { font: 400 16px/1.35 var(--serif); }
+.history-school-links em, .history-philosopher-links em { overflow: hidden; color: var(--muted); font: normal 10px/1.35 Arial, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.history-school-links i, .history-philosopher-links i { color: var(--red); font-style: normal; }
+.history-school-links > button:hover, .history-philosopher-links button:hover { background: var(--green-soft); }
+.history-philosopher-links > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.history-philosopher-links button { display: grid; grid-template-columns: 44px minmax(0, 1fr) 12px; gap: 10px; align-items: center; min-width: 0; min-height: 76px; padding: 10px; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: none; text-align: left; }
+.history-philosopher-links button > span:nth-child(2) { display: grid; gap: 2px; min-width: 0; }
+.history-philosopher-portrait { display: grid; overflow: hidden; place-items: center; width: 44px; height: 54px; background: var(--paper); color: var(--red); font: 18px var(--serif); }
+.history-philosopher-portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(.96); }
+.history-link-scope { padding: 22px 25px; border: 1px solid var(--line); border-left: 3px solid var(--red); background: var(--paper-light); }
+.history-link-scope b { font: 400 17px var(--serif); }
+.history-link-scope p { margin: 7px 0 0; color: var(--muted); font: 13px/1.7 var(--serif); }
 .outputs-section { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; padding: 52px 0; border-top: 1px solid var(--ink); }
 .legacy-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .legacy-list span { padding: 8px 10px; border: 1px solid var(--line); background: var(--paper-light); font: 12px var(--serif); }
@@ -850,8 +866,6 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .zoom-path,
 .language-toggle,
 .language-toggle b,
-.timeline span,
-.timeline small { font-size: var(--type-caption); }
 
 .search-box input,
 .book-filters button,
@@ -868,12 +882,10 @@ body { font-size: var(--type-body); line-height: 1.55; }
 .history-hero h2, .page-heading h2, .chapter-header h2 { font-size: var(--type-title); font-weight: 500; line-height: 1.12; letter-spacing: -.02em; }
 .transition { margin-top: 12px; font-size: var(--type-lead); line-height: 1.5; }
 .coverage-tag { padding-top: 16px; }
-.timeline { margin: 22px 0 36px; }
-.timeline span { width: 28px; height: 28px; margin-bottom: 7px; }
-
 .world-section,
 .relation-section,
 .responses-section,
+.history-explore-section,
 .outputs-section { padding-block: var(--space-section); }
 .dual-list-grid { gap: 14px; }
 .context-list > header { min-height: 118px; padding: 18px 21px; }
@@ -1144,7 +1156,6 @@ span.place-token {
   .history-hero { grid-template-columns: 36px 1fr; gap: 12px; }
   .history-hero h2, .page-heading h2, .chapter-header h2 { font-size: 32px; }
   .coverage-tag { grid-column: 2; justify-items: start; padding-top: 0; }
-  .timeline { overflow-x: auto; grid-template-columns: repeat(11, 65px); margin-bottom: 42px; }
   .dual-list-grid, .relation-section, .outputs-section, .method-layout, .chapter-content, .questions-block { grid-template-columns: 1fr; gap: 20px; }
   .context-list > header { min-height: auto; }
   .carrier-strip { grid-template-columns: 1fr; gap: 8px; }
@@ -1156,6 +1167,8 @@ span.place-token {
   .response-tabs button { flex: 0 0 170px; border-right: 0; }
   .response-detail { grid-template-columns: 1fr; }
   .response-detail > div { border-right: 0; border-bottom: 1px solid var(--line); }
+  .history-explore-section > header, .history-explore-grid { grid-template-columns: 1fr; gap: 16px; }
+  .history-philosopher-links > div { grid-template-columns: 1fr; }
   .long-links > div { grid-template-columns: 1fr; }
   .long-links span { text-align: left; }
   .method-detail { padding: 30px 22px; border-top: 1px solid var(--ink); border-left: 0; }

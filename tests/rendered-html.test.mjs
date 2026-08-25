@@ -33,8 +33,9 @@ test("server-renders the current learning map shell", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, graph, forceGraph, medieval, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, historyData, graph, forceGraph, medieval, medievalSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/d3-force-graph.tsx", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-data-medieval.ts", projectRoot), "utf8"),
@@ -52,8 +53,15 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /school-person-rating/);
   assert.match(page, /school-index-rating/);
   assert.match(page, /school\.stars/);
-  assert.match(page, /openSchool\(school\.id, true\)/);
+  assert.match(page, /openSchool\(school\.id, true, true\)/);
   assert.match(page, /setPendingSchoolScroll\(preserveScroll \? window\.scrollY : null\)/);
+  assert.match(page, /setPendingHistoryScroll\(origin\.scrollY\)/);
+  assert.match(page, /返回历史概览的原位置/);
+  assert.match(page, /04 · 从时代回应进入流派与人物/);
+  assert.doesNotMatch(page, /aria-label="全部历史阶段"/);
+  assert.match(historyData, /export const historyResponseLinks/);
+  assert.match(historyData, /"roman-stoics"/);
+  assert.match(historyData, /"church-state"/);
   assert.match(page, /function AdaptiveSchoolTitle/);
   assert.match(page, /ResizeObserver/);
   assert.match(graph, /承接前人/);
