@@ -65,12 +65,15 @@ export type SchoolRelation = {
   detail: string;
 };
 
+export type SchoolStarRating = 1 | 2 | 3 | 4 | 5;
+
 export type SchoolProfile = {
   id: string;
   order: number;
   nameZh: string;
   nameEn: string;
   kind: string;
+  stars?: SchoolStarRating;
   period: string;
   regions: string[];
   thesis: string;
@@ -575,7 +578,28 @@ const ancientSchoolProfiles: SchoolProfile[] = [
   },
 ];
 
+const schoolStarsById: Record<string, SchoolStarRating> = {
+  "presocratic-traditions": 5,
+  "sophists-socratic-turn": 5,
+  platonism: 5,
+  aristotelianism: 5,
+  cynicism: 4,
+  "ancient-skepticism": 4,
+  epicureanism: 5,
+  stoicism: 5,
+  "patristic-christian-tradition": 4,
+  "monastic-pastoral-tradition": 2,
+  "medieval-christian-neoplatonism": 3,
+  "islamic-falsafa-kalam": 4,
+  "medieval-jewish-philosophy": 3,
+  "twelfth-century-dialectic": 3,
+  "dominican-aristotelian-synthesis": 4,
+  "franciscan-scholastic-nominalism": 4,
+  "medieval-church-state-thought": 3,
+};
+
 export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles]
+  .map((profile) => ({ ...profile, stars: schoolStarsById[profile.id] || profile.stars || 1 }))
   .sort((left, right) => left.order - right.order);
 
 export const findSchoolProfileByTarget = (target: string) =>

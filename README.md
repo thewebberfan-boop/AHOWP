@@ -68,7 +68,7 @@ npm run lint
 - `app/globals.css`：全站视觉系统与响应式布局。
 - `app/book-data.ts`：罗素原书三卷、各章与已有章节笔记。
 - `app/russell-structure-data.ts`：基于罗素目录重构的“阶段—流派—人物—章节”关系。
-- `app/school-data.ts`：流派页类型、8 个古代流派／传统页，以及全站流派汇总入口。
+- `app/school-data.ts`：流派页类型、8 个古代流派／传统页、星级，以及全站流派汇总入口。
 - `app/school-data-medieval.ts`：第二卷 9 个教父、修道、伊斯兰、犹太与经院传统页。
 - `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
 - `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。

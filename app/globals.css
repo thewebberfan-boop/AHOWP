@@ -69,14 +69,16 @@ button { cursor: pointer; }
 .philosopher-link > i { grid-column: 2; color: var(--red); font: normal var(--type-caption)/1.35 var(--serif); }
 .philosopher-link.active small, .philosopher-link.active em, .philosopher-link.active > i { color: #d2d9d4; }
 .philosopher-link.active > img { border-color: #829087; }
-.school-index-link { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 2px 8px; width: 100%; padding: 13px 8px; border: 0; border-top: 1px solid var(--line); background: transparent; text-align: left; }
+.school-index-link { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 2px 8px; width: 100%; padding: 13px 8px; border: 0; border-top: 1px solid var(--line); background: transparent; text-align: left; }
 .school-index-link:hover { background: rgba(49, 75, 61, .06); }
 .school-index-link.active { background: var(--green); color: white; }
-.school-index-link > span { grid-row: 1 / 4; padding-top: 2px; color: var(--red); font-size: var(--type-caption); }
+.school-index-link > span { grid-row: 1 / 4; display: flex; min-width: 0; flex-direction: column; gap: 5px; padding-top: 2px; color: var(--red); font-size: var(--type-caption); }
+.school-index-rating { max-width: 100%; overflow: hidden; color: #77705f; font: 8px/1 Georgia, serif; letter-spacing: -.8px; white-space: nowrap; }
 .school-index-link > b { font-size: 15px; font-weight: 500; line-height: 1.4; }
 .school-index-link > em { overflow: hidden; color: var(--muted); font: normal var(--type-caption)/1.35 Arial, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .school-index-link > i { color: var(--red); font: normal var(--type-caption)/1.4 var(--serif); }
 .school-index-link.active > span { color: #efada4; }
+.school-index-link.active .school-index-rating { color: #efada4; }
 .school-index-link.active > em, .school-index-link.active > i { color: #d2d9d4; }
 .school-map-index-link { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 3px 8px; width: 100%; margin-bottom: 5px; padding: 12px 8px; border: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #eee3dc; color: #70463f; text-align: left; }
 .school-map-index-link:hover, .school-map-index-link:focus-visible { outline: none; background: #e6d8cf; }

@@ -50,6 +50,8 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /onClick=\{openPhilosopherGraph\}>哲学家/);
   assert.match(page, /onClick=\{openSchoolGraph\}>哲学流派/);
   assert.match(page, /school-person-rating/);
+  assert.match(page, /school-index-rating/);
+  assert.match(page, /school\.stars/);
   assert.match(page, /openSchool\(school\.id, true\)/);
   assert.match(page, /setPendingSchoolScroll\(preserveScroll \? window\.scrollY : null\)/);
   assert.match(page, /function AdaptiveSchoolTitle/);
@@ -72,6 +74,7 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(schoolGraph, /schoolProfiles\.length/);
   assert.match(schoolGraph, /D3\.js 多类型节点力导向网络图/);
   assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
+  assert.match(spec, /流派星级表示学习辨识度/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /53 位人物/);
   assert.match(status, /17 个流派/);
