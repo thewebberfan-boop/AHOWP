@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type SyntheticEvent } from "react";
 import { bookLabels, chapters, notes, type BookKey } from "./book-data";
 import { figureEntries, figuresForChapter, type FigureEntry } from "./figure-data";
 import { geographyByAlias, geographyEntries, geographyMatchers, type GeographyEntry } from "./geography-data";
@@ -32,6 +32,24 @@ type SchoolOrigin =
 type PhilosopherOrigin =
   | ({ source: "school"; schoolId: string } & Pick<HistoryOrigin, "scrollY" | "label">)
   | ({ source: "history" } & HistoryOrigin);
+type LearningSession = {
+  version: 1;
+  mode: Mode;
+  schoolId: string;
+  showSchoolGraph: boolean;
+  philosopherId: string;
+  showPhilosopherGraph: boolean;
+  stageId: string;
+  responseId: string;
+  methodId: string;
+  chapterId: string;
+  reviewIndex: number;
+  chapterOrigin: ChapterOrigin | null;
+  schoolOrigin: SchoolOrigin | null;
+  philosopherOrigin: PhilosopherOrigin | null;
+  scrollY: number;
+  savedAt: number;
+};
 type SearchResult =
   | { kind: "stage"; id: string; title: string; meta: string }
   | { kind: "response"; id: string; stageId: string; title: string; meta: string }
@@ -50,6 +68,8 @@ const lowerRomanNumerals = ["i", "ii", "iii", "iv", "v", "vi"];
 const inlineMatchers = [...new Set([...terminologyMatchers, ...geographyMatchers])].sort((a, b) => b.length - a.length);
 const inlinePattern = new RegExp(`(${inlineMatchers.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
 const PlaceInteractionContext = createContext<((place: GeographyEntry) => void) | null>(null);
+const learningSessionKey = "ahowp-learning-session-v1";
+const learningModes: Mode[] = ["schools", "philosophers", "history", "methods", "chapters", "review"];
 
 function loadSet(key: string) {
   try { return new Set<string>(JSON.parse(localStorage.getItem(key) || "[]")); }
@@ -70,6 +90,34 @@ function saveLocalValue(key: string, value: string) {
   catch { /* Some browsers restrict storage for file:// pages. */ }
 }
 
+function loadLearningSession(): LearningSession | null {
+  try {
+    const value = JSON.parse(localStorage.getItem(learningSessionKey) || "null") as Partial<LearningSession> | null;
+    if (!value || value.version !== 1 || !value.mode || !learningModes.includes(value.mode)) return null;
+    if (typeof value.schoolId !== "string" || typeof value.philosopherId !== "string" || typeof value.stageId !== "string" || typeof value.responseId !== "string" || typeof value.methodId !== "string" || typeof value.chapterId !== "string") return null;
+    return {
+      version: 1,
+      mode: value.mode,
+      schoolId: value.schoolId,
+      showSchoolGraph: value.showSchoolGraph !== false,
+      philosopherId: value.philosopherId,
+      showPhilosopherGraph: value.showPhilosopherGraph !== false,
+      stageId: value.stageId,
+      responseId: value.responseId,
+      methodId: value.methodId,
+      chapterId: value.chapterId,
+      reviewIndex: typeof value.reviewIndex === "number" ? value.reviewIndex : 0,
+      chapterOrigin: value.chapterOrigin || null,
+      schoolOrigin: value.schoolOrigin || null,
+      philosopherOrigin: value.philosopherOrigin || null,
+      scrollY: typeof value.scrollY === "number" ? Math.max(0, value.scrollY) : 0,
+      savedAt: typeof value.savedAt === "number" ? value.savedAt : Date.now(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 function scrollWithoutAnimation(top: number) {
   const root = document.documentElement;
   const previousBehavior = root.style.scrollBehavior;
@@ -83,6 +131,10 @@ function includesText(parts: Array<string | undefined>, needle: string) {
 }
 
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true);
+  const [sessionStorageReady, setSessionStorageReady] = useState(false);
+  const [lastSession, setLastSession] = useState<LearningSession | null>(null);
+  const [pendingResumeScroll, setPendingResumeScroll] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("history");
   const [schoolId, setSchoolId] = useState("stoicism");
   const [showSchoolGraph, setShowSchoolGraph] = useState(true);
@@ -115,9 +167,26 @@ export default function Home() {
       setReviewedStages(loadSet("ahowp-stage-reviewed"));
       setStarredChapters(loadSet("ahowp-starred"));
       setShowEnglishTerms(loadPreference("ahowp-bilingual-terms", true));
+      setLastSession(loadLearningSession());
+      setSessionStorageReady(true);
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (showLanding || pendingResumeScroll === null) return;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        scrollWithoutAnimation(pendingResumeScroll);
+        setPendingResumeScroll(null);
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
+  }, [showLanding, mode, stageId, responseId, schoolId, philosopherId, chapterId, showSchoolGraph, showPhilosopherGraph, pendingResumeScroll]);
 
   useEffect(() => {
     if (mode !== "history" || pendingHistoryScroll === null) return;
@@ -187,6 +256,50 @@ export default function Home() {
   const selectedChapter = chapters.find((chapter) => chapter.id === chapterId) || chapters[0];
   const selectedNote = notes[selectedChapter.id];
   const reviewStage = historyStages[reviewIndex % historyStages.length];
+
+  const sessionState = useMemo(() => ({
+    mode,
+    schoolId,
+    showSchoolGraph,
+    philosopherId,
+    showPhilosopherGraph,
+    stageId,
+    responseId,
+    methodId,
+    chapterId,
+    reviewIndex,
+    chapterOrigin,
+    schoolOrigin,
+    philosopherOrigin,
+  }), [mode, schoolId, showSchoolGraph, philosopherId, showPhilosopherGraph, stageId, responseId, methodId, chapterId, reviewIndex, chapterOrigin, schoolOrigin, philosopherOrigin]);
+
+  const makeLearningSession = useCallback((scrollY: number): LearningSession => ({
+    version: 1,
+    ...sessionState,
+    scrollY: Math.max(0, scrollY),
+    savedAt: Date.now(),
+  }), [sessionState]);
+
+  useEffect(() => {
+    if (!sessionStorageReady || showLanding || pendingResumeScroll !== null || pendingHistoryScroll !== null || pendingSchoolScroll !== null || pendingPhilosopherScroll !== null || pendingModeScroll !== null) return;
+    let timer = 0;
+    const persist = () => {
+      const next = makeLearningSession(window.scrollY);
+      saveLocalValue(learningSessionKey, JSON.stringify(next));
+    };
+    const schedulePersist = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(persist, 180);
+    };
+    persist();
+    window.addEventListener("scroll", schedulePersist, { passive: true });
+    window.addEventListener("pagehide", persist);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("scroll", schedulePersist);
+      window.removeEventListener("pagehide", persist);
+    };
+  }, [sessionStorageReady, showLanding, pendingResumeScroll, pendingHistoryScroll, pendingSchoolScroll, pendingPhilosopherScroll, pendingModeScroll, makeLearningSession]);
 
   const searchResults = useMemo<SearchResult[]>(() => {
     const needle = query.trim().toLowerCase();
@@ -422,15 +535,71 @@ export default function Home() {
     saveLocalValue("ahowp-bilingual-terms", String(next));
   };
 
+  const enterFirstHistoryStage = () => {
+    const firstStage = historyStages[0];
+    setStageId(firstStage.id);
+    setResponseId(firstStage.responses[0].id);
+    setMode("history");
+    setChapterOrigin(null);
+    setSchoolOrigin(null);
+    setPhilosopherOrigin(null);
+    setQuery("");
+    setCopied(false);
+    setShowLanding(false);
+    scrollWithoutAnimation(0);
+  };
+
+  const resumeLearning = () => {
+    if (!lastSession) return;
+    const resumedStage = historyStages.find((item) => item.id === lastSession.stageId) || historyStages[0];
+    const resumedSchool = schoolProfiles.find((item) => item.id === lastSession.schoolId) || schoolProfiles[0];
+    const resumedPhilosopher = philosopherProfiles.find((item) => item.id === lastSession.philosopherId) || philosopherProfiles[0];
+    const resumedMethod = methodAtlas.find((item) => item.id === lastSession.methodId) || methodAtlas[0];
+    const resumedChapter = chapters.find((item) => item.id === lastSession.chapterId) || chapters[0];
+    setMode(lastSession.mode);
+    setSchoolId(resumedSchool.id);
+    setShowSchoolGraph(lastSession.showSchoolGraph);
+    setPhilosopherId(resumedPhilosopher.id);
+    setShowPhilosopherGraph(lastSession.showPhilosopherGraph);
+    setStageId(resumedStage.id);
+    setResponseId(resumedStage.responses.some((item) => item.id === lastSession.responseId) ? lastSession.responseId : resumedStage.responses[0].id);
+    setMethodId(resumedMethod.id);
+    setChapterId(resumedChapter.id);
+    setReviewIndex(lastSession.reviewIndex % historyStages.length);
+    setChapterOrigin(lastSession.chapterOrigin);
+    setSchoolOrigin(lastSession.schoolOrigin);
+    setPhilosopherOrigin(lastSession.philosopherOrigin);
+    setPendingHistoryScroll(null);
+    setPendingSchoolScroll(null);
+    setPendingPhilosopherScroll(null);
+    setPendingModeScroll(null);
+    setPendingResumeScroll(lastSession.scrollY);
+    setQuery("");
+    setCopied(false);
+    setShowLanding(false);
+  };
+
+  const openLanding = () => {
+    const next = makeLearningSession(window.scrollY);
+    saveLocalValue(learningSessionKey, JSON.stringify(next));
+    setLastSession(next);
+    setShowLanding(true);
+    scrollWithoutAnimation(0);
+  };
+
   const showSchoolSidebar = mode === "schools" && !query;
   const showPhilosopherSidebar = mode === "philosophers" && !query;
   const showStageSidebar = mode !== "chapters" && mode !== "schools" && mode !== "philosophers" && !query;
+
+  if (showLanding) {
+    return <LandingPage session={lastSession} storageReady={sessionStorageReady} onBegin={enterFirstHistoryStage} onResume={resumeLearning} />;
+  }
 
   return (
     <PlaceInteractionContext.Provider value={setActivePlace}>
     <main className="app-shell">
       <aside className="sidebar">
-        <div className="identity"><div className="brand-mark" aria-hidden="true">AH</div><div><p className="eyebrow">BERTRAND RUSSELL</p><h1>西方哲学史</h1><p className="subtitle">历史关系学习地图</p></div></div>
+        <button className="identity identity-button" type="button" onClick={openLanding} aria-label="回到学习入口"><div className="brand-mark" aria-hidden="true">AH</div><div><p className="eyebrow">BERTRAND RUSSELL</p><h1>西方哲学史</h1><p className="subtitle">历史关系学习地图 · 返回首页</p></div></button>
         <label className="search-box"><span aria-hidden="true">⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} aria-label="搜索全站" placeholder="搜索流派、人物、时代或章节…" />{query && <button type="button" aria-label="清空搜索" onClick={() => setQuery("")}>×</button>}</label>
 
         {mode === "chapters" && !query && <div className="book-filters" aria-label="按卷筛选"><button className={bookFilter === "all" ? "active" : ""} onClick={() => setBookFilter("all")}>全部</button><button className={bookFilter === "ancient" ? "active" : ""} onClick={() => setBookFilter("ancient")}>古代</button><button className={bookFilter === "catholic" ? "active" : ""} onClick={() => setBookFilter("catholic")}>中世纪</button><button className={bookFilter === "modern" ? "active" : ""} onClick={() => setBookFilter("modern")}>近现代</button></div>}
@@ -438,7 +607,7 @@ export default function Home() {
         <div className="sidebar-scroll">
           {query ? <div className="search-results"><div className="results-label"><span>跨层搜索</span><b>{searchResults.length}</b></div>{!searchResults.length && <div className="empty-result">没有匹配内容。试试“自由”“freedom”“帝国”或“Kant”。</div>}{searchResults.map((result) => <button className="search-result" key={`${result.kind}-${result.id}`} onClick={() => openSearchResult(result)}><span>{result.kind === "stage" ? "阶段" : result.kind === "response" ? "回应" : result.kind === "school" ? "流派" : result.kind === "philosopher" ? "哲学家" : result.kind === "method" ? "方法" : result.kind === "term" ? "术语" : result.kind === "place" ? "地点" : "章节"}</span><b>{result.title}</b><small>{result.meta}</small></button>)}</div>
           : showSchoolSidebar ? <nav className="school-index" aria-label="哲学流派与传统索引"><div className="results-label"><span>第二层 · 流派与传统</span><b>{schoolProfiles.length}</b></div><button className={showSchoolGraph ? "school-map-index-link active" : "school-map-index-link"} onClick={openSchoolGraph}><span>◇</span><b>流派图谱</b><small>按关系密度合并 · 明确分类边界</small></button>{schoolProfiles.map((school) => { const stars = school.stars || 1; return <button className={!showSchoolGraph && school.id === schoolId ? "school-index-link active" : "school-index-link"} key={school.id} onClick={() => openSchool(school.id, true, true)} aria-label={`${school.nameZh}，${stars}星`}><span>{String(school.order).padStart(2, "0")}<small className="school-index-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</small></span><b>{school.nameZh}</b><em>{school.nameEn}</em><i>{school.kind}</i></button>; })}</nav>
-          : showPhilosopherSidebar ? <nav className="philosopher-nav" aria-label="哲学家索引"><div className="results-label"><span>人物页面 · 已收录</span><b>{philosopherProfiles.length}</b></div><button className={showPhilosopherGraph ? "school-map-index-link active" : "school-map-index-link"} onClick={openPhilosopherGraph}><span aria-hidden="true">↔</span><b>哲学家图谱</b><small>按人物索引整理 · 查看承接与影响</small></button><div className="structure-notice">依原书出现顺序 · 证据分层整理</div>{philosopherProfiles.map((profile) => { const figure = figureEntries.find((item) => item.id === profile.figureId); const stars = profile.stars || 1; return <button className={!showPhilosopherGraph && profile.id === philosopherId ? "philosopher-link active" : "philosopher-link"} key={profile.id} onClick={() => openPhilosopher(profile.id, false, true)}><span className="philosopher-link-visual">{figure ? <img src={figure.imagePath} alt="" /> : <span className="philosopher-link-monogram">{profile.nameZh.slice(0, 1)}</span>}<span className="philosopher-link-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</span></span><span><small>{String(profile.order).padStart(2, "0")} · {profile.dates}</small><b>{profile.nameZh}</b><em>{profile.nameEn}</em></span><i>{profile.school}</i></button>; })}</nav>
+          : showPhilosopherSidebar ? <nav className="philosopher-nav" aria-label="哲学家索引"><div className="results-label"><span>人物页面 · 已收录</span><b>{philosopherProfiles.length}</b></div><button className={showPhilosopherGraph ? "school-map-index-link active" : "school-map-index-link"} onClick={openPhilosopherGraph}><span aria-hidden="true">↔</span><b>哲学家图谱</b><small>按人物索引整理 · 查看承接与影响</small></button><div className="structure-notice">依原书出现顺序 · 证据分层整理</div>{philosopherProfiles.map((profile) => { const figure = figureEntries.find((item) => item.id === profile.figureId); const stars = profile.stars || 1; return <button className={!showPhilosopherGraph && profile.id === philosopherId ? "philosopher-link active" : "philosopher-link"} key={profile.id} onClick={() => openPhilosopher(profile.id, true, true)}><span className="philosopher-link-visual">{figure ? <img src={figure.imagePath} alt="" /> : <span className="philosopher-link-monogram">{profile.nameZh.slice(0, 1)}</span>}<span className="philosopher-link-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</span></span><span><small>{String(profile.order).padStart(2, "0")} · {profile.dates}</small><b>{profile.nameZh}</b><em>{profile.nameEn}</em></span><i>{profile.school}</i></button>; })}</nav>
           : showStageSidebar ? <nav className="stage-nav" aria-label="历史概览阶段"><div className="results-label"><span>主线 · 历史概览</span><b>{historyStages.length}</b></div>{historyStages.map((stage, index) => <button className={stage.id === stageId ? "stage-link active" : "stage-link"} key={stage.id} onClick={() => openStage(stage.id)}><span className="stage-index">{String(index + 1).padStart(2, "0")}</span><span><small>{stage.years}</small><b>{stage.title}</b><em>{stage.transition}</em></span><i>{stage.coverage === "personal" ? "笔记" : "原书"}</i></button>)}</nav>
           : <div className="chapter-list" aria-label="全书章节"><div className="results-label"><span>原书目录</span><b>{filteredChapters.length}</b></div>{bookOrder.map((book) => { const items = filteredChapters.filter((chapter) => chapter.book === book); if (!items.length) return null; return <section key={book} className="chapter-group"><p className="group-title">{bookNumber[book]} · {bookLabels[book].title}</p>{items.map((chapter) => { const chapterFigures = figuresForChapter(chapter.title); return <button className={`${chapter.id === selectedChapter.id ? "chapter-link active" : "chapter-link"}${chapterFigures.length ? " has-portrait" : ""}`} key={chapter.id} onClick={() => openChapter(chapter.id)}>{chapterFigures.length > 0 && <span className="chapter-thumbnails" aria-hidden="true">{chapterFigures.slice(0, 2).map((figure) => <img key={figure.id} src={figure.imagePath} alt="" />)}</span>}<span className="chapter-roman">{chapter.roman}</span><span className="chapter-name">{chapter.title}<small>{chapter.english}</small></span><span className="chapter-status">{starredChapters.has(chapter.id) ? "★" : notes[chapter.id] ? "●" : ""}</span></button>; })}</section>; })}</div>}
         </div>
@@ -459,6 +628,71 @@ export default function Home() {
     </main>
     </PlaceInteractionContext.Provider>
   );
+}
+
+function LandingPage({ session, storageReady, onBegin, onResume }: { session: LearningSession | null; storageReady: boolean; onBegin: () => void; onResume: () => void }) {
+  const firstStage = historyStages[0];
+  const savedStage = session ? historyStages.find((item) => item.id === session.stageId) : null;
+  const savedSchool = session ? schoolProfiles.find((item) => item.id === session.schoolId) : null;
+  const savedPhilosopher = session ? philosopherProfiles.find((item) => item.id === session.philosopherId) : null;
+  const savedMethod = session ? methodAtlas.find((item) => item.id === session.methodId) : null;
+  const savedChapter = session ? chapters.find((item) => item.id === session.chapterId) : null;
+  const savedReviewStage = session ? historyStages[session.reviewIndex % historyStages.length] : null;
+  const savedLocation = session
+    ? session.mode === "history" ? `历史概览 · ${savedStage?.title || "历史阶段"}`
+      : session.mode === "schools" ? `哲学流派 · ${session.showSchoolGraph ? "流派图谱" : savedSchool?.nameZh || "流派页面"}`
+      : session.mode === "philosophers" ? `哲学家 · ${session.showPhilosopherGraph ? "哲学家图谱" : savedPhilosopher?.nameZh || "人物页面"}`
+      : session.mode === "methods" ? `方法图谱 · ${savedMethod?.title || "方法页面"}`
+      : session.mode === "chapters" ? `原书索引 · ${savedChapter?.title || "章节页面"}`
+      : `关系复习 · ${savedReviewStage?.title || "主动回忆"}`
+    : "";
+  const returnLabel = session
+    ? session.mode === "chapters" ? session.chapterOrigin?.label
+      : session.mode === "schools" ? session.schoolOrigin?.label
+      : session.mode === "philosophers" ? session.philosopherOrigin?.label
+      : undefined
+    : undefined;
+  const savedTime = session ? new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(session.savedAt)) : "";
+
+  return <main className="landing-page">
+    <header className="landing-masthead">
+      <div className="landing-brand"><span aria-hidden="true">AH</span><div><p>BERTRAND RUSSELL</p><b>西方哲学史 · 交互学习笔记</b></div></div>
+      <p className="landing-edition">HISTORY-FIRST EDITION <span>·</span> 本地阅读进度</p>
+    </header>
+
+    <section className="landing-stage">
+      <div className="landing-intro">
+        <p className="eyebrow">A HISTORY OF WESTERN PHILOSOPHY</p>
+        <h1>从历史进入哲学，<br />沿思想关系继续前行。</h1>
+        <p className="landing-lead">不把哲学家当作孤立的人名来记忆。先看时代提出了什么问题，再进入流派、人物、概念与罗素原书中的位置。</p>
+        <div className="landing-route" aria-label="网站学习路径"><span>历史阶段</span><i>→</i><span>时代问题</span><i>→</i><span>哲学流派</span><i>→</i><span>哲学家</span><i>→</i><span>概念与论证</span><i>→</i><span>原书章节</span></div>
+      </div>
+
+      <div className="landing-entry-panel">
+        <p className="landing-entry-label">选择进入方式</p>
+        <button className="landing-entry landing-entry-primary" type="button" onClick={onBegin}>
+          <span className="landing-entry-index">01</span>
+          <span><small>从主线起点进入</small><b>开始历史之旅</b><em>{firstStage.years} · {firstStage.title}</em></span>
+          <i aria-hidden="true">→</i>
+        </button>
+        <button className="landing-entry landing-entry-resume" type="button" onClick={onResume} disabled={!storageReady || !session}>
+          <span className="landing-entry-index">02</span>
+          <span><small>{!storageReady ? "正在读取本机记录" : session ? `上次保存于 ${savedTime}` : "这台设备还没有学习记录"}</small><b>继续上次学习</b><em>{session ? savedLocation : "首次进入后，这里会记住页面与阅读位置"}</em>{returnLabel && <strong>可返回至：{returnLabel}</strong>}</span>
+          <i aria-hidden="true">↗</i>
+        </button>
+        <p className="landing-storage-note"><span aria-hidden="true">◇</span> 页面、滚动位置与访问链保存在当前浏览器；首页不会覆盖它们。</p>
+      </div>
+    </section>
+
+    <section className="landing-atlas" aria-label="本站内容规模">
+      <div><span>01</span><p>历史阶段</p><b>{historyStages.length}</b><small>以时代变化建立主骨架</small></div>
+      <div><span>02</span><p>哲学流派</p><b>{schoolProfiles.length}</b><small>比较共同问题与内部张力</small></div>
+      <div><span>03</span><p>哲学家</p><b>{philosopherProfiles.length}</b><small>下钻概念、推导与影响关系</small></div>
+      <div><span>04</span><p>原书章节</p><b>{chapters.length}</b><small>随时接回罗素的叙述顺序</small></div>
+    </section>
+
+    <footer className="landing-footer"><span>骨架：罗素目录＋历史</span><span>阅读不是直线 · 返回始终保留来路</span></footer>
+  </main>;
 }
 
 function AdaptiveSchoolTitle({ label, children }: { label: string; children: ReactNode }) {

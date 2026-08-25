@@ -18,16 +18,17 @@ async function render() {
   );
 }
 
-test("server-renders the current learning map shell", async () => {
+test("server-renders the learning entrance", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<main class="app-shell">/);
+  assert.match(html, /<main class="landing-page">/);
   assert.match(html, /西方哲学史/);
+  assert.match(html, /开始历史之旅/);
+  assert.match(html, /继续上次学习/);
   assert.match(html, /哲学流派/);
-  assert.match(html, /帝国世界与个人伦理/);
   assert.match(html, /哲学家/);
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
 });
@@ -61,6 +62,9 @@ test("keeps the complete philosopher and school graphs in the project", async ()
     ["历史概览", "哲学流派", "哲学家", "原书索引", "方法图谱", "关系复习"],
   );
   assert.match(page, /useState<Mode>\("history"\)/);
+  assert.match(page, /ahowp-learning-session-v1/);
+  assert.match(page, /setPendingResumeScroll\(lastSession\.scrollY\)/);
+  assert.match(page, /firstStage = historyStages\[0\]/);
   assert.doesNotMatch(page, /RussellStructureView/);
   assert.match(page, /05 · 罗素原书中的位置/);
   assert.match(structureData, /russellStructureStageIdsByHistoryStage/);

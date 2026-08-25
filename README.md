@@ -71,7 +71,7 @@ npm run lint
 
 详细步骤见 [docs/MULTI_MACHINE_WORKFLOW.md](docs/MULTI_MACHINE_WORKFLOW.md)。Codex 在任何一台电脑接手时应先阅读 [AGENTS.md](AGENTS.md) 和 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)。
 
-若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录当前所有页面模式、顶部导航默认进入人物／流派图谱、Section 01—06、搜索、星级、滚动位置恢复、离线构建和视觉响应式约束。
+若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录首页双入口与本机续读状态、当前所有页面模式、顶部导航默认进入人物／流派图谱、Section 01—06、搜索、星级、返回链、滚动位置恢复、离线构建和视觉响应式约束。
 
 ## 主要文件
 
