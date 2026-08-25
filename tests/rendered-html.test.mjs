@@ -57,7 +57,7 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(graph, /承接前人/);
   assert.match(graph, /影响后继/);
   assert.match(graph, /D3\.js 多类型节点力导向网络图/);
-  assert.match(graph, /D3\.js 力导向人物关系图/);
+  assert.doesNotMatch(graph, /D3\.js 力导向人物关系图/);
   assert.match(forceGraph, /forceSimulation/);
   assert.match(forceGraph, /zoomIdentity/);
   assert.match(forceGraph, /drag/);
@@ -70,7 +70,8 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(medievalSchools, /伊斯兰哲学：法尔萨法与卡拉姆批评/);
   assert.match(medievalSchools, /方济各会经院哲学与唯名论/);
   assert.match(schoolGraph, /schoolProfiles\.length/);
-  assert.match(schoolGraph, /D3\.js 力导向流派关系图/);
+  assert.match(schoolGraph, /D3\.js 多类型节点力导向网络图/);
+  assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /53 位人物/);
   assert.match(status, /17 个流派/);

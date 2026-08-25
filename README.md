@@ -73,8 +73,8 @@ npm run lint
 - `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
 - `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。
 - `app/philosopher-data-medieval.ts`：第二卷 24 位人物的结构化资料、关系、星级和来源。
-- `app/d3-force-graph.tsx`：两种可复用的 D3.js 力导向图、拖拽、缩放、复位与同步聚焦。
-- `app/philosopher-graph.tsx`、`app/school-graph.tsx`：各自的关系数据适配、双图比较和详情下钻。
+- `app/d3-force-graph.tsx`：可复用的 D3.js 力导向图、拖拽、缩放、复位与节点聚焦。
+- `app/philosopher-graph.tsx`、`app/school-graph.tsx`：各自的关系数据适配、历史分组图谱和详情下钻。
 - `app/terminology-data.ts`：中英双语术语。
 - `app/geography-data.ts`：地点、历史语境和地图数据。
 - `visual-archive/figures.json`：人物图像来源、许可和证据说明。

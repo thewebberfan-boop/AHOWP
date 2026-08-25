@@ -313,7 +313,7 @@ export function D3ForceGraph({
 
   return <section className="d3-force-panel" data-graph-variant={variant}>
     <header className="d3-force-heading">
-      <div><span>{variant === "typed" ? "方案 A" : "方案 B"}</span><h3>{title}</h3><p>{description}</p></div>
+      <div><span>{variant === "typed" ? "历史分组布局" : "关系布局"}</span><h3>{title}</h3><p>{description}</p></div>
       <div className="d3-force-actions" aria-label={`${title}视图操作`}>
         <button onClick={() => zoomBy(1.25)} aria-label="放大图谱">＋</button>
         <button onClick={() => zoomBy(.8)} aria-label="缩小图谱">−</button>

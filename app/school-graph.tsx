@@ -68,23 +68,12 @@ export function SchoolGraphView({ initialSchoolId, onSchool }: { initialSchoolId
       <aside><div><span>核心节点</span><b>{schoolProfiles.length}</b></div><div><span>内部关系</span><b>{edges.length}</b></div><div><span>外部延伸</span><b>{allExternalRelations.length}</b></div></aside>
     </header>
 
-    <div className="d3-force-comparison" aria-label="两种 D3.js 流派图谱方案比较">
+    <div className="d3-force-shell" aria-label="D3.js 流派关系图谱">
       <D3ForceGraph
         variant="typed"
         title="D3.js 多类型节点力导向网络图"
         description="按五类历史传统形成多中心聚类，优先观察流派的类型归属、跨文化连接与阶段迁移。"
         ariaLabel="哲学流派多类型节点力导向网络图"
-        nodes={graphNodes}
-        links={graphLinks}
-        relationColors={relationColors}
-        focusedId={focusedId}
-        onFocus={setFocusedId}
-      />
-      <D3ForceGraph
-        variant="relation"
-        title="D3.js 力导向流派关系图"
-        description="由来源、竞争、分化与改造关系决定布局，节点大小随连接数量变化，突出结构中心。"
-        ariaLabel="哲学流派力导向关系图"
         nodes={graphNodes}
         links={graphLinks}
         relationColors={relationColors}
