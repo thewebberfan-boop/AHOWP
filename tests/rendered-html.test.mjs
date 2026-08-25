@@ -50,6 +50,11 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /哲学家图谱/);
   assert.match(page, /onClick=\{openPhilosopherGraph\}>哲学家/);
   assert.match(page, /onClick=\{openSchoolGraph\}>哲学流派/);
+  const topNav = page.match(/<nav className="mode-tabs"[\s\S]*?<\/nav>/)?.[0] ?? "";
+  assert.deepEqual(
+    [...topNav.matchAll(/>(历史概览|哲学流派|哲学家|原书结构|原书索引|方法图谱|关系复习)<\/button>/g)].map((match) => match[1]),
+    ["历史概览", "哲学流派", "哲学家", "原书结构", "原书索引", "方法图谱", "关系复习"],
+  );
   assert.match(page, /school-person-rating/);
   assert.match(page, /school-index-rating/);
   assert.match(page, /school\.stars/);
