@@ -4,7 +4,7 @@
 
 > 历史阶段 → 时代问题 → 哲学流派 → 哲学家 → 概念与论证 → 原书章节
 
-中文负责解释，中英双语主要用于人名、地名和哲学概念。网站目前以本地使用为主。
+中文负责解释，中英双语主要用于人名、地名和哲学概念。网站支持本地运行、离线阅读和 Vercel 部署。
 
 ## 新电脑首次运行
 
@@ -25,6 +25,17 @@ npm run dev
 nvm install
 nvm use
 ```
+
+## 部署到 Vercel
+
+仓库已包含 Vercel 配置（`vercel.json`、`vite.vercel.config.ts`）和 Nitro 构建依赖。将 GitHub 仓库导入 Vercel 后，Vercel 会读取配置并使用：
+
+```text
+安装命令：npm ci
+构建命令：npm run build:vercel
+```
+
+Nitro 会生成 Vercel 的标准 `.vercel/output` 部署包。完成一次导入后，Vercel Git 集成会在生产分支推送时自动部署，并为 Pull Request 创建预览部署。也可以用 Vercel CLI 执行 `vercel --prod`。
 
 ## 直接打开离线阅读版
 
