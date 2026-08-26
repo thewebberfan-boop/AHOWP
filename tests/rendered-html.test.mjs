@@ -76,6 +76,10 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /setPendingHistoryScroll\(origin\.scrollY\)/);
   assert.match(page, /openSchoolFromPhilosopher/);
   assert.match(page, /profile-school-links/);
+  assert.match(page, /philosopherSectionLinks/);
+  assert.match(page, /profile-local-back/);
+  assert.match(page, /setActiveSectionId\(current\)/);
+  assert.doesNotMatch(page, /philosopher-sequence/);
   assert.match(page, /scrollY: window\.scrollY/);
   assert.match(page, /chapterOrigin\.mode === "history"/);
   assert.match(page, /返回历史概览的原位置/);

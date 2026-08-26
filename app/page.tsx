@@ -64,6 +64,14 @@ const bookOrder: BookKey[] = ["ancient", "catholic", "modern"];
 const bookNumber: Record<BookKey, string> = { ancient: "第一卷", catholic: "第二卷", modern: "第三卷" };
 const relationNames = { condition: "历史条件", response: "回应", inherit: "继承", oppose: "分歧", transmit: "传播", exception: "跨层例外" };
 const philosopherRelationSymbols = { "影响后继": "→", "承接前人": "←", "同题比较": "↔", "批评关系": "×", "后世重构": "⋯" } as const;
+const philosopherSectionLinks = [
+  { id: "profile-life", label: "生平" },
+  { id: "profile-concepts", label: "概念" },
+  { id: "profile-inquiry", label: "问题与推导" },
+  { id: "profile-relations", label: "关系与比较" },
+  { id: "profile-cultural", label: "故事与名言" },
+  { id: "profile-russell", label: "罗素与校正" },
+] as const;
 const lowerRomanNumerals = ["i", "ii", "iii", "iv", "v", "vi"];
 const inlineMatchers = [...new Set([...terminologyMatchers, ...geographyMatchers])].sort((a, b) => b.length - a.length);
 const inlinePattern = new RegExp(`(${inlineMatchers.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
@@ -617,7 +625,7 @@ export default function Home() {
       <section className="reading-pane">
         <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={() => setMode("history")}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
         {mode === "schools" && (showSchoolGraph ? <SchoolGraphView initialSchoolId={selectedSchool.id} onSchool={openSchool} /> : <SchoolView profile={selectedSchool} onSchool={(id) => openSchool(id, false, true)} onPhilosopher={openPhilosopherFromSchool} onChapter={openChapter} originLabel={schoolOrigin?.label} onBack={schoolOrigin ? returnFromSchool : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
-        {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onPhilosopher={(id) => openPhilosopher(id, true)} onSchool={openSchoolFromPhilosopher} onChapter={openChapter} originLabel={philosopherOrigin?.label} onBack={philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
+        {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onSchool={openSchoolFromPhilosopher} onChapter={openChapter} originLabel={philosopherOrigin?.label} onBack={philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "methods" && <MethodsView method={selectedMethod} onMethod={setMethodId} onStage={openStage} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "chapters" && <ChapterView chapter={selectedChapter} note={selectedNote} starred={starredChapters.has(selectedChapter.id)} onStar={() => toggleSet(selectedChapter.id, starredChapters, "ahowp-starred", setStarredChapters)} copied={copied} onCopy={async () => { await navigator.clipboard?.writeText(`《西方哲学史》PDF 第 ${selectedChapter.pdfPage} 页`); setCopied(true); }} onTheme={(theme) => setQuery(theme)} originLabel={chapterOrigin?.label} onBack={returnFromChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
@@ -801,13 +809,36 @@ function SchoolView({ profile, onSchool, onPhilosopher, onChapter, originLabel, 
   </article>;
 }
 
-function PhilosopherView({ profile, onPhilosopher, onSchool, onChapter, originLabel, onBack, showEnglish, onTerm }: { profile: PhilosopherProfile; onPhilosopher: (id: string) => void; onSchool: (id: string) => void; onChapter: (id: string) => void; originLabel?: string; onBack?: () => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
+function PhilosopherView({ profile, onSchool, onChapter, originLabel, onBack, showEnglish, onTerm }: { profile: PhilosopherProfile; onSchool: (id: string) => void; onChapter: (id: string) => void; originLabel?: string; onBack?: () => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const figure = figureEntries.find((item) => item.id === profile.figureId);
   const termText = (text: string) => <TermText text={text} showEnglish={showEnglish} onTerm={onTerm} />;
-  const profileIndex = philosopherProfiles.findIndex((item) => item.id === profile.id);
-  const sequenceStart = Math.min(Math.max(profileIndex - 2, 0), Math.max(philosopherProfiles.length - 5, 0));
-  const sequenceProfiles = philosopherProfiles.slice(sequenceStart, sequenceStart + 5);
+  const [activeSectionId, setActiveSectionId] = useState<string>(philosopherSectionLinks[0].id);
   const linkedSchools = findSchoolProfilesByPhilosopher(profile.id);
+
+  useEffect(() => {
+    let animationFrame = 0;
+    const updateActiveSection = () => {
+      animationFrame = 0;
+      const navBottom = document.querySelector<HTMLElement>(".profile-local-nav")?.getBoundingClientRect().bottom || 0;
+      const readingLine = navBottom + 18;
+      const current = philosopherSectionLinks.reduce((activeId, section) => {
+        const element = document.getElementById(section.id);
+        return element && element.getBoundingClientRect().top <= readingLine ? section.id : activeId;
+      }, philosopherSectionLinks[0].id);
+      setActiveSectionId(current);
+    };
+    const scheduleUpdate = () => {
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(updateActiveSection);
+    };
+    updateActiveSection();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+    return () => {
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, [profile.id]);
   const lineageEndpoint = (relation: "承接前人" | "影响后继") => {
     const targets = profile.comparisons.filter((item) => item.relation === relation).map((item) => item.target);
     const schoolStem = (label: string) => label.replace(/(诸传统|主义|学派|传统|派)$/u, "");
@@ -822,8 +853,6 @@ function PhilosopherView({ profile, onPhilosopher, onSchool, onChapter, originLa
   const outgoingEndpoint = lineageEndpoint("影响后继");
 
   return <article className="philosopher-page page-wrap">
-    <div className={onBack ? "philosopher-sequence-row has-origin" : "philosopher-sequence-row"}>{onBack && <button className="philosopher-return" onClick={onBack} aria-label={`返回${originLabel || "此前页面"}`} title={`返回${originLabel || "此前页面"}`}><span aria-hidden="true">←</span><small>返回</small></button>}<nav className="philosopher-sequence" aria-label="当前哲学家前后各两位">{sequenceProfiles.map((item) => <button className={item.id === profile.id ? "active" : ""} key={item.id} onClick={() => onPhilosopher(item.id)} aria-current={item.id === profile.id ? "page" : undefined}><span>{String(item.order).padStart(2, "0")}</span><b>{item.nameZh}</b></button>)}</nav></div>
-
     <header className="profile-hero">
       <div className="profile-portrait">{figure ? <a href={figure.sourcePage} target="_blank" rel="noreferrer" title="查看图像来源"><img src={figure.imagePath} alt={`${profile.nameZh}的后世画像或代表性图像`} /></a> : <span>{profile.nameZh.slice(0, 1)}</span>}<small>{profile.order <= 53 ? "古代与中世纪图像仅作视觉识别，并非写实肖像" : "人物图像用于视觉识别；点击查看来源与许可"}</small></div>
       <div className="profile-title"><p className="eyebrow">PHILOSOPHER {String(profile.order).padStart(2, "0")} · {profile.school}</p><h2><TermText text={profile.nameZh} showEnglish={false} onTerm={onTerm} /></h2><p className="profile-name-line"><span>{profile.nameEn}</span><i>{profile.greekName}</i></p><blockquote>{termText(profile.thesis)}</blockquote></div>
@@ -831,7 +860,10 @@ function PhilosopherView({ profile, onPhilosopher, onSchool, onChapter, originLa
     </header>
 
     <aside className="evidence-caution"><span>证据边界</span><p>{termText(profile.evidenceCaution)}</p></aside>
-    <nav className="profile-local-nav" aria-label="本页内容"><a href="#profile-life">生平</a><a href="#profile-concepts">概念</a><a href="#profile-inquiry">问题与推导</a><a href="#profile-relations">关系与比较</a><a href="#profile-cultural">故事与名言</a><a href="#profile-russell">罗素与校正</a></nav>
+    <nav className={onBack ? "profile-local-nav has-return" : "profile-local-nav"} aria-label="本页内容">
+      {onBack && <button className="profile-local-back" onClick={onBack} aria-label={`返回${originLabel || "此前页面"}`} title={`返回${originLabel || "此前页面"}`}><span aria-hidden="true">←</span></button>}
+      {philosopherSectionLinks.map((section) => <a className={activeSectionId === section.id ? "active" : ""} href={`#${section.id}`} key={section.id} aria-current={activeSectionId === section.id ? "location" : undefined} onClick={() => setActiveSectionId(section.id)}>{section.label}</a>)}
+    </nav>
 
     <section className="profile-section life-section" id="profile-life">
       <header><span>01</span><div><p className="section-label">LIFE IN HISTORY</p><h3>生平与历史位置</h3></div></header>
