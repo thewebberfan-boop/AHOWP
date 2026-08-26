@@ -34,8 +34,9 @@ test("server-renders the learning entrance", async () => {
 });
 
 test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, styles, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
@@ -74,6 +75,23 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /openSchool\(school\.id, true, true\)/);
   assert.match(page, /setPendingSchoolScroll\(preserveScroll \? window\.scrollY : null\)/);
   assert.match(page, /setPendingHistoryScroll\(origin\.scrollY\)/);
+  assert.match(page, /sidebarScrollRef/);
+  assert.match(page, /data-sidebar-focus/);
+  assert.match(page, /container\.scrollTo\(\{ top: Math\.max\(0, nextTop\), behavior: "auto" \}\)/);
+  assert.match(page, /function MobileObjectRail/);
+  assert.match(page, /data-mobile-rail-focus/);
+  assert.match(page, /左右滑动切换/);
+  assert.match(page, /function MobileSearchPanel/);
+  assert.match(styles, /scroll-snap-type: x mandatory/);
+  assert.match(styles, /app-mode-history \.sidebar/);
+  assert.match(page, /EntityNavigationContext/);
+  assert.match(page, /openInlineEntity/);
+  assert.match(page, /returnFromInlineEntity/);
+  assert.match(page, /previousInlineEntityOrigin/);
+  assert.match(page, /className="term-token entity-token"/);
+  assert.match(page, /interactive=\{false\}/);
+  assert.match(styles, /\.term-static/);
+  assert.match(styles, /\.entity-token/);
   assert.match(page, /openSchoolFromPhilosopher/);
   assert.match(page, /profile-school-links/);
   assert.match(page, /philosopherSectionLinks/);
@@ -82,7 +100,7 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.doesNotMatch(page, /philosopher-sequence/);
   assert.match(page, /scrollY: window\.scrollY/);
   assert.match(page, /chapterOrigin\.mode === "history"/);
-  assert.match(page, /返回历史概览的原位置/);
+  assert.match(page, /返回刚才的阅读位置/);
   assert.match(page, /04 · 从时代回应进入流派与人物/);
   assert.doesNotMatch(page, /aria-label="全部历史阶段"/);
   assert.match(historyData, /export const historyResponseLinks/);
