@@ -92,10 +92,14 @@ responseIds.forEach((id) => { if (!historyResponseLinks[id]) warn(`历史回应 
 
 const personMinimum: Record<Rating, number> = { 1: 1200, 2: 1350, 3: 1500, 4: 2300, 5: 2900 };
 const schoolMinimum: Record<Rating, number> = { 1: 1150, 2: 1200, 3: 1500, 4: 1850, 5: 2100 };
+const culturalNoteMinimum: Record<Rating, number> = { 1: 0, 2: 0, 3: 1, 4: 2, 5: 3 };
 
 philosopherProfiles.forEach((profile) => {
   const size = textSize(profile);
   if (size < personMinimum[profile.stars || 1]) warn(`${profile.stars}星人物“${profile.nameZh}”正文量 ${size}，低于建议值 ${personMinimum[profile.stars || 1]}`);
+  const noteCount = profile.culturalNotes?.length || 0;
+  const expectedNotes = culturalNoteMinimum[profile.stars || 1];
+  if (noteCount < expectedNotes) error(`${profile.stars}星人物“${profile.nameZh}”仅有 ${noteCount} 条生活化入口，低于基线 ${expectedNotes} 条`);
 });
 schoolProfiles.forEach((school) => {
   const size = textSize(school);
