@@ -26,7 +26,7 @@ export const medievalSchoolProfiles: SchoolProfile[] = [
     context: {
       overview: "希腊语哲学已成为罗马帝国的跨地域知识语言，犹太与基督教共同体却以启示、创造和救赎理解历史。迫害、帝国基督教化、教义争论与西部政治危机，使‘如何用哲学说明经文而不让哲学取代经文’成为持续压力。",
       factors: [
-        { title: "经文与希腊教育相遇", detail: "寓意解释、逻各斯和非物质实在提供接口，使人格化叙事能与哲学的超越原则对话。" },
+        { title: "经文与希腊教育相遇", detail: "寓意解释、逻各斯和非物质实在提供了一套翻译方法，使经文中的人格化叙事能与哲学的超越原则对话。" },
         { title: "教义与共同体边界", detail: "三位一体、基督论、自由和恩典不只是抽象命题，也决定礼仪、权威与共同体归属。" },
         { title: "帝国结构转变", detail: "从受迫害少数群体到帝国宗教，教会必须处理皇权、公共罪责、教育和城市照护。" },
       ],
@@ -51,7 +51,7 @@ export const medievalSchoolProfiles: SchoolProfile[] = [
       { id: "augustine", role: "拉丁传统系统建构者", contribution: "以记忆、时间、意志、恶的缺失、恩典和两个城重组基督教哲学问题。", interaction: "成为安瑟伦、波那文图拉、阿奎那及宗教改革都必须回应的共同来源。" },
     ],
     development: [
-      { period: "公元 1 世纪", title: "犹太经文与希腊哲学的接口", detail: "斐洛以寓意、逻各斯和超越神学建立可复用的调和形式。" },
+      { period: "公元 1 世纪", title: "犹太经文与希腊哲学相遇", detail: "斐洛以寓意、逻各斯和超越神学建立可供后人继续改写的解释方法。" },
       { period: "2—3 世纪", title: "护教与系统释经", detail: "奥利金把经文校勘、哲学教育和救赎宇宙论组合起来。" },
       { period: "4 世纪", title: "帝国教会与拉丁转译", detail: "安布罗斯、哲罗姆等人处理教义、皇权、翻译和禁欲共同体。" },
       { period: "4—5 世纪", title: "奥古斯丁综合", detail: "个人内在性、恩典争论与罗马危机被写成拉丁中世纪最持久的问题框架。" },
@@ -279,7 +279,7 @@ export const medievalSchoolProfiles: SchoolProfile[] = [
       ],
     },
     philosophers: [
-      { id: "philo-alexandria", role: "希腊化前史", contribution: "以寓意释经和逻各斯展示犹太经文与希腊哲学可以形成高密度接口。", interaction: "与迈蒙尼德没有简单直线师承，两人分别面对中期柏拉图主义和亚里士多德—阿拉伯哲学。" },
+      { id: "philo-alexandria", role: "希腊化前史", contribution: "以寓意释经和逻各斯严密说明犹太经文怎样能与希腊哲学对话。", interaction: "与迈蒙尼德没有简单直线师承，两人分别面对中期柏拉图主义和亚里士多德—阿拉伯哲学。" },
       { id: "maimonides", role: "法律与哲学综合者", contribution: "以《密西拿托拉》系统化律法，以《迷途指津》处理负神学、创世、先知与哲学困惑。", interaction: "吸收阿维森纳和阿威罗伊问题，又影响阿奎那及希伯来文后继争论。" },
       { id: "avicenna", role: "阿拉伯语形而上学来源", contribution: "本质—存在、必然存在和灵魂理论为犹太哲学提供关键术语。", interaction: "迈蒙尼德既使用哲学框架，也对宇宙必然性和神圣属性保持距离。" },
       { id: "averroes", role: "安达卢西亚平行传统", contribution: "亚里士多德注释和解释层级经希伯来翻译进入犹太思想。", interaction: "两者共享安达卢西亚背景，但各自在不同律法共同体内工作。" },
@@ -291,7 +291,7 @@ export const medievalSchoolProfiles: SchoolProfile[] = [
       { period: "13 世纪以后", title: "希伯来翻译与内部争论", detail: "《迷途指津》和阿威罗伊著作进入欧洲犹太社群，引发支持与反对。" },
     ],
     relations: [
-      { target: "教父哲学与拉丁基督教传统", relation: "分化", detail: "斐洛式经文—哲学接口分别被基督教和犹太传统重构，不能据相似性假定统一谱系。" },
+      { target: "教父哲学与拉丁基督教传统", relation: "分化", detail: "斐洛式经文解释分别被基督教和犹太传统重构，不能因两者相似就假定存在统一谱系。" },
       { target: "伊斯兰哲学：法尔萨法与卡拉姆批评", relation: "思想来源", detail: "中世纪犹太哲学在阿拉伯语思想世界中直接吸收法尔萨法、卡拉姆、科学和写作形式。" },
       { target: "多明我会亚里士多德综合", relation: "后世重构", detail: "迈蒙尼德经拉丁翻译进入阿奎那的神圣属性、律法和创世讨论。" },
       { target: "中世纪政教权力思想", relation: "竞争", detail: "迈蒙尼德以社群法律和领袖责任处理宗教—政治生活，与相近时期拉丁教皇—帝国问题形成并行而不同的制度答案。" },

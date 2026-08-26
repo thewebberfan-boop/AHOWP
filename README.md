@@ -61,6 +61,7 @@ npm run build:offline
 npm run build
 npm run build:offline
 npm run lint
+npm run audit:content
 ```
 
 `package-lock.json` 是依赖版本的唯一锁定文件；请使用 `npm ci` 在新电脑恢复依赖，不要提交 `node_modules`、`.next`、`.vinext`、`dist` 或 `.wrangler`。
@@ -88,8 +89,10 @@ npm run lint
 - `app/philosopher-data-modern.ts`：第三卷 29 位人物的结构化资料、关系、星级和来源。
 - `app/d3-force-graph.tsx`：可复用的 D3.js 力导向图、拖拽、缩放、复位与节点聚焦。
 - `app/philosopher-graph.tsx`、`app/school-graph.tsx`：各自的关系数据适配、历史分组图谱和详情下钻。
-- `app/terminology-data.ts`：中英双语术语。
+- `app/terminology-data.ts`：由人物、流派、概念和活动地点主数据汇总的知识卡与行内识别。
 - `app/geography-data.ts`：地点、历史语境和地图数据。
+- `docs/CONTENT_STYLE_GUIDE.md`：自然汉语、规范译名、星级篇幅、关系证据和知识卡的全站内容规范。
+- `scripts/audit-content.ts`：内容覆盖、关系方向、卡片生成、名称冲突和篇幅分层的自动审计。
 - `visual-archive/figures.json`：人物图像来源、许可和证据说明。
 - `public/visual-archive/figures/`：网站使用的本地人物图像。
 - `offline/`：离线阅读版的构建入口与配置。

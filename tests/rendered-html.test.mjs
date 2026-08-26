@@ -88,6 +88,8 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /ResizeObserver/);
   assert.match(graph, /承接前人/);
   assert.match(graph, /影响后继/);
+  assert.match(graph, /edgeKind = directRelations\.has\(comparison\.relation\) \? "直接传承"/);
+  assert.match(graph, /findPhilosopherProfilesByTarget/);
   assert.match(graph, /D3\.js 多类型节点力导向网络图/);
   assert.doesNotMatch(graph, /D3\.js 力导向人物关系图/);
   assert.match(forceGraph, /forceSimulation/);
@@ -116,6 +118,8 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /82 位人物/);
   assert.match(status, /32 个流派/);
+  assert.match(status, /203 条关系边/);
+  assert.match(status, /内容审计/);
 
   const starCounts = (source, mapName) => {
     const block = source.match(new RegExp(`const ${mapName}:[^=]+= \\{([\\s\\S]*?)\\n};`))?.[1] ?? "";

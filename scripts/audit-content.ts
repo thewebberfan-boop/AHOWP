@@ -1,0 +1,132 @@
+import { readFileSync } from "node:fs";
+import { findPhilosopherProfilesByTarget, philosopherProfiles } from "../app/philosopher-data";
+import { findSchoolProfileByTarget, schoolProfiles } from "../app/school-data";
+import { chapters } from "../app/book-data";
+import { historyResponseLinks, historyStages } from "../app/history-data";
+import { terminology } from "../app/terminology-data";
+import { geographyByAlias } from "../app/geography-data";
+
+type Rating = 1 | 2 | 3 | 4 | 5;
+type Issue = { level: "ERROR" | "WARN"; message: string };
+
+const issues: Issue[] = [];
+const error = (message: string) => issues.push({ level: "ERROR", message });
+const warn = (message: string) => issues.push({ level: "WARN", message });
+const duplicates = (values: string[]) => [...new Set(values.filter((value, index) => values.indexOf(value) !== index))];
+const textSize = (value: unknown): number => {
+  if (typeof value === "string") return value.length;
+  if (Array.isArray(value)) return value.reduce((total, item) => total + textSize(item), 0);
+  if (value && typeof value === "object") return Object.values(value).reduce((total, item) => total + textSize(item), 0);
+  return 0;
+};
+
+const philosopherIds = new Set(philosopherProfiles.map((profile) => profile.id));
+const schoolIds = new Set(schoolProfiles.map((school) => school.id));
+const chapterIds = new Set(chapters.map((chapter) => chapter.id));
+const responseIds = new Set(historyStages.flatMap((stage) => stage.responses.map((response) => response.id)));
+const termSurfaces = new Set(terminology.flatMap((term) => [term.zh, ...(term.aliases || [])]));
+const personRelations = new Set(["承接前人", "影响后继", "同题比较", "批评关系", "后世重构"]);
+const schoolRelations = new Set(["思想来源", "竞争", "分化", "吸收改造", "后世重构"]);
+
+duplicates(philosopherProfiles.map((profile) => profile.id)).forEach((id) => error(`重复人物 ID：${id}`));
+duplicates(schoolProfiles.map((school) => school.id)).forEach((id) => error(`重复流派 ID：${id}`));
+duplicates(chapters.map((chapter) => chapter.id)).forEach((id) => error(`重复章节 ID：${id}`));
+duplicates(terminology.map((term) => term.id)).forEach((id) => error(`重复知识卡 ID：${id}`));
+
+philosopherProfiles.forEach((profile) => {
+  if (!profile.stars) error(`${profile.nameZh}缺少星级`);
+  if (!profile.sources.length) error(`${profile.nameZh}缺少来源`);
+  if (!profile.inquiries.length || !profile.concepts.length || !profile.comparisons.length) error(`${profile.nameZh}的推导、概念或关系为空`);
+  profile.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`${profile.nameZh}引用不存在的章节 ${id}`));
+  const term = terminology.find((entry) => entry.entity?.kind === "philosopher" && entry.entity.id === profile.id);
+  if (!term) error(`${profile.nameZh}没有自动生成的人物卡`);
+  profile.concepts.forEach((concept) => {
+    if (!terminology.some((entry) => entry.zh === concept.zh)) error(`${profile.nameZh}的概念“${concept.zh}”未进入知识卡词表`);
+  });
+  duplicates(profile.comparisons.map((comparison) => `${comparison.relation}:${comparison.target}`)).forEach((key) => error(`${profile.nameZh}存在重复人物关系 ${key}`));
+  profile.comparisons.forEach((comparison) => {
+    if (!personRelations.has(comparison.relation)) error(`${profile.nameZh}使用未知人物关系 ${comparison.relation}`);
+    comparison.target.split(/[／、]/u).map((part) => part.trim()).forEach((part) => {
+      if (!findPhilosopherProfilesByTarget(part).length && !termSurfaces.has(part)) error(`${profile.nameZh}的人物关系目标“${part}”既无详情页也无知识卡`);
+    });
+    findPhilosopherProfilesByTarget(comparison.target).forEach((target) => {
+      if (comparison.relation === "承接前人" && target.order >= profile.order) warn(`${profile.nameZh}把不早于自己的${target.nameZh}标为“承接前人”`);
+      if (comparison.relation === "影响后继" && target.order <= profile.order) warn(`${profile.nameZh}把不晚于自己的${target.nameZh}标为“影响后继”`);
+    });
+  });
+  profile.places.forEach((placeName) => {
+    const hasGeneratedCard = terminology.some((entry) => entry.category === "地名" && entry.zh === placeName);
+    if (!geographyByAlias.has(placeName) && !hasGeneratedCard) error(`${profile.nameZh}的地点“${placeName}”没有地图或地点索引卡`);
+  });
+});
+
+schoolProfiles.forEach((school) => {
+  if (!school.stars) error(`${school.nameZh}缺少星级`);
+  if (!school.sources.length) error(`${school.nameZh}缺少来源`);
+  school.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`${school.nameZh}引用不存在的章节 ${id}`));
+  school.philosophers.filter((person) => !philosopherIds.has(person.id)).forEach((person) => error(`${school.nameZh}引用不存在的人物 ${person.id}`));
+  const term = terminology.find((entry) => entry.entity?.kind === "school" && entry.entity.id === school.id);
+  if (!term) error(`${school.nameZh}没有自动生成的流派卡`);
+  duplicates(school.relations.map((relation) => `${relation.relation}:${relation.target}`)).forEach((key) => error(`${school.nameZh}存在重复流派关系 ${key}`));
+  school.relations.forEach((relation) => {
+    if (!schoolRelations.has(relation.relation)) error(`${school.nameZh}使用未知流派关系 ${relation.relation}`);
+    if (!findSchoolProfileByTarget(relation.target) && !termSurfaces.has(relation.target)) error(`${school.nameZh}的流派关系目标“${relation.target}”既无详情页也无知识卡`);
+  });
+});
+
+const surfaceOwners = new Map<string, string>();
+terminology.forEach((term) => {
+  [term.zh, ...(term.aliases || [])].forEach((surface) => {
+    const owner = surfaceOwners.get(surface);
+    if (owner && owner !== term.id) error(`知识卡表述“${surface}”同时指向 ${owner} 与 ${term.id}`);
+    else surfaceOwners.set(surface, term.id);
+  });
+});
+
+Object.entries(historyResponseLinks).forEach(([responseId, links]) => {
+  if (!responseIds.has(responseId)) error(`历史下钻表包含不存在的回应 ${responseId}`);
+  links.schoolIds.filter((id) => !schoolIds.has(id)).forEach((id) => error(`历史回应 ${responseId} 引用不存在的流派 ${id}`));
+  links.philosopherIds.filter((id) => !philosopherIds.has(id)).forEach((id) => error(`历史回应 ${responseId} 引用不存在的人物 ${id}`));
+});
+responseIds.forEach((id) => { if (!historyResponseLinks[id]) warn(`历史回应 ${id} 尚无流派／人物下钻关系`); });
+
+const personMinimum: Record<Rating, number> = { 1: 1200, 2: 1350, 3: 1500, 4: 2300, 5: 2900 };
+const schoolMinimum: Record<Rating, number> = { 1: 1150, 2: 1200, 3: 1500, 4: 1850, 5: 2100 };
+
+philosopherProfiles.forEach((profile) => {
+  const size = textSize(profile);
+  if (size < personMinimum[profile.stars || 1]) warn(`${profile.stars}星人物“${profile.nameZh}”正文量 ${size}，低于建议值 ${personMinimum[profile.stars || 1]}`);
+});
+schoolProfiles.forEach((school) => {
+  const size = textSize(school);
+  if (size < schoolMinimum[school.stars || 1]) warn(`${school.stars}星流派“${school.nameZh}”正文量 ${size}，低于建议值 ${schoolMinimum[school.stars || 1]}`);
+});
+
+const canonicalFiles = [
+  "app/history-data.ts",
+  "app/russell-structure-data.ts",
+  "app/school-data.ts",
+  "app/school-data-medieval.ts",
+  "app/school-data-modern.ts",
+  "app/philosopher-data.ts",
+  "app/philosopher-data-late-ancient.ts",
+  "app/philosopher-data-medieval.ts",
+  "app/philosopher-data-modern.ts",
+  "app/geography-data.ts",
+];
+canonicalFiles.forEach((file) => {
+  const source = readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+  const proseSource = source.replace(/aliases:\s*\[[^\]]*\]/gu, "");
+  if (proseSource.includes("罗吉尔·培根")) error(`${file} 仍在正文使用旧译名“罗吉尔·培根”`);
+});
+
+const ratings = (items: Array<{ stars?: Rating }>) => Object.fromEntries([1, 2, 3, 4, 5].map((rating) => [rating, items.filter((item) => item.stars === rating).length]));
+console.log(`人物 ${philosopherProfiles.length}：${JSON.stringify(ratings(philosopherProfiles))}`);
+console.log(`流派 ${schoolProfiles.length}：${JSON.stringify(ratings(schoolProfiles))}`);
+console.log(`知识卡 ${terminology.length}：人物 ${terminology.filter((term) => term.category === "人物").length}、流派 ${terminology.filter((term) => term.category === "学派").length}、概念 ${terminology.filter((term) => term.category === "概念").length}、地点 ${terminology.filter((term) => term.category === "地名").length}`);
+issues.forEach((issue) => console.log(`${issue.level} ${issue.message}`));
+
+const errorCount = issues.filter((issue) => issue.level === "ERROR").length;
+const warningCount = issues.length - errorCount;
+console.log(`内容审计完成：${errorCount} 个错误，${warningCount} 个提醒。`);
+if (errorCount) process.exitCode = 1;

@@ -869,12 +869,13 @@ button { cursor: pointer; }
 .modal-close:hover { border-color: var(--red); color: var(--red); }
 .modal-done { margin-top: 30px; padding: 10px 14px; border: 1px solid var(--green); background: var(--green); color: white; font-size: 9px; letter-spacing: .06em; }
 .term-modal-backdrop { position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 22px; background: rgba(29, 32, 28, .72); backdrop-filter: blur(5px); }
-.term-modal { position: relative; width: min(610px, 100%); padding: 39px 43px 35px; border: 1px solid var(--ink); background: var(--paper-light); box-shadow: 12px 12px 0 var(--red); }
+.term-modal { position: relative; width: min(660px, 100%); max-height: calc(100vh - 44px); overflow: auto; padding: 39px 43px 35px; border: 1px solid var(--ink); background: var(--paper-light); box-shadow: 12px 12px 0 var(--red); }
 .term-modal h2 { margin: 0; font: 400 clamp(38px, 5vw, 58px)/1.15 var(--serif); letter-spacing: -.035em; }
 .term-english { margin: 8px 0 30px; color: var(--green); font: italic 20px/1.45 var(--serif); }
-.term-original, .term-alternatives, .term-note { display: grid; grid-template-columns: 135px 1fr; gap: 18px; padding: 17px 0; border-top: 1px solid var(--line); }
-.term-original > span, .term-alternatives > span, .term-note > span { color: var(--red); font-size: 8px; letter-spacing: .1em; }
-.term-original p, .term-alternatives p, .term-note p { margin: 0; font: 14px/1.75 var(--serif); }
+.term-context, .term-original, .term-alternatives, .term-note, .term-distinction, .term-related { display: grid; grid-template-columns: 135px 1fr; gap: 18px; padding: 14px 0; border-top: 1px solid var(--line); }
+.term-context > span, .term-original > span, .term-alternatives > span, .term-note > span, .term-distinction > span, .term-related > span { color: var(--red); font-size: 8px; letter-spacing: .1em; }
+.term-context p, .term-original p, .term-alternatives p, .term-note p, .term-distinction p, .term-related p { margin: 0; font: 14px/1.68 var(--serif); }
+.term-context p, .term-related p { color: var(--green); }
 .place-modal-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 22px; background: rgba(29, 32, 28, .76); backdrop-filter: blur(5px); }
 .place-modal { position: relative; width: min(980px, 100%); max-height: calc(100vh - 44px); overflow: auto; padding: 34px 38px 29px; border: 1px solid var(--ink); background: var(--paper-light); box-shadow: 12px 12px 0 var(--green); }
 .place-modal > header { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 23px; border-bottom: 1px solid var(--ink); }
@@ -1299,7 +1300,7 @@ span.place-token {
   .review-controls { flex-direction: column; gap: 9px; }
   .detail-modal { padding: 34px 25px 28px; box-shadow: 7px 7px 0 var(--green); }
   .term-modal { padding: 34px 25px 28px; box-shadow: 7px 7px 0 var(--red); }
-  .term-alternatives, .term-note { grid-template-columns: 1fr; gap: 7px; }
+  .term-context, .term-original, .term-alternatives, .term-note, .term-distinction, .term-related { grid-template-columns: 1fr; gap: 7px; }
   .chapter-hero.with-portraits { grid-template-columns: 1fr; gap: 25px; }
   .chapter-portraits { min-height: 330px; border-left: 0; }
   .chapter-portraits.count-2 { min-height: 270px; }

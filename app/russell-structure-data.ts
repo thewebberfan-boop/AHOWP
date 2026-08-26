@@ -117,10 +117,10 @@ export const russellStructureStages: RussellStructureStage[] = [
     commonProblems: ["理性能把信仰推进到什么程度？", "普遍概念是否真实存在？", "宗教权威与世俗权力如何划界？"],
     contextChapterIds: ["b2-07", "b2-09", "b2-11", "b2-12", "b2-15"],
     schools: [
-      { id: "early-scholastic", title: "早期经院与新柏拉图传统", english: "Early scholasticism", response: "在基督教框架内恢复辩证法，并讨论自然、神与创造的关系。", sharedPattern: "权威文本、逻辑区分和神学综合。", chapterIds: [], philosophers: [person("eriugena", "约翰·司各脱", "John Scotus Eriugena", ["b2-08"], "以新柏拉图主义组织自然与神的层级。") ] },
+      { id: "early-scholastic", title: "早期经院与新柏拉图传统", english: "Early scholasticism", response: "在基督教框架内恢复辩证法，并讨论自然、神与创造的关系。", sharedPattern: "权威文本、逻辑区分和神学综合。", chapterIds: [], philosophers: [person("eriugena", "约翰·司各脱·爱留根纳", "John Scottus Eriugena", ["b2-08"], "以新柏拉图主义组织自然与神的层级。") ] },
       { id: "islamic-jewish", title: "伊斯兰与犹太哲学", english: "Islamic and Jewish philosophy", response: "翻译并发展希腊哲学，使亚里士多德传统重新进入西欧。", sharedPattern: "注释、医学科学与启示宗教的理性解释。", chapterIds: ["b2-10"], philosophers: [person("avicenna", "阿维森纳", "Avicenna", [], "发展本质与存在的区分。"), person("averroes", "阿威罗伊", "Averroes", [], "以亚里士多德注释影响拉丁经院哲学。"), person("maimonides", "迈蒙尼德", "Maimonides", [], "协调犹太启示与哲学理性。") ] },
       { id: "thomism", title: "托马斯主义", english: "Thomism", response: "以亚里士多德体系综合自然理性与基督教启示。", sharedPattern: "系统区分、目的论自然观与信仰—理性分工。", chapterIds: [], philosophers: [person("aquinas", "托马斯·阿奎那", "Thomas Aquinas", ["b2-13"], "完成经院哲学最有影响力的综合。") ] },
-      { id: "franciscan-nominalist", title: "方济各会与唯名论趋向", english: "Franciscan and nominalist currents", response: "强化意志、个体与经验，逐步限制宏大理性综合的范围。", sharedPattern: "意志论、个体性、经验研究与奥卡姆式节省。", chapterIds: ["b2-14"], philosophers: [person("roger-bacon", "罗吉尔·培根", "Roger Bacon", [], "强调观察、语言与实验知识。"), person("duns-scotus", "邓斯·司各脱", "Duns Scotus", [], "突出意志和个体性。"), person("ockham", "奥卡姆", "William of Ockham", [], "以唯名论和简约原则限制实体假设。") ] },
+      { id: "franciscan-nominalist", title: "方济各会与唯名论趋向", english: "Franciscan and nominalist currents", response: "强化意志、个体与经验，逐步限制宏大理性综合的范围。", sharedPattern: "意志论、个体性、经验研究与奥卡姆式节省。", chapterIds: ["b2-14"], philosophers: [person("roger-bacon", "罗杰·培根", "Roger Bacon", [], "强调观察、语言与实验知识。"), person("duns-scotus", "邓斯·司各脱", "Duns Scotus", [], "突出意志和个体性。"), person("ockham", "奥卡姆的威廉", "William of Ockham", [], "以唯名论和简约原则限制实体假设。") ] },
     ],
   },
   {

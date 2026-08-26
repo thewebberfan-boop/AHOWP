@@ -150,7 +150,7 @@ export const geographyEntries: GeographyEntry[] = [
     { period: "6 世纪以后", ancientOrPeriodName: "Mons Casinus", politicalContext: "本尼狄克修道院", mapScope: "意大利与拉丁西欧修道网络", note: "本尼狄克规则与西欧修道制度的象征性地点。" },
   ]),
   place("ireland", "爱尔兰", "Ireland", "region", "现代爱尔兰岛", 53.3, -8.0, 6, [
-    { period: "6—9 世纪", ancientOrPeriodName: "Hibernia", politicalContext: "修道院教育与拉丁学术网络", mapScope: "不列颠群岛与法兰克世界", note: "中世纪早期典籍保存和约翰·司各脱背景的重要区域。" },
+    { period: "6—9 世纪", ancientOrPeriodName: "Hibernia", politicalContext: "修道院教育与拉丁学术网络", mapScope: "不列颠群岛与法兰克世界", note: "中世纪早期保存和传抄典籍的重要区域，也是约翰·司各脱·爱留根纳的知识背景。" },
   ]),
   place("aachen", "亚琛／法兰克宫廷", "Aachen", "city", "德国北莱茵—威斯特法伦州", 50.7753, 6.0839, 10, [
     { period: "8—9 世纪", ancientOrPeriodName: "Aquisgranum", politicalContext: "加洛林帝国宫廷中心", mapScope: "西欧与法兰克帝国", note: "查理曼教育改革和宫廷学术网络的地理中心。" },
@@ -171,7 +171,7 @@ export const geographyEntries: GeographyEntry[] = [
     { period: "12—14 世纪", ancientOrPeriodName: "Paris", politicalContext: "法国王权与巴黎大学中心", mapScope: "法兰西王国与拉丁大学网络", note: "阿奎那、司各脱及经院争论的主要制度空间。" },
   ]),
   place("oxford", "牛津", "Oxford", "city", "英国牛津郡", 51.752, -1.2577, 11, [
-    { period: "12—14 世纪", ancientOrPeriodName: "Oxford", politicalContext: "英格兰大学城市", mapScope: "不列颠与拉丁学术网络", note: "罗吉尔·培根、奥卡姆及方济各会经院传统的重要中心。" },
+    { period: "12—14 世纪", ancientOrPeriodName: "Oxford", politicalContext: "英格兰大学城市", mapScope: "不列颠与拉丁学术网络", note: "罗杰·培根、奥卡姆的威廉及方济各会经院传统的重要中心。" },
   ]),
   place("florence", "佛罗伦萨／意大利城邦", "Florence", "city", "意大利托斯卡纳大区", 43.7696, 11.2558, 10, [
     { period: "14—16 世纪", ancientOrPeriodName: "Firenze / Florentia", politicalContext: "商业共和国与美第奇权力中心", mapScope: "意大利城邦与地中海贸易", note: "文艺复兴人文主义、艺术赞助和现实政治研究的典型环境。" },

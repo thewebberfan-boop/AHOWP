@@ -1,3 +1,7 @@
+import { philosopherProfiles, type PhilosopherStarRating } from "./philosopher-data";
+import { schoolProfiles, type SchoolStarRating } from "./school-data";
+import { geographyByAlias } from "./geography-data";
+
 export type TermCategory = "人物" | "地名" | "学派" | "概念" | "著作";
 
 export type TermEntry = {
@@ -7,10 +11,17 @@ export type TermEntry = {
   original?: string;
   category: TermCategory;
   alternatives?: string[];
+  /** Alternate surface forms that should be recognised in running text. */
+  aliases?: string[];
   note: string;
+  context?: string;
+  distinction?: string;
+  related?: string[];
+  stars?: PhilosopherStarRating | SchoolStarRating;
+  entity?: { kind: "philosopher" | "school"; id: string };
 };
 
-export const terminology: TermEntry[] = [
+const seedTerminology: TermEntry[] = [
   { id: "thales", zh: "泰勒斯", en: "Thales", category: "人物", note: "米利都哲学家；罗素以他作为希腊哲学史的象征性起点。" },
   { id: "anaximander", zh: "阿那克西曼德", en: "Anaximander", category: "人物", note: "以“无限者”说明万物生成，并尝试用自然过程解释宇宙。" },
   { id: "anaximenes", zh: "阿那克西美尼", en: "Anaximenes", category: "人物", note: "以气的稀释和凝聚解释不同物质形态。" },
@@ -31,7 +42,8 @@ export const terminology: TermEntry[] = [
   { id: "carneades", zh: "卡尔内阿德", en: "Carneades", category: "人物", note: "学院怀疑主义者，以相反论证和或然性回应知识与实践问题。" },
   { id: "epicurus", zh: "伊壁鸠鲁", en: "Epicurus", category: "人物", note: "用原子论、欲望分类和友谊实践解除对神与死亡的恐惧。" },
   { id: "lucretius", zh: "卢克莱修", en: "Lucretius", category: "人物", note: "罗马诗人，以《物性论》传播伊壁鸠鲁主义自然观。" },
-  { id: "zeno", zh: "芝诺", en: "Zeno of Citium", category: "人物", note: "斯多葛学派创始人；不要与提出运动悖论的埃利亚芝诺混淆。" },
+  { id: "zeno", zh: "季蒂昂的芝诺", en: "Zeno of Citium", category: "人物", alternatives: ["斯多葛芝诺"], aliases: ["斯多葛芝诺"], note: "斯多葛学派创始人；不要与提出运动悖论的埃利亚的芝诺混淆。" },
+  { id: "zeno-elea", zh: "埃利亚的芝诺", en: "Zeno of Elea", category: "人物", note: "巴门尼德的追随者，以关于运动与多的悖论捍卫埃利亚学派立场；不要与斯多葛学派创始人季蒂昂的芝诺混淆。" },
   { id: "cleanthes", zh: "克里安西斯", en: "Cleanthes", category: "人物", note: "早期斯多葛学派第二任领袖，以《宙斯颂》和自愿顺应命运的思想著称。" },
   { id: "chrysippus", zh: "克律西波斯", en: "Chrysippus", category: "人物", note: "早期斯多葛主义的系统化者，发展命题逻辑、决定论与情绪判断理论。" },
   { id: "panaetius", zh: "帕奈提奥斯", en: "Panaetius", category: "人物", note: "中期斯多葛主义者，以恰当行动和角色伦理连接希腊学派与罗马公共生活。" },
@@ -44,13 +56,13 @@ export const terminology: TermEntry[] = [
   { id: "john-evangelist", zh: "约翰", en: "John the Evangelist", category: "人物", note: "本网站以此名称指《约翰福音》传统所代表的早期基督教神学形象。" },
   { id: "augustine", zh: "奥古斯丁", en: "Saint Augustine", category: "人物", note: "把柏拉图主义、内省、意志和基督教救赎史结合起来。" },
   { id: "benedict", zh: "本尼狄克", en: "Saint Benedict", category: "人物", note: "其修道规则成为西欧修道共同生活和知识保存的重要制度基础。" },
-  { id: "gregory", zh: "大格列高利", en: "Gregory the Great", category: "人物", note: "教皇、行政者和传教组织者，体现罗马制度向中世纪教会的转移。" },
-  { id: "eriugena", zh: "约翰·司各脱", en: "John Scotus Eriugena", category: "人物", alternatives: ["爱留根纳"], note: "九世纪哲学家与译者，强调真正理性与真正启示不会冲突。" },
+  { id: "gregory-great", zh: "大格列高利", en: "Gregory the Great", category: "人物", note: "教皇、行政者和传教组织者，体现罗马制度向中世纪教会的转移。" },
+  { id: "eriugena", zh: "约翰·司各脱·爱留根纳", en: "John Scottus Eriugena", category: "人物", alternatives: ["约翰·司各脱", "爱留根纳"], aliases: ["约翰·司各脱", "爱留根纳"], note: "九世纪哲学家与译者，强调真正理性与真正启示不会冲突。" },
   { id: "avicenna", zh: "阿维森纳", en: "Avicenna (Ibn Sina)", category: "人物", alternatives: ["伊本·西那"], note: "伊斯兰哲学家和医学家，以存在、必然者和灵魂论重释亚里士多德。" },
   { id: "averroes", zh: "阿威罗伊", en: "Averroes (Ibn Rushd)", category: "人物", alternatives: ["伊本·鲁世德"], note: "安达卢西亚哲学家，其亚里士多德注释深刻影响拉丁经院哲学。" },
   { id: "maimonides", zh: "迈蒙尼德", en: "Maimonides", category: "人物", note: "犹太哲学家，以哲学解释协调摩西传统与亚里士多德思想。" },
   { id: "aquinas", zh: "托马斯·阿奎那", en: "Thomas Aquinas", category: "人物", note: "经院哲学综合者，系统划分自然理性与启示神学的范围。" },
-  { id: "roger-bacon", zh: "罗吉尔·培根", en: "Roger Bacon", category: "人物", note: "方济各会学者，强调语言、数学、观察与实验的重要性。" },
+  { id: "roger-bacon", zh: "罗杰·培根", en: "Roger Bacon", category: "人物", alternatives: ["罗吉尔·培根"], aliases: ["罗吉尔·培根"], note: "方济各会学者，强调语言、数学、观察与实验的重要性。" },
   { id: "duns-scotus", zh: "邓斯·司各脱", en: "Duns Scotus", category: "人物", note: "强调个体性、意志和存在概念，是晚期经院哲学的重要转折。" },
   { id: "ockham", zh: "奥卡姆", en: "William of Ockham", category: "人物", note: "以唯名论和简约原则限制经院体系的实体与证明负担。" },
   { id: "machiavelli", zh: "马基雅维利", en: "Machiavelli", category: "人物", note: "把政治权力、稳定与行动后果从完整神学伦理中相对分离。" },
@@ -60,7 +72,7 @@ export const terminology: TermEntry[] = [
   { id: "copernicus", zh: "哥白尼", en: "Copernicus", category: "人物", note: "以日心模型重组天文学，动摇传统宇宙秩序。" },
   { id: "kepler", zh: "开普勒", en: "Kepler", category: "人物", note: "以行星椭圆轨道和数学定律推进新天文学。" },
   { id: "galileo", zh: "伽利略", en: "Galileo", category: "人物", note: "结合数学、实验和望远镜观察，改变自然研究的证据标准。" },
-  { id: "francis-bacon", zh: "弗朗西斯·培根", en: "Francis Bacon", category: "人物", note: "倡导系统观察、归纳和协作研究；不要与罗吉尔·培根混淆。" },
+  { id: "francis-bacon", zh: "弗朗西斯·培根", en: "Francis Bacon", category: "人物", note: "倡导系统观察、归纳和协作研究；不要与罗杰·培根混淆。" },
   { id: "hobbes", zh: "霍布斯", en: "Thomas Hobbes", category: "人物", note: "从恐惧、契约和机械论出发论证不可分割的主权。" },
   { id: "descartes", zh: "笛卡尔", en: "René Descartes", category: "人物", note: "以方法性怀疑和“我思”重建现代知识的主体起点。" },
   { id: "spinoza", zh: "斯宾诺莎", en: "Baruch Spinoza", category: "人物", note: "以单一实体和必然性体系重新理解自然、上帝与自由。" },
@@ -82,6 +94,10 @@ export const terminology: TermEntry[] = [
   { id: "dewey", zh: "约翰·杜威", en: "John Dewey", category: "人物", note: "把认识理解为环境中的探究与调整，并应用于民主教育。" },
   { id: "frege", zh: "弗雷格", en: "Gottlob Frege", category: "人物", note: "现代逻辑奠基者之一，对语言、数学基础和分析哲学影响深远。" },
   { id: "russell", zh: "罗素", en: "Bertrand Russell", category: "人物", note: "本书作者，也是现代逻辑分析哲学的重要代表。" },
+  { id: "hesiod", zh: "赫西俄德", en: "Hesiod", original: "Ἡσίοδος", category: "人物", note: "古希腊诗人，以神谱和诸神世代说明宇宙秩序；泰勒斯式自然解释正是在这种诗性谱系背景中显出差异。", context: "约前 700 年前后 · 古风时期希腊", distinction: "本站把他作为哲学诞生的比较对象，尚未建立独立人物页。", related: ["泰勒斯", "前苏格拉底自然哲学诸传统"] },
+  { id: "cratylus", zh: "克拉底鲁", en: "Cratylus", original: "Κρατύλος", category: "人物", note: "与赫拉克利特接受史相关的雅典思想人物；柏拉图同名对话借他讨论语言是否天然正确。", context: "约前 5 世纪后期 · 雅典", distinction: "关于其生平与具体主张的材料有限，不能把柏拉图对话人物的每句话都当作历史记录。", related: ["赫拉克利特", "柏拉图"] },
+  { id: "cicero", zh: "西塞罗", en: "Cicero", original: "Marcus Tullius Cicero", category: "人物", note: "罗马政治家与哲学作者，以拉丁文转述学院怀疑主义、斯多葛伦理和共和政治问题。", context: "前 106—前 43 · 罗马共和国晚期", distinction: "他不是简单复制某一希腊学派，而是按罗马公共生活重组选材；本站尚未建立独立人物页。", related: ["帕奈提奥斯", "波塞多尼奥斯", "学院怀疑主义"] },
+  { id: "darwin", zh: "达尔文", en: "Charles Darwin", category: "人物", note: "以自然选择说明物种在遗传变异和生存繁殖差异中改变，常被拿来与古代演化猜想比较。", context: "1809—1882 · 英国自然史与生物学", distinction: "恩培多克勒关于肢体组合的片段并非自然选择理论；两者并置属于同题比较，不是直接传承。", related: ["恩培多克勒", "近代科学"] },
 
   { id: "miletus", zh: "米利都", en: "Miletus", category: "地名", note: "小亚细亚爱奥尼亚商业城邦，米利都学派的思想中心。" },
   { id: "ionia", zh: "爱奥尼亚", en: "Ionia", category: "地名", note: "小亚细亚西岸希腊地区，连接爱琴海与近东知识网络。" },
@@ -95,13 +111,20 @@ export const terminology: TermEntry[] = [
   { id: "epicureanism", zh: "伊壁鸠鲁派", en: "Epicureans / Epicureanism", category: "学派", alternatives: ["伊壁鸠鲁主义"], note: "把快乐理解为无痛与宁静，以自然知识解除恐惧。" },
   { id: "stoicism", zh: "斯多葛主义", en: "Stoicism", category: "学派", alternatives: ["斯多葛派"], note: "强调德性、自然秩序、判断训练和内在自由。" },
   { id: "neoplatonism", zh: "新柏拉图主义", en: "Neoplatonism", category: "学派", note: "以太一、精神和灵魂的层级重新解释柏拉图传统。" },
-  { id: "scholasticism", zh: "经院哲学", en: "Scholasticism", category: "学派", note: "中世纪大学中以问题、反对、回答和反驳组织知识的专业传统。" },
+  { id: "scholasticism", zh: "经院哲学", en: "Scholasticism", category: "学派", aliases: ["中世纪经院哲学"], note: "中世纪大学中以问题、反对、回答和反驳组织知识的专业传统。" },
   { id: "rationalism", zh: "理性主义", en: "Rationalism", category: "学派", note: "以理性原则和演绎体系作为知识的重要基础。" },
   { id: "empiricism", zh: "经验主义", en: "Empiricism", category: "学派", note: "要求观念和知识最终说明其经验来源与证据。" },
   { id: "romanticism", zh: "浪漫主义", en: "Romanticism", category: "学派", note: "强调个性、情感、创造和自然，反抗机械理性与抽象秩序。" },
   { id: "utilitarianism", zh: "功利主义", en: "Utilitarianism", category: "学派", note: "按行动或制度对总体幸福的后果进行伦理评价。" },
   { id: "pragmatism", zh: "实用主义", en: "Pragmatism", category: "学派", note: "通过观念在经验、行动和共同探究中的作用理解意义与真理。" },
   { id: "analytic", zh: "分析哲学", en: "Analytic Philosophy", category: "学派", note: "重视逻辑、语言和概念澄清，反对含混的宏大体系。" },
+  { id: "buddhist-philosophy", zh: "佛教哲学", en: "Buddhist philosophy", category: "学派", note: "围绕无常、无我、缘起、苦与解脱形成的多传统思想；不能被压成一个与希腊怀疑主义相同的教义。", context: "古代印度起源 · 亚洲多地区发展", distinction: "皮浪是否直接受印度佛教影响仍有证据争议；本站相关条目只保留比较或有条件的接触可能。", related: ["皮浪", "怀疑派"] },
+  { id: "gnosticism", zh: "诺斯替主义", en: "Gnosticism", category: "学派", note: "现代研究用于概括古代晚期若干以启示性知识、宇宙层级和救赎神话为特征的运动。", context: "约 1—4 世纪 · 地中海东部", distinction: "它不是单一、自称统一的教会；普罗提诺批评的是其中若干具体群体及其贬低宇宙的主张。", related: ["普罗提诺", "新柏拉图主义"] },
+  { id: "modern-naturalism", zh: "现代自然主义", en: "modern naturalism", category: "学派", note: "主张哲学解释应与自然科学和经验世界连续，不以超自然实体填补因果或认识空缺。", context: "近现代哲学中的宽泛取向", distinction: "它包含多种本体论和方法立场；卢克莱修是历史资源，不等于已经持有现代科学自然主义。", related: ["卢克莱修", "科学革命与经验方法"] },
+  { id: "modern-skepticism-empiricism", zh: "近代怀疑与经验主义", en: "early modern skepticism and empiricism", category: "学派", note: "近代哲学重新使用怀疑来检验知识基础，并以经验来源限制概念和断言；笛卡尔、洛克与休谟的目标并不相同。", context: "约 17—18 世纪 · 欧洲", distinction: "它是跨作者的问题链，不是一个自称统一的学派；古代怀疑主义是思想资源而非不间断组织传承。", related: ["古代怀疑主义", "大陆理性主义", "英国经验主义与自由主义"] },
+  { id: "modern-atomism-utilitarianism", zh: "近代原子论与功利主义", en: "modern atomism and utilitarianism", category: "学派", note: "近代自然哲学重建微粒解释，伦理与制度理论则重新计算快乐和痛苦；两条路线都曾选择性借用伊壁鸠鲁传统。", context: "17—19 世纪 · 欧洲", distinction: "近代物理原子不同于古代不可分原子，功利主义也不等于伊壁鸠鲁的宁静生活方案；这里标示接受史而非一个统一流派。", related: ["伊壁鸠鲁主义", "科学革命与经验方法", "功利主义"] },
+  { id: "christianity-modern-natural-law", zh: "基督教与近代自然法", en: "Christian and early modern natural-law traditions", category: "学派", note: "斯多葛关于共同理性、自然秩序和世界公民的语言，经罗马作者、教父与法学传统进入基督教和近代权利讨论。", context: "罗马帝国至近代欧洲 · 多重接受链", distinction: "后世继承经过创造论、人格伦理和法律制度的深刻改写，不能把近代自然权利直接归给古代斯多葛派。", related: ["斯多葛主义", "自然法", "洛克"] },
+  { id: "modern-state-reformation-constitutionalism", zh: "近代国家、宗教改革与宪政", en: "modern state, Reformation, and constitutionalism", category: "学派", note: "中世纪关于教皇、会议、世俗统治与共同体授权的争论，为近代主权、宗教分裂和有限政府提供了一部分问题语言。", context: "14—18 世纪 · 欧洲政教制度转型", distinction: "这不是单一路线：宗教改革、绝对主权和宪政对中世纪资源作出相互冲突的选择。", related: ["中世纪政教权力思想", "宗教改革与新教思想", "机械论政治哲学"] },
 
   { id: "arche", zh: "本原", en: "archē / first principle", category: "概念", alternatives: ["始基"], note: "早期希腊哲学中万物由之生成或得到统一解释的根本原则。" },
   { id: "logos", zh: "逻各斯", en: "logos", category: "概念", alternatives: ["理则", "道"], note: "可指言说、理由或秩序；在赫拉克利特和基督教语境中含义不同。" },
@@ -152,6 +175,8 @@ export const terminology: TermEntry[] = [
   { id: "genealogy", zh: "谱系", en: "genealogy", category: "概念", note: "通过价值和制度的生成历史揭示其生命需要与权力来源。" },
   { id: "logical-analysis", zh: "逻辑分析", en: "logical analysis", category: "概念", note: "通过揭示命题的逻辑形式澄清、重构或消除哲学问题。" },
   { id: "freedom", zh: "自由", en: "freedom / liberty", category: "概念", note: "英文两词常可互换，但政治自由、意志自由和内在自由需要按语境区分。" },
+  { id: "modern-science", zh: "近代科学", en: "early modern science", category: "概念", note: "16—17 世纪以数学模型、实验、仪器观察和协作研究重组自然知识的多条实践，不是一套单一方法突然取代旧知识。", context: "哥白尼、开普勒、伽利略、培根等人的不同研究路线", distinction: "它既改造也继承古代和中世纪资源；不应只写成反对亚里士多德的一个事件。", related: ["科学革命与经验方法", "亚里士多德"] },
+  { id: "modern-fallibilism", zh: "现代可错论", en: "modern fallibilism", category: "概念", note: "认为人的知识主张原则上可能被新证据修正；承认可错不等于任何意见都同样合理。", context: "近现代认识论与科学哲学", distinction: "卡尔内阿德的可信印象可与之比较，但古代学院怀疑主义并未直接提出同一套科学方法论。", related: ["卡尔内阿德", "可信印象", "可错论"] },
 
   { id: "republic", zh: "《理想国》", en: "Republic", category: "著作", note: "柏拉图讨论正义、教育、灵魂结构和哲学王的核心对话。" },
   { id: "de-rerum-natura", zh: "《物性论》", en: "De rerum natura / On the Nature of Things", category: "著作", note: "卢克莱修以六卷拉丁哲学诗系统呈现伊壁鸠鲁自然学与解除恐惧的生活训练。" },
@@ -159,7 +184,122 @@ export const terminology: TermEntry[] = [
   { id: "leviathan", zh: "《利维坦》", en: "Leviathan", category: "著作", note: "霍布斯从自然状态、契约和授权论证强大主权者。" },
 ];
 
-export const terminologyByZh = new Map(terminology.map((term) => [term.zh, term]));
-export const terminologyMatchers = [...terminology]
-  .sort((a, b) => b.zh.length - a.zh.length)
-  .map((term) => term.zh);
+const unique = (values: Array<string | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))];
+
+const seedById = new Map(seedTerminology.map((term) => [term.id, term]));
+const philosopherById = new Map(philosopherProfiles.map((profile) => [profile.id, profile]));
+const canonicalSeedIds = new Set([...philosopherProfiles.map((profile) => profile.id), ...schoolProfiles.map((school) => school.id)]);
+
+const philosopherTerms: TermEntry[] = philosopherProfiles.map((profile) => {
+  const seed = seedById.get(profile.id);
+  return {
+    id: profile.id,
+    zh: profile.nameZh,
+    en: profile.nameEn,
+    original: profile.greekName || seed?.original,
+    category: "人物",
+    alternatives: unique([...(seed?.alternatives || []), seed?.zh !== profile.nameZh ? seed?.zh : undefined]),
+    aliases: unique([...(profile.aliases || []), ...(seed?.aliases || []), seed?.zh !== profile.nameZh ? seed?.zh : undefined]),
+    note: profile.thesis,
+    context: `${profile.dates} · ${profile.active} · ${profile.places.slice(0, 2).join("、")}`,
+    distinction: profile.evidenceCaution,
+    related: profile.concepts.slice(0, 6).map((concept) => concept.zh),
+    stars: profile.stars,
+    entity: { kind: "philosopher", id: profile.id },
+  };
+});
+
+const schoolTerms: TermEntry[] = schoolProfiles.map((school) => {
+  const seed = seedById.get(school.id);
+  return {
+    id: school.id,
+    zh: school.nameZh,
+    en: school.nameEn,
+    category: "学派",
+    alternatives: unique([...(seed?.alternatives || []), seed?.zh !== school.nameZh ? seed?.zh : undefined]),
+    aliases: unique([...(seed?.aliases || []), seed?.zh !== school.nameZh ? seed?.zh : undefined]),
+    note: school.thesis,
+    context: `${school.period} · ${school.regions.join("、")} · ${school.kind}`,
+    distinction: school.classificationNote,
+    related: school.philosophers.slice(0, 6).map((person) => philosopherById.get(person.id)?.nameZh || person.id),
+    stars: school.stars,
+    entity: { kind: "school", id: school.id },
+  };
+});
+
+const conceptUses = new Map<string, Array<{ profileId: string; profileName: string; en: string; definition: string }>>();
+philosopherProfiles.forEach((profile) => {
+  profile.concepts.forEach((concept) => {
+    const uses = conceptUses.get(concept.zh) || [];
+    uses.push({ profileId: profile.id, profileName: profile.nameZh, en: concept.en, definition: concept.definition });
+    conceptUses.set(concept.zh, uses);
+  });
+});
+
+const seedTermNames = new Set(seedTerminology.map((term) => term.zh));
+const generatedConceptTerms: TermEntry[] = [...conceptUses]
+  .filter(([zh]) => !seedTermNames.has(zh))
+  .map(([zh, uses]) => ({
+    id: `concept-${uses[0].profileId}-${zh}`,
+    zh,
+    en: unique(uses.map((use) => use.en)).join(" / "),
+    category: "概念",
+    note: uses.length === 1 ? uses[0].definition : uses.map((use) => `${use.profileName}：${use.definition}`).join("；"),
+    context: `见于${unique(uses.map((use) => use.profileName)).slice(0, 5).join("、")}页面`,
+    distinction: uses.length > 1 ? "同一中译在不同人物处承担的论证功能可能不同；卡片分别保留各页面的定义，不能只按字面合并。" : undefined,
+    related: unique(uses.map((use) => use.profileName)).slice(0, 6),
+  }));
+
+const placeUses = new Map<string, Array<{ profileName: string; dates: string }>>();
+philosopherProfiles.forEach((profile) => {
+  profile.places.forEach((placeName) => {
+    if (geographyByAlias.has(placeName)) return;
+    const uses = placeUses.get(placeName) || [];
+    uses.push({ profileName: profile.nameZh, dates: profile.dates });
+    placeUses.set(placeName, uses);
+  });
+});
+const seedPlaceNames = new Set(seedTerminology.filter((term) => term.category === "地名").map((term) => term.zh));
+const generatedPlaceTerms: TermEntry[] = [...placeUses]
+  .filter(([placeName]) => !seedPlaceNames.has(placeName))
+  .map(([placeName, uses]) => ({
+    id: `place-${uses[0].profileName}-${placeName}`,
+    zh: placeName,
+    en: "",
+    category: "地名",
+    note: `作为${unique(uses.map((use) => use.profileName)).join("、")}生平或活动路线的一部分进入本站。`,
+    context: unique(uses.map((use) => `${use.profileName}（${use.dates}）`)).slice(0, 5).join(" · "),
+    distinction: placeName.includes("传统")
+      ? "名称中的括注表示地点来自有待核验的传记传统，不能当作确定行程。"
+      : "这是由人物资料自动生成的地点索引卡；历史政区与今天的边界未必一致，具体作用应结合人物时间线阅读。",
+    related: unique(uses.map((use) => use.profileName)).slice(0, 6),
+  }));
+
+const enrichedSeedTerms = seedTerminology
+  .filter((term) => !canonicalSeedIds.has(term.id))
+  .map((term) => {
+    const uses = term.category === "概念" ? conceptUses.get(term.zh) : undefined;
+    if (!uses?.length) return term;
+    return {
+      ...term,
+      context: term.context || `见于${unique(uses.map((use) => use.profileName)).slice(0, 5).join("、")}页面`,
+      related: unique([...(term.related || []), ...uses.map((use) => use.profileName)]).slice(0, 6),
+    };
+  });
+
+export const terminology: TermEntry[] = [
+  ...enrichedSeedTerms,
+  ...philosopherTerms,
+  ...schoolTerms,
+  ...generatedConceptTerms,
+  ...generatedPlaceTerms,
+];
+
+export const terminologyByZh = new Map<string, TermEntry>();
+terminology.forEach((term) => {
+  [term.zh, ...(term.aliases || [])].forEach((alias) => {
+    if (alias.length >= 2 && !terminologyByZh.has(alias)) terminologyByZh.set(alias, term);
+  });
+});
+
+export const terminologyMatchers = [...terminologyByZh.keys()].sort((a, b) => b.length - a.length);

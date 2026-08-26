@@ -162,7 +162,7 @@ export const historyStages: HistoryStage[] = [
       { id: "cynics", title: "退出人为制度", figures: "第欧根尼与犬儒派", region: "希腊化城市", answer: "减少需要、拒绝虚假规范，德性便不再依赖财富和政治。", method: "生活示范、反习俗与公开讽刺", difference: "通过主动贫困把自由变成不被社会控制。", noteCue: "return to nature / external goods are precarious", chapterIds: ["b1-26"] },
       { id: "sceptics", title: "悬置判断", figures: "皮浪、阿尔克西劳、卡尔内阿德", region: "希腊与学院", answer: "既然确定知识难以成立，停止武断便能减少精神扰动。", method: "为相反结论提供同等论证", difference: "不是提供新的世界理论，而是降低承诺。", noteCue: "I think it is so, but I am not sure", chapterIds: ["b1-26"] },
       { id: "epicureans", title: "管理欲望以获得宁静", figures: "伊壁鸠鲁、卢克莱修", region: "雅典花园学派 / 罗马", answer: "快乐是无痛与心灵宁静；理解自然可以解除对神和死亡的恐惧。", method: "原子论、欲望分类与友谊实践", difference: "保留自然科学，但把它服务于可持续的幸福。", noteCue: "tranquility is pleasure / no need to fear god and death", chapterIds: ["b1-27"] },
-      { id: "stoics", title: "在必然秩序中获得内在自由", figures: "芝诺、塞涅卡、爱比克泰德、奥勒留", region: "从希腊化东方到罗马", answer: "外部事件由自然秩序决定，真正的善只在人的意志和判断。", method: "可控区分、自我训练与普遍自然法", difference: "不退出世界，而是把自由安放在无法被夺走的内部。", noteCue: "individual life is good when it is in harmony with Nature", chapterIds: ["b1-28"] },
+      { id: "stoics", title: "在必然秩序中获得内在自由", figures: "季蒂昂的芝诺、塞涅卡、爱比克泰德、马可·奥勒留", region: "从希腊化东方到罗马", answer: "外部事件由自然秩序决定，真正的善只在人的意志和判断。", method: "可控区分、自我训练与普遍自然法", difference: "不退出世界，而是把自由安放在无法被夺走的内部。", noteCue: "individual life is good when it is in harmony with Nature", chapterIds: ["b1-28"] },
     ],
     legacy: ["哲学成为生活实践", "世界公民与自然法", "内在自由", "为基督教伦理准备概念资源"],
     review: "四个学派共享怎样的历史处境？它们分别通过减少需要、知识承诺、欲望还是控制范围来获得安定？",
@@ -232,7 +232,7 @@ export const historyStages: HistoryStage[] = [
     ],
     responses: [
       { id: "papal-order", title: "以教会构造跨地域秩序", figures: "教皇、修道院改革者", region: "拉丁西欧", answer: "宗教权威、教育与仪式可以在世俗分裂中维持共同体。", method: "组织纪律、教会法与改革运动", difference: "知识权威与神职阶层逐渐结为一体。", chapterIds: ["b2-07", "b2-09"] },
-      { id: "john-scot", title: "在信仰内部坚持理性", figures: "约翰·司各脱", region: "爱尔兰 / 法兰克宫廷", answer: "真正理性与真正启示不会冲突，自然可以按从上帝流出并返回上帝来分类。", method: "希腊文献翻译、柏拉图主义与辩证推理", difference: "在反智倾向增强的西欧形成少见的高理性节点。", noteCue: "reason above faith / on the division of Nature", chapterIds: ["b2-08"] },
+      { id: "john-scot", title: "在信仰内部坚持理性", figures: "约翰·司各脱·爱留根纳", region: "爱尔兰 / 法兰克宫廷", answer: "真正理性与真正启示不会冲突；他据此把自然解释为从上帝流出、又返回上帝的整体。", method: "希腊文献翻译、柏拉图主义与辩证推理", difference: "在反智倾向增强的西欧，他仍坚持用推理解释启示，因而成为当时少见的系统思想家。", noteCue: "reason above faith / on the division of Nature", chapterIds: ["b2-08"] },
       { id: "islamic", title: "吸收并扩展多文明知识", figures: "阿维森纳、阿威罗伊、迈蒙尼德", region: "巴格达、波斯、西班牙与开罗", answer: "宗教社会可以吸收希腊哲学、印度数学和波斯文化，并重新解释亚里士多德。", method: "翻译、注释、医学、数学与哲学综合", difference: "不是被动保管，而是古典知识继续发展的主要环境。", noteCue: "India: mathematics / Syria: Greek culture / Arabic to Latin", chapterIds: ["b2-10"] },
     ],
     legacy: ["教皇—皇帝二元结构", "大学与经院辩证法的前提", "亚里士多德重新进入西欧", "跨文明知识传播"],
@@ -256,7 +256,7 @@ export const historyStages: HistoryStage[] = [
     ],
     responses: [
       { id: "aquinas", title: "划分并协调理性与启示", figures: "托马斯·阿奎那", region: "巴黎 / 意大利", answer: "理性能证明部分神学前提，启示补充其不能独立达到的真理。", method: "问题、反对意见、回答与逐项反驳", difference: "把亚里士多德自然哲学纳入教会认可的总体体系。", chapterIds: ["b2-12", "b2-13"] },
-      { id: "franciscans", title: "强调意志、个体与经验", figures: "罗吉尔·培根、邓斯·司各脱、奥卡姆", region: "牛津 / 巴黎", answer: "理性的体系能力有限，个体、意志和经验不能完全被普遍形式吸收。", method: "经验研究、精细概念区分与简约原则", difference: "从综合内部产生后来削弱经院体系的工具。", chapterIds: ["b2-14"] },
+      { id: "franciscans", title: "强调意志、个体与经验", figures: "罗杰·培根、邓斯·司各脱、奥卡姆的威廉", region: "牛津 / 巴黎", answer: "理性的体系能力有限；个体、意志和经验不能完全被普遍形式吸收。", method: "经验研究、精细概念区分与简约原则", difference: "这些方法最初用于经院论争，后来也成为限制经院综合范围的工具。", chapterIds: ["b2-14"] },
       { id: "church-state", title: "统一世界的政治基础松动", figures: "教皇、皇帝、城市与民族王权", region: "西欧", answer: "精神与世俗权威无法继续由单一等级体系稳定安排。", method: "法律争论、结盟、战争与制度竞争", difference: "哲学综合的瓦解也有明确的政治和社会条件。", noteCue: "continued conflict of empire and papacy", chapterIds: ["b2-11", "b2-12", "b2-15"] },
     ],
     legacy: ["大学论证格式", "自然法传统", "信仰与理性的边界", "个体主义和经验方法的萌芽"],
@@ -353,7 +353,7 @@ export const historyStages: HistoryStage[] = [
       { label: "现代格局", text: "哲学不再共享单一中心", kind: "inherit" },
     ],
     responses: [
-      { id: "nietzsche", title: "追溯并重估价值", figures: "尼采", region: "德语欧洲", answer: "传统道德有历史和权力来源，虚无主义需要通过价值创造来克服。", method: "谱系、心理洞察与格言", difference: "不问价值是否符合永恒标准，而问它由何种生命需要产生。", chapterIds: ["b3-25"] },
+      { id: "nietzsche", title: "追溯并重估价值", figures: "尼采", region: "德语欧洲", answer: "传统道德有自身的历史和权力来源；克服虚无主义，需要重新创造能够肯定生命的价值。", method: "谱系、心理洞察与格言", difference: "不问价值是否符合永恒标准，而问它由何种生命需要产生。", chapterIds: ["b3-25"] },
       { id: "utilitarian-marx", title: "以结果或结构评价社会", figures: "功利主义者、马克思", region: "英国 / 欧洲工人运动", answer: "制度可按总体幸福评价，或按生产关系与阶级支配解释并改变。", method: "后果计算、政治经济学与历史唯物解释", difference: "都把哲学拉向社会改革，却对个人利益和历史结构权重不同。", chapterIds: ["b3-26", "b3-27"] },
       { id: "life-duration", title: "从绵延内部理解生命", figures: "柏格森", region: "法国", answer: "生活时间是过去渗入现在的质性绵延，不能被钟表单位和静态概念完全替代。", method: "经验描述、直觉与过程比较", difference: "把科学测量与生活经验的适用范围分开，重新突出生成、记忆与创造。", chapterIds: ["b3-28"] },
       { id: "pragmatists", title: "以实践后果理解真理", figures: "威廉·詹姆斯、约翰·杜威", region: "美国", answer: "观念的意义和真理应联系其在经验、行动和共同探究中的作用。", method: "经验实验、功能分析与教育实践", difference: "拒绝脱离生活的二元体系，把认识放回持续调整的环境。", chapterIds: ["b3-29", "b3-30"] },
@@ -434,7 +434,7 @@ export const stageDetailPanels: Record<string, StageDetailPanel> = {
     ],
     problems: [
       { id: "preservation-authority", marker: "知识", title: "文明断裂后，谁有权保存和筛选知识？", detail: "不同地区保存了不同古典资源：西欧修道院偏重拉丁宗教文本，拜占庭保留希腊传统，伊斯兰城市则广泛翻译和扩展。保存从来同时意味着选择。" },
-      { id: "reason-revelation", marker: "方法", title: "跨语言知识怎样进入信仰体系？", detail: "翻译不只是换语言，也会改变概念。约翰·司各脱、阿维森纳和阿威罗伊都必须判断：哲学推理与启示冲突时，是重新解释经文、限制理性，还是区分真理层次。" },
+      { id: "reason-revelation", marker: "方法", title: "跨语言知识怎样进入信仰体系？", detail: "翻译不只是替换词语，也会改变概念之间的关系。约翰·司各脱·爱留根纳、阿维森纳和阿威罗伊都必须判断：哲学推理与启示似乎冲突时，应当重新解释经文、限制理性的范围，还是区分两种论证层次？" },
       { id: "two-powers", marker: "政治", title: "教皇与皇帝，谁代表普遍秩序？", detail: "西欧没有单一帝国，却同时继承罗马皇权和普世教会理想。主教任命、财产和法律管辖的争执，使政治思想长期围绕两种普遍权威的边界展开。" },
     ],
   },
@@ -509,7 +509,7 @@ export const methodAtlas = [
   { id: "interpretation", title: "解释与综合", rule: "把既有经典放入新的宗教或概念体系", uses: ["奥古斯丁", "阿奎那", "伊斯兰哲学"], stages: ["patristic", "early-medieval", "scholastic"] },
   { id: "empirical", title: "经验与实验", rule: "追踪观念来源，并让主张接受观察或实践检验", uses: ["培根", "洛克", "休谟", "实用主义"], stages: ["renaissance-science", "early-modern", "industrial-modern"] },
   { id: "critique", title: "条件分析", rule: "不直接回答对象是什么，而先问认识它何以可能", uses: ["康德", "语言分析"], stages: ["revolution-idealism", "industrial-modern"] },
-  { id: "genealogy", title: "历史与谱系", rule: "通过生成过程解释观念、制度和价值的权力来源", uses: ["黑格尔", "马克思", "尼采"], stages: ["revolution-idealism", "industrial-modern"] },
+  { id: "genealogy", title: "历史与谱系", rule: "从生成过程追查观念、制度和价值背后的权力关系", uses: ["黑格尔", "马克思", "尼采"], stages: ["revolution-idealism", "industrial-modern"] },
 ];
 
 export const longLinks = [

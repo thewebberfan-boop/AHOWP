@@ -6,7 +6,7 @@ import { figureEntries, figuresForChapter, type FigureEntry } from "./figure-dat
 import { geographyByAlias, geographyEntries, geographyMatchers, type GeographyEntry } from "./geography-data";
 import { historyResponseLinks, historyStages, longLinks, methodAtlas, stageDetailPanels, type DetailNode, type HistoryStage, type ResponseNode } from "./history-data";
 import { formatLanguageLabel } from "./language-label";
-import { philosopherProfiles, type PhilosopherProfile } from "./philosopher-data";
+import { findPhilosopherProfilesByTarget, philosopherProfiles, type PhilosopherProfile } from "./philosopher-data";
 import { russellStructureStageIdsByHistoryStage, russellStructureStages } from "./russell-structure-data";
 import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
@@ -339,8 +339,8 @@ export default function Home() {
       if (includesText([chapter.title, chapter.english, chapter.part, ...chapter.themes, note?.summary, ...(note?.keyPoints || [])], needle)) results.push({ kind: "chapter", id: chapter.id, title: chapter.title, meta: `${bookNumber[chapter.book]} · 第 ${chapter.roman} 章` });
     });
     terminology.forEach((term) => {
-      if (term.category === "地名") return;
-      if (includesText([term.zh, term.en, term.note, ...(term.alternatives || [])], needle)) results.push({ kind: "term", id: term.id, title: `${term.zh} · ${term.en}`, meta: `${term.category} · 双语术语` });
+      if (term.entity) return;
+      if (includesText([term.zh, term.en, term.note, term.context, term.distinction, ...(term.alternatives || []), ...(term.aliases || []), ...(term.related || [])], needle)) results.push({ kind: "term", id: term.id, title: term.en ? `${term.zh} · ${term.en}` : term.zh, meta: term.category === "地名" ? "地点索引卡" : `${term.category} · 双语术语` });
     });
     geographyEntries.forEach((place) => {
       if (includesText([place.nameZh, place.nameEn, place.modernLocation, ...place.historicalContexts.flatMap((context) => [context.period, context.ancientOrPeriodName, context.politicalContext, context.note])], needle)) results.push({ kind: "place", id: place.id, title: `${place.nameZh} · ${place.nameEn}`, meta: `${place.modernLocation} · 地点地图` });
@@ -812,11 +812,7 @@ function PhilosopherView({ profile, onPhilosopher, onSchool, onChapter, originLa
     const targets = profile.comparisons.filter((item) => item.relation === relation).map((item) => item.target);
     const schoolStem = (label: string) => label.replace(/(诸传统|主义|学派|传统|派)$/u, "");
     const isSchoolTarget = (target: string) => [...philosopherProfiles.map((item) => item.school), ...schoolProfiles.map((item) => item.nameZh)].some((school) => schoolStem(school) === schoolStem(target));
-    const schools = [...new Set(targets.flatMap((target) => {
-      const linkedProfile = philosopherProfiles.find((item) => item.nameZh === target);
-      if (linkedProfile) return [linkedProfile.school];
-      return [];
-    }))];
+    const schools = [...new Set(targets.flatMap((target) => findPhilosopherProfilesByTarget(target).map((linkedProfile) => linkedProfile.school)))];
     if (targets.length === 0) return relation === "承接前人"
       ? { figures: "多重思想来源", schools: "跨传统来源" }
       : { figures: "多路径后世影响", schools: "跨时代接受" };
@@ -992,7 +988,8 @@ function TermModal({ term, onClose }: { term: TermEntry; onClose: () => void }) 
 
   const label = formatLanguageLabel(term.en);
   const original = term.original || label.original;
-  return <div className="term-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="term-modal" role="dialog" aria-modal="true" aria-labelledby="term-modal-title"><button className="modal-close" aria-label="关闭术语卡" onClick={onClose}>×</button><p className="eyebrow">{term.category} · BILINGUAL TERM</p><h2 id="term-modal-title">{term.zh}</h2><p className="term-english">{label.english}</p>{original && <div className="term-original"><span>原文术语</span><p>{original}</p></div>}{term.alternatives?.length && <div className="term-alternatives"><span>其他常见译法</span><p>{term.alternatives.join(" / ")}</p></div>}<div className="term-note"><span>在本网站中的识别线索</span><p>{term.note}</p></div><button className="modal-done" onClick={onClose}>理解了，返回阅读</button></section></div>;
+  const noteLabel = term.category === "概念" ? "简明定义" : term.category === "人物" || term.category === "学派" ? "核心定位" : "在本网站中的含义";
+  return <div className="term-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}><section className="term-modal" role="dialog" aria-modal="true" aria-labelledby="term-modal-title"><button className="modal-close" aria-label="关闭术语卡" onClick={onClose}>×</button><p className="eyebrow">{term.category} · KNOWLEDGE CARD {term.stars ? `· ${"★".repeat(term.stars)}` : ""}</p><h2 id="term-modal-title">{term.zh}</h2>{label.english && <p className="term-english">{label.english}</p>}{term.context && <div className="term-context"><span>历史坐标</span><p>{term.context}</p></div>}{original && <div className="term-original"><span>原文／原名</span><p>{original}</p></div>}{term.alternatives?.length && <div className="term-alternatives"><span>其他常见译法</span><p>{term.alternatives.join(" / ")}</p></div>}<div className="term-note"><span>{noteLabel}</span><p>{term.note}</p></div>{term.distinction && <div className="term-distinction"><span>阅读边界</span><p>{term.distinction}</p></div>}{term.related?.length && <div className="term-related"><span>{term.category === "人物" ? "核心概念" : term.category === "学派" ? "代表人物" : "相关页面"}</span><p>{term.related.join(" · ")}</p></div>}<button className="modal-done" onClick={onClose}>理解了，返回阅读</button></section></div>;
 }
 
 function osmEmbedUrl(place: GeographyEntry) {
