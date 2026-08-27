@@ -89,9 +89,12 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(styles, /app-mode-history \.sidebar/);
   assert.match(styles, /app-mode-problems \.sidebar/);
   assert.match(problemMap, /function ProblemMapView/);
-  assert.match(problemMap, /为什么推进到这里/);
+  assert.match(problemMap, /为什么进入图谱/);
+  assert.match(problemMap, /完整宽度呈现 · 页面仅纵向阅读/);
   assert.match(problemMap, /在这里思考的人/);
-  assert.match(problemData, /从差异与变化到可知的形式/);
+  assert.match(problemData, /type ProblemNodeKind = "观察" \| "问题" \| "答案"/);
+  assert.match(problemData, /type ProblemRelationKind = "提出问题" \| "回应问题" \| "产生问题"/);
+  assert.match(problemData, /从多样、变化与秩序到可知的形式/);
   assert.match(problemData, /历史回应/);
   assert.match(problemData, /本站推演/);
   assert.match(problemData, /philosopherId: "plato"/);

@@ -993,6 +993,120 @@ button { cursor: pointer; }
 .problem-map-sources a span, .problem-map-sources article span { color: var(--green); font-size: 8px; }
 .problem-map-sources a:hover { background: var(--green-soft); }
 
+/* Problem genealogy: observation → question → answer graph */
+.problem-map-local-nav button { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; min-width: 0; padding: 10px 12px; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--muted); text-align: left; }
+.problem-map-local-nav button:last-child { border-right: 0; }
+.problem-map-local-nav button > span { grid-row: 1 / 3; align-self: center; color: var(--red); font: 9px/1 var(--serif); }
+.problem-map-local-nav button > b { overflow: hidden; font: 500 10px/1.3 var(--serif); text-overflow: ellipsis; white-space: nowrap; }
+.problem-map-local-nav button > small { overflow: hidden; color: inherit; font-size: 7px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.problem-map-local-nav button:hover, .problem-map-local-nav button:focus-visible { outline: none; background: var(--green-soft); }
+.problem-map-local-nav button.active { background: var(--green); color: white; }
+.problem-map-local-nav button.active > span { color: #efada4; }
+
+.problem-graph-intro { display: grid; grid-template-columns: auto auto minmax(220px, 1fr); gap: 18px; align-items: center; padding: 16px 0 18px; border-bottom: 1px solid var(--line); }
+.problem-node-legend, .problem-relation-legend { display: flex; flex-wrap: wrap; gap: 7px; }
+.problem-node-legend > span, .problem-relation-legend > span { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border: 1px solid var(--line); background: var(--paper-light); font: 500 9px/1.2 var(--serif); }
+.problem-node-legend > span > i { width: 8px; height: 8px; border: 1px solid currentColor; border-radius: 2px; background: currentColor; opacity: .75; }
+.problem-node-legend > span.kind-观察 { color: var(--green); }
+.problem-node-legend > span.kind-问题 { color: var(--red); }
+.problem-node-legend > span.kind-答案 { color: #66594c; }
+.problem-node-legend small, .problem-relation-legend small { color: var(--muted); font: 6px/1 Arial, sans-serif; letter-spacing: .05em; }
+.problem-relation-legend > span:nth-child(1) { border-bottom-color: var(--green); }
+.problem-relation-legend > span:nth-child(2) { border-bottom-color: #8d745f; }
+.problem-relation-legend > span:nth-child(3) { border-bottom: 1px dashed var(--red); }
+.problem-graph-intro > p { margin: 0; color: var(--muted); font: 10px/1.55 var(--serif); }
+
+.problem-graph-workspace { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: 25px; }
+.problem-graph-panel { min-width: 0; border: 1px solid var(--ink); background: #e8e5dc; box-shadow: 4px 4px 0 rgba(49, 75, 61, .08); }
+.problem-graph-toolbar { display: flex; justify-content: space-between; gap: 18px; align-items: center; min-height: 67px; padding: 12px 14px; border-bottom: 1px solid var(--ink); background: var(--paper-light); }
+.problem-graph-toolbar p { margin: 0 0 5px; }
+.problem-graph-toolbar h3 { margin: 0; font: 500 17px/1.3 var(--serif); }
+.problem-graph-fit-note { margin: 0; color: var(--muted); font-size: 8px; letter-spacing: .08em; }
+.problem-graph-actions { display: flex; flex: none; gap: 4px; align-items: center; }
+.problem-graph-actions button, .problem-graph-actions span { display: grid; place-items: center; min-width: 30px; height: 28px; padding: 0 7px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 9px; }
+.problem-graph-actions button:hover, .problem-graph-actions button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.problem-graph-actions span { border: 0; color: var(--muted); }
+.problem-graph-scroll { width: 100%; overflow: hidden; background-color: #ebe8df; background-image: linear-gradient(rgba(49, 75, 61, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(49, 75, 61, .045) 1px, transparent 1px); background-size: 24px 24px; }
+.problem-graph-scroll:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.problem-graph-scroll svg { display: block; width: 100%; height: auto; }
+.problem-graph-phases rect { stroke: rgba(49, 75, 61, .13); stroke-width: 1; }
+.problem-graph-phases .phase-odd { fill: rgba(250, 248, 242, .66); }
+.problem-graph-phases .phase-even { fill: rgba(218, 226, 216, .38); }
+.problem-graph-phases g.active rect { stroke: rgba(145, 52, 42, .48); stroke-width: 2; }
+.problem-graph-phases text { fill: var(--red); font: 700 9px Arial, sans-serif; letter-spacing: .08em; }
+.problem-graph-phases text tspan { font: 500 13px var(--serif); }
+
+.problem-graph-edge { fill: none; stroke: currentColor; stroke-width: 1.45; opacity: .27; transition: opacity .18s ease, stroke-width .18s ease; }
+.problem-graph-edges g.connected .problem-graph-edge { stroke-width: 2.3; opacity: .94; }
+.problem-graph-edge.relation-产生问题 { stroke-dasharray: 6 4; }
+.problem-graph-edge.relation-提出问题 { stroke-width: 1.7; }
+.problem-graph-node { cursor: pointer; opacity: .76; transition: opacity .18s ease; }
+.problem-graph-node.connected, .problem-graph-node:hover, .problem-graph-node:focus-visible { opacity: 1; }
+.problem-graph-node:focus-visible { outline: none; }
+.problem-graph-node rect { fill: var(--paper-light); stroke: #6d6559; stroke-width: 1.35; filter: drop-shadow(3px 3px 0 rgba(49, 75, 61, .08)); }
+.problem-graph-node.kind-观察 rect { fill: #e0e9df; stroke: var(--green); }
+.problem-graph-node.kind-问题 rect { fill: #efe0da; stroke: var(--red); }
+.problem-graph-node.kind-答案 rect { fill: #f7f2e8; stroke: #7a6757; }
+.problem-graph-node.selected rect, .problem-graph-node:focus-visible rect { stroke-width: 3.2; filter: drop-shadow(5px 5px 0 rgba(145, 52, 42, .16)); }
+.problem-graph-node-meta { fill: var(--muted); font: 7px Arial, sans-serif; letter-spacing: .07em; }
+.problem-graph-node.kind-观察 .problem-graph-node-meta { fill: var(--green); }
+.problem-graph-node.kind-问题 .problem-graph-node-meta { fill: var(--red); }
+.problem-graph-node-title { fill: var(--ink); font: 500 14px var(--serif); }
+.problem-graph-node circle { fill: #7a6757; }
+.problem-graph-node.kind-观察 circle { fill: var(--green); }
+.problem-graph-node.kind-问题 circle { fill: var(--red); }
+
+.problem-graph-evidence { display: flex; flex-wrap: wrap; gap: 8px 14px; padding: 10px 13px; border-top: 1px solid var(--ink); background: var(--paper-light); }
+.problem-graph-evidence span { display: flex; gap: 5px; align-items: center; font-size: 7px; }
+.problem-graph-evidence i { width: 20px; border-top: 2px solid currentColor; }
+
+.problem-node-detail { position: fixed; top: 194px; bottom: 46px; left: 14px; z-index: 8; width: 292px; overflow: auto; border: 1px solid var(--ink); border-top: 4px solid #7a6757; background: var(--paper-light); box-shadow: 4px 4px 0 rgba(49, 75, 61, .08); }
+.problem-detail-sidebar .results-label { padding-right: 4px; padding-left: 4px; }
+.problem-detail-sidebar .results-label b { color: var(--red); font-size: 7px; font-weight: 500; letter-spacing: .03em; }
+.problem-node-detail.kind-观察 { border-top-color: var(--green); }
+.problem-node-detail.kind-问题 { border-top-color: var(--red); }
+.problem-node-detail > header { padding: 18px 18px 17px; border-bottom: 1px solid var(--line); }
+.problem-node-detail > header > div { display: flex; gap: 7px; align-items: center; }
+.problem-node-detail > header > div span, .problem-node-detail > header > div em { padding: 3px 6px; border: 1px solid currentColor; color: var(--red); font: normal 7px/1 Arial, sans-serif; letter-spacing: .07em; }
+.problem-node-detail.kind-观察 > header > div span { color: var(--green); }
+.problem-node-detail.kind-答案 > header > div span { color: #73594c; }
+.problem-node-detail > header > small { display: block; margin-top: 10px; color: var(--muted); font-size: 7px; letter-spacing: .08em; }
+.problem-node-detail h3 { margin: 8px 0 10px; font: 500 23px/1.28 var(--serif); }
+.problem-node-detail > header > p { margin: 0; color: #4e514c; font: 12px/1.67 var(--serif); }
+.problem-node-detail-logic { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.problem-node-detail-logic section { min-width: 0; padding: 14px; }
+.problem-node-detail-logic section:first-child { border-right: 1px solid var(--line); }
+.problem-node-detail-logic span, .problem-node-neighbours section > span, .problem-node-detail-links section > span { display: block; margin-bottom: 8px; color: var(--red); font-size: 7px; letter-spacing: .08em; }
+.problem-node-detail-logic p { margin: 0; font: 10px/1.58 var(--serif); }
+.problem-node-neighbours { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.problem-node-neighbours section { min-width: 0; padding: 13px; }
+.problem-node-neighbours section:first-child { border-right: 1px solid var(--line); }
+.problem-node-neighbours button { display: grid; gap: 3px; width: 100%; margin-top: 6px; padding: 8px; border: 1px solid var(--line); background: transparent; text-align: left; }
+.problem-node-neighbours button:hover, .problem-node-neighbours button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.problem-node-neighbours button b { font: 500 10px/1.35 var(--serif); }
+.problem-node-neighbours button small { color: var(--red); font-size: 6px; }
+.problem-node-neighbours button em { color: var(--muted); font: normal 7px/1.35 var(--serif); }
+.problem-node-neighbours section > p { margin: 0; color: var(--muted); font: 9px/1.55 var(--serif); }
+.problem-node-detail-links > section { padding: 13px; border-bottom: 1px solid var(--line); }
+.problem-node-detail-links > section:last-child { border-bottom: 0; }
+.problem-node-detail .problem-participants button, .problem-node-detail .problem-participant-pending { min-width: 100%; }
+.problem-node-detail .problem-participants button b, .problem-node-detail .problem-participant-pending b { font-size: 11px; }
+.problem-school-links > div { display: grid; gap: 6px; }
+.problem-school-links button { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 12px; gap: 3px 8px; width: 100%; padding: 9px; border: 1px solid var(--line); background: transparent; text-align: left; }
+.problem-school-links button:hover, .problem-school-links button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.problem-school-links button b { font: 500 11px/1.35 var(--serif); }
+.problem-school-links button small, .problem-school-links button em { grid-column: 1; color: var(--muted); font: normal 7px/1.35 var(--serif); }
+.problem-school-links button em { color: var(--green); }
+.problem-school-links button i { grid-column: 2; grid-row: 1 / 4; align-self: center; color: var(--green); font-style: normal; }
+.problem-school-links p { margin: 0; color: var(--muted); font: 9px/1.55 var(--serif); }
+
+@media (max-width: 1180px) {
+  .problem-graph-intro { grid-template-columns: 1fr 1fr; }
+  .problem-graph-intro > p { grid-column: 1 / -1; }
+  .problem-graph-workspace { grid-template-columns: 1fr; }
+  .problem-node-detail-logic, .problem-node-neighbours { grid-template-columns: 1fr 1fr; }
+}
+
 /* Global type scale and reading rhythm */
 body { font-size: var(--type-body); line-height: 1.55; }
 .app-shell { grid-template-columns: 320px minmax(0, 1fr); }
@@ -1481,6 +1595,21 @@ span.place-token {
   .place-modal-grid { grid-template-columns: 1fr; gap: 24px; }
   .map-frame { min-height: 290px; }
   .map-frame iframe { min-height: 240px; }
+}
+
+@media (max-width: 760px) {
+  .problem-graph-intro { grid-template-columns: 1fr; gap: 10px; }
+  .problem-graph-intro > p { grid-column: auto; }
+  .problem-graph-workspace { margin-top: 17px; }
+  .problem-graph-toolbar { align-items: flex-start; flex-direction: column; }
+  .problem-graph-actions { align-self: stretch; }
+  .problem-graph-actions button:last-child { margin-left: auto; }
+  .problem-graph-scroll { min-height: 0; }
+  .problem-graph-evidence { gap: 8px 11px; }
+  .problem-node-detail { position: static; width: auto; max-height: none; margin-top: 16px; }
+  .problem-node-detail h3 { font-size: 21px; }
+  .problem-node-detail-logic, .problem-node-neighbours { grid-template-columns: 1fr; }
+  .problem-node-detail-logic section:first-child, .problem-node-neighbours section:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 
 @media (prefers-reduced-motion: reduce) {

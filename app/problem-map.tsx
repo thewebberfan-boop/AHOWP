@@ -1,19 +1,39 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { chapters } from "./book-data";
 import { philosopherProfiles } from "./philosopher-data";
-import { ancientDifferenceProblemMap, problemConnectionNotes, type ProblemConnectionKind, type ProblemNodeKind } from "./problem-map-data";
+import { findSchoolProfilesByPhilosopher } from "./school-data";
+import {
+  ancientDifferenceProblemMap,
+  problemConnectionNotes,
+  problemRelationNotes,
+  type ProblemConnectionKind,
+  type ProblemEdge,
+  type ProblemNode,
+  type ProblemNodeKind,
+  type ProblemRelationKind,
+} from "./problem-map-data";
+
+const GRAPH_WIDTH = 1280;
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 82;
+const GRAPH_TOP = 58;
+const GRAPH_LEFT = 48;
+const ROW_GAP = 132;
+const ROOT_QUESTION_ANSWER_GAP = 116;
+const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT * 2 - NODE_WIDTH) / 4;
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
   观察: "OBSERVATION",
   问题: "QUESTION",
-  区分: "DISTINCTION",
-  回答: "PROPOSAL",
-  反驳: "OBJECTION",
-  修复: "REPAIR",
-  转向: "SHIFT",
-  开放问题: "OPEN PROBLEM",
+  答案: "ANSWER",
+};
+
+const relationEnglish: Record<ProblemRelationKind, string> = {
+  提出问题: "RAISES",
+  回应问题: "ANSWERS",
+  产生问题: "GENERATES",
 };
 
 const connectionClass: Record<ProblemConnectionKind, string> = {
@@ -24,38 +44,109 @@ const connectionClass: Record<ProblemConnectionKind, string> = {
   后世重构: "retrospective",
 };
 
-function scrollToProblemPhase(id: string) {
-  const root = document.documentElement;
-  const previousBehavior = root.style.scrollBehavior;
-  root.style.scrollBehavior = "auto";
-  document.getElementById(`problem-${id}`)?.scrollIntoView({ behavior: "auto", block: "start" });
-  root.style.scrollBehavior = previousBehavior;
+function graphPoint(node: ProblemNode) {
+  return {
+    x: GRAPH_LEFT + node.graph.lane * LANE_GAP,
+    y: GRAPH_TOP + node.graph.row * ROW_GAP + (node.graph.row >= 2 ? ROOT_QUESTION_ANSWER_GAP : 0),
+  };
 }
 
-export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, onChapter, showEnglish }: {
+function splitTitle(title: string, limit = 13) {
+  const lines: string[] = [];
+  let line = "";
+  let weight = 0;
+  Array.from(title).forEach((character) => {
+    const nextWeight = character.charCodeAt(0) <= 0x7f ? 0.55 : 1;
+    if (line && weight + nextWeight > limit) {
+      lines.push(line);
+      line = character;
+      weight = nextWeight;
+    } else {
+      line += character;
+      weight += nextWeight;
+    }
+  });
+  if (line) lines.push(line);
+  return lines.slice(0, 3);
+}
+
+function edgePath(edge: ProblemEdge, nodesById: Map<string, ProblemNode>) {
+  const source = nodesById.get(edge.from);
+  const target = nodesById.get(edge.to);
+  if (!source || !target) return "";
+  const sourcePoint = graphPoint(source);
+  const targetPoint = graphPoint(target);
+  const startX = sourcePoint.x + NODE_WIDTH / 2;
+  const startY = sourcePoint.y + NODE_HEIGHT;
+  const endX = targetPoint.x + NODE_WIDTH / 2;
+  const endY = targetPoint.y;
+  const bend = Math.max(42, (endY - startY) * 0.48);
+  return `M ${startX} ${startY} C ${startX} ${startY + bend}, ${endX} ${endY - bend}, ${endX} ${endY}`;
+}
+
+export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, onSchool, onChapter, showEnglish }: {
   activePhaseId: string;
   onPhaseChange: (id: string) => void;
   onPhilosopher: (id: string) => void;
+  onSchool: (id: string) => void;
   onChapter: (id: string) => void;
   showEnglish: boolean;
 }) {
   const map = ancientDifferenceProblemMap;
-  const phaseRefs = useRef(new Map<string, HTMLElement>());
+  const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
+  const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
+  const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
+  const [selectedNodeId, setSelectedNodeId] = useState(allNodes[0].id);
+  const selectedNode = nodesById.get(selectedNodeId) || allNodes[0];
+  const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
+  const incomingEdges = map.edges.filter((edge) => edge.to === selectedNode.id);
+  const outgoingEdges = map.edges.filter((edge) => edge.from === selectedNode.id);
+  const connectedEdgeIds = new Set([...incomingEdges, ...outgoingEdges].map((edge) => edge.id));
+  const connectedNodeIds = new Set([selectedNode.id, ...incomingEdges.map((edge) => edge.from), ...outgoingEdges.map((edge) => edge.to)]);
+  const relatedParticipants = useMemo(() => {
+    const oneHopIds = new Set(map.edges.flatMap((edge) => edge.from === selectedNode.id ? [edge.to] : edge.to === selectedNode.id ? [edge.from] : []));
+    let sourceNodes = selectedNode.participants.length > 0
+      ? [selectedNode]
+      : [...oneHopIds].map((id) => nodesById.get(id)).filter((node): node is ProblemNode => Boolean(node?.participants.length));
+    if (!sourceNodes.length) {
+      const twoHopIds = new Set(map.edges.flatMap((edge) => oneHopIds.has(edge.from) ? [edge.to] : oneHopIds.has(edge.to) ? [edge.from] : []));
+      sourceNodes = [...twoHopIds].map((id) => nodesById.get(id)).filter((node): node is ProblemNode => Boolean(node?.participants.length));
+    }
+    const unique = new Map<string, ProblemNode["participants"][number]>();
+    sourceNodes.flatMap((node) => node.participants).forEach((participant) => {
+      const key = participant.philosopherId || participant.name;
+      if (!unique.has(key)) unique.set(key, participant);
+    });
+    return [...unique.values()];
+  }, [map.edges, nodesById, selectedNode]);
+  const relatedSchools = useMemo(() => {
+    const unique = new Map<string, ReturnType<typeof findSchoolProfilesByPhilosopher>[number]>();
+    relatedParticipants.forEach((participant) => {
+      if (!participant.philosopherId) return;
+      findSchoolProfilesByPhilosopher(participant.philosopherId).forEach((school) => unique.set(school.id, school));
+    });
+    return [...unique.values()].sort((left, right) => left.order - right.order);
+  }, [relatedParticipants]);
+  const maxRow = Math.max(...allNodes.map((node) => node.graph.row));
+  const graphHeight = GRAPH_TOP + maxRow * ROW_GAP + ROOT_QUESTION_ANSWER_GAP + NODE_HEIGHT + 70;
+
+  const selectNode = (id: string) => {
+    const phase = phaseByNodeId.get(id);
+    setSelectedNodeId(id);
+    if (phase) onPhaseChange(phase.id);
+  };
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((left, right) => Math.abs(left.boundingClientRect.top) - Math.abs(right.boundingClientRect.top))[0];
-      const id = visible?.target.getAttribute("data-problem-phase");
-      if (id) onPhaseChange(id);
-    }, { rootMargin: "-24% 0px -62% 0px", threshold: [0, 0.1, 0.4] });
-    phaseRefs.current.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, [onPhaseChange]);
+    if (selectedPhase.id === activePhaseId) return;
+    const phase = map.phases.find((item) => item.id === activePhaseId);
+    const target = phase?.nodes.find((node) => node.kind === "问题") || phase?.nodes[0];
+    if (!target) return;
+    const frame = window.requestAnimationFrame(() => {
+      setSelectedNodeId(target.id);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activePhaseId, map.phases, selectedPhase.id]);
 
-  const nodeCount = map.phases.reduce((sum, phase) => sum + phase.nodes.length, 0);
-  const participantCount = new Set(map.phases.flatMap((phase) => phase.nodes.flatMap((node) => node.participants.map((participant) => participant.name)))).size;
   return <article className="problem-map-page page-wrap">
     <header className="problem-map-hero">
       <div className="problem-map-mark"><span>?</span><small>PROBLEM<br />GENEALOGY</small></div>
@@ -67,68 +158,132 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
       </div>
       <aside className="problem-map-facts">
         <div><span>当前范围</span><b>泰勒斯 → 柏拉图</b></div>
-        <div><span>逻辑阶段</span><b>{map.phases.length} 段</b></div>
-        <div><span>思想节点</span><b>{nodeCount} 个</b></div>
-        <div><span>参与人物</span><b>{participantCount} 位</b></div>
+        <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
+        <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
+        <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
       </aside>
     </header>
 
     <aside className="problem-map-boundary"><span>阅读边界</span><p>{map.scopeNote}</p></aside>
 
-    <nav className="problem-map-local-nav" aria-label="问题图谱阶段">
-      {map.phases.map((phase) => <a className={phase.id === activePhaseId ? "active" : ""} href={`#problem-${phase.id}`} key={phase.id} onClick={(event) => { event.preventDefault(); onPhaseChange(phase.id); scrollToProblemPhase(phase.id); }}><span>{String(phase.order).padStart(2, "0")}</span>{phase.label}</a>)}
-    </nav>
-
-    <section className="problem-map-key" aria-label="连线证据说明">
-      <header><p className="section-label">HOW TO READ THE LINKS</p><h3>先看“为什么到下一步”，再看谁在这里思考</h3></header>
-      <div>{(Object.keys(problemConnectionNotes) as ProblemConnectionKind[]).map((kind) => <article className={`connection-${connectionClass[kind]}`} key={kind}><span>{kind}</span><p>{problemConnectionNotes[kind]}</p></article>)}</div>
+    <section className="problem-graph-intro" aria-label="图谱语法">
+      <div className="problem-node-legend">
+        {(Object.keys(kindEnglish) as ProblemNodeKind[]).map((kind) => <span className={`kind-${kind}`} key={kind}><i aria-hidden="true" />{kind}<small>{kindEnglish[kind]}</small></span>)}
+      </div>
+      <div className="problem-relation-legend">
+        {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span key={relation} title={problemRelationNotes[relation]}><b>{relation}</b><small>{relationEnglish[relation]}</small></span>)}
+      </div>
+      <p>箭头表示问题如何被提出、回应和再次生成；线条颜色表示连接证据。点击任一节点查看完整内容和相邻关系。</p>
     </section>
 
-    <div className="problem-phase-list">
-      {map.phases.map((phase) => <section
-        className={phase.id === activePhaseId ? "problem-phase active" : "problem-phase"}
-        id={`problem-${phase.id}`}
-        data-problem-phase={phase.id}
-        key={phase.id}
-        ref={(element) => { if (element) phaseRefs.current.set(phase.id, element); else phaseRefs.current.delete(phase.id); }}
-      >
-        <header className="problem-phase-heading">
-          <span>{String(phase.order).padStart(2, "0")}</span>
-          <div><p>{phase.label}</p><h3>{phase.title}</h3><blockquote>{phase.question}</blockquote></div>
-          <aside>{phase.transition}</aside>
+    <section className="problem-graph-workspace" id="problem-graph">
+      <div className="problem-graph-panel">
+        <header className="problem-graph-toolbar">
+          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>观察提出问题，答案又产生问题</h3></div>
+          <p className="problem-graph-fit-note">完整宽度呈现 · 页面仅纵向阅读</p>
         </header>
 
-        <div className="problem-node-list">
-          {phase.nodes.map((node, index) => <div className="problem-node-step" key={node.id}>
-            {index > 0 && <div className={`problem-edge connection-${connectionClass[node.connection]}`} aria-label={`逻辑连接：${node.relationFromPrevious}；${node.connection}`}><span>{node.relationFromPrevious}</span><i aria-hidden="true">↓</i><small>{node.connection}</small></div>}
-            <article className={`problem-node kind-${node.kind === "开放问题" ? "open" : node.kind}`} id={`problem-node-${node.id}`}>
-              <header>
-                <span className="problem-node-index">{String(phase.order).padStart(2, "0")}.{String(index + 1).padStart(2, "0")}</span>
-                <div><small>{kindEnglish[node.kind]}</small><b>{node.kind}</b></div>
-                <em className={`connection-${connectionClass[node.connection]}`} title={problemConnectionNotes[node.connection]}>{node.connection}</em>
-              </header>
-              <div className="problem-node-body">
-                <div className="problem-node-main"><h4>{node.title}</h4><p>{node.summary}</p></div>
-                <div className="problem-node-logic">
-                  <section><span>为什么推进到这里</span><p>{node.pressure}</p></section>
-                  <i aria-hidden="true">→</i>
-                  <section><span>它又打开什么</span><p>{node.consequence}</p></section>
-                </div>
-              </div>
-              <footer>
-                <div className="problem-participants"><span>在这里思考的人</span><div>{node.participants.length > 0 ? node.participants.map((participant) => {
-                  const profile = participant.philosopherId ? philosopherProfiles.find((item) => item.id === participant.philosopherId) : undefined;
-                  return participant.philosopherId && profile
-                    ? <button key={`${node.id}-${participant.name}`} onClick={() => onPhilosopher(participant.philosopherId!)}><b>{participant.name}</b>{showEnglish && <small>{profile.nameEn}</small>}<em>{participant.role}</em><i aria-hidden="true">↗</i></button>
-                    : <span className="problem-participant-pending" key={`${node.id}-${participant.name}`}><b>{participant.name}</b><em>{participant.role}</em><small>人物页待补</small></span>;
-                }) : <p>这一节点是本站为组织阅读而建立的共同起点，不归属于单一哲学家。</p>}</div></div>
-                <div className="problem-chapter-links"><span>回到原书</span><div>{node.chapterIds.map((id) => { const chapter = chapters.find((item) => item.id === id); return chapter ? <button key={`${node.id}-${id}`} onClick={() => onChapter(id)}><small>{chapter.roman}</small><b>{chapter.title}</b></button> : null; })}</div></div>
-              </footer>
-            </article>
-          </div>)}
+        <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
+          <svg viewBox={`0 0 ${GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${map.title}：${allNodes.length} 个节点、${map.edges.length} 条关系`}>
+            <defs>
+              <marker id="problem-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L7,3 z" fill="context-stroke" />
+              </marker>
+            </defs>
+
+            <g className="problem-graph-edges">
+              {map.edges.map((edge) => {
+                const connected = connectedEdgeIds.has(edge.id);
+                return <g className={connected ? "connected" : ""} key={edge.id}>
+                  <path
+                    className={`problem-graph-edge relation-${edge.relation} connection-${connectionClass[edge.connection]}`}
+                    d={edgePath(edge, nodesById)}
+                    markerEnd="url(#problem-arrow)"
+                    aria-hidden="true"
+                  />
+                </g>;
+              })}
+            </g>
+
+            <g className="problem-graph-nodes">
+              {allNodes.map((node, index) => {
+                const point = graphPoint(node);
+                const selected = node.id === selectedNode.id;
+                const connected = connectedNodeIds.has(node.id);
+                const lines = splitTitle(node.title);
+                return <g
+                  className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}`}
+                  id={`problem-node-${node.id}`}
+                  key={node.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${node.kind}${node.answerRole ? `，${node.answerRole}型答案` : ""}：${node.title}`}
+                  transform={`translate(${point.x}, ${point.y})`}
+                  onClick={() => selectNode(node.id)}
+                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectNode(node.id); } }}
+                >
+                  <rect width={NODE_WIDTH} height={NODE_HEIGHT} rx="7" />
+                  <text className="problem-graph-node-meta" x="13" y="18">{String(index + 1).padStart(2, "0")} · {kindEnglish[node.kind]}{node.answerRole ? ` · ${node.answerRole}` : ""}</text>
+                  <text className="problem-graph-node-title" x="13" y="41">
+                    {lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : 19} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}
+                  </text>
+                  <circle cx={NODE_WIDTH - 14} cy="14" r="3.5" />
+                </g>;
+              })}
+            </g>
+          </svg>
         </div>
-      </section>)}
-    </div>
+
+        <footer className="problem-graph-evidence">
+          {(Object.keys(problemConnectionNotes) as ProblemConnectionKind[]).map((kind) => <span className={`connection-${connectionClass[kind]}`} title={problemConnectionNotes[kind]} key={kind}><i aria-hidden="true" />{kind}</span>)}
+        </footer>
+      </div>
+
+      <aside className={`problem-node-detail kind-${selectedNode.kind}`} aria-live="polite">
+        <header>
+          <div><span>{selectedNode.kind}</span>{selectedNode.answerRole && <em>{selectedNode.answerRole}型答案</em>}</div>
+          <small>{kindEnglish[selectedNode.kind]} · {incomingEdges.length} 条进入 / {outgoingEdges.length} 条发出</small>
+          <h3>{selectedNode.title}</h3>
+          <p>{selectedNode.summary}</p>
+        </header>
+
+        <div className="problem-node-detail-logic">
+          <section><span>为什么进入图谱</span><p>{selectedNode.pressure}</p></section>
+          <section><span>它又留下什么</span><p>{selectedNode.consequence}</p></section>
+        </div>
+
+        <div className="problem-node-neighbours">
+          <section>
+            <span>由什么来到这里</span>
+            {incomingEdges.length ? incomingEdges.map((edge) => {
+              const source = nodesById.get(edge.from);
+              return source ? <button type="button" key={edge.id} onClick={() => selectNode(source.id)}><b>{source.title}</b><small>{edge.relation} · {edge.connection}</small><em>{edge.label}</em></button> : null;
+            }) : <p>这是当前谱系的观察起点，不由既有答案推出。</p>}
+          </section>
+          <section>
+            <span>由此通向哪里</span>
+            {outgoingEdges.length ? outgoingEdges.map((edge) => {
+              const target = nodesById.get(edge.to);
+              return target ? <button type="button" key={edge.id} onClick={() => selectNode(target.id)}><b>{target.title}</b><small>{edge.relation} · {edge.connection}</small><em>{edge.label}</em></button> : null;
+            }) : <p>这是当前试验谱系暂时保留的开放终点。</p>}
+          </section>
+        </div>
+
+        <div className="problem-node-detail-links">
+          <section className="problem-participants"><span>对应哲学家</span><div>{relatedParticipants.length > 0 ? relatedParticipants.map((participant) => {
+            const profile = participant.philosopherId ? philosopherProfiles.find((item) => item.id === participant.philosopherId) : undefined;
+            return participant.philosopherId && profile
+              ? <button key={`${selectedNode.id}-${participant.name}`} onClick={() => onPhilosopher(participant.philosopherId!)}><b>{participant.name}</b>{showEnglish && <small>{profile.nameEn}</small>}<em>{participant.role}</em><i aria-hidden="true">↗</i></button>
+              : <span className="problem-participant-pending" key={`${selectedNode.id}-${participant.name}`}><b>{participant.name}</b><em>{participant.role}</em><small>人物页待补</small></span>;
+          }) : <p>这一节点暂未连接到可核验的人物页面。</p>}</div></section>
+          <section className="problem-school-links"><span>对应哲学流派与传统</span><div>{relatedSchools.length > 0 ? relatedSchools.map((school) => <button key={`${selectedNode.id}-${school.id}`} onClick={() => onSchool(school.id)}><b>{school.nameZh}</b>{showEnglish && <small>{school.nameEn}</small>}<em>{school.kind}</em><i aria-hidden="true">↗</i></button>) : <p>现有流派页面中尚无可直接对应的规范分类。</p>}</div></section>
+          <section className="problem-chapter-links"><span>回到原书</span><div>{selectedNode.chapterIds.map((id) => {
+            const chapter = chapters.find((item) => item.id === id);
+            return chapter ? <button key={`${selectedNode.id}-${id}`} onClick={() => onChapter(id)}><small>{chapter.roman}</small><b>{chapter.title}</b></button> : null;
+          })}</div></section>
+        </div>
+      </aside>
+    </section>
 
     <section className="problem-map-sources">
       <header><p className="section-label">SOURCES & RECONSTRUCTION</p><h3>原书骨架、现代校正与本站推演分开保存</h3></header>

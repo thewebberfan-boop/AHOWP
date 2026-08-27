@@ -40,14 +40,42 @@ problemMaps.forEach((map) => {
   if (!map.sources.length) error(`问题图谱“${map.title}”没有来源说明`);
   duplicates(map.phases.map((phase) => phase.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复阶段 ID：${id}`));
   const nodes = map.phases.flatMap((phase) => phase.nodes);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
   duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
+  duplicates(map.edges.map((edge) => edge.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复连线 ID：${id}`));
   map.phases.forEach((phase) => {
     if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
     phase.nodes.forEach((node) => {
       if (!node.pressure || !node.consequence) error(`问题节点“${node.title}”缺少推进压力或后续问题`);
+      if (node.kind === "答案" && !node.answerRole) error(`答案节点“${node.title}”缺少作用标签`);
+      if (node.kind !== "答案" && node.answerRole) error(`非答案节点“${node.title}”错误使用答案作用标签`);
       node.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`问题节点“${node.title}”引用不存在的章节 ${id}`));
       node.participants.filter((participant) => participant.philosopherId && !philosopherIds.has(participant.philosopherId)).forEach((participant) => error(`问题节点“${node.title}”引用不存在的人物 ${participant.philosopherId}`));
     });
+  });
+  map.edges.forEach((edge) => {
+    const source = nodeById.get(edge.from);
+    const target = nodeById.get(edge.to);
+    if (!source) error(`问题连线“${edge.label}”引用不存在的来源节点 ${edge.from}`);
+    if (!target) error(`问题连线“${edge.label}”引用不存在的目标节点 ${edge.to}`);
+    if (!source || !target) return;
+    const expectedRelation = source.kind === "观察" && target.kind === "问题"
+      ? "提出问题"
+      : source.kind === "问题" && target.kind === "答案"
+        ? "回应问题"
+        : source.kind === "答案" && target.kind === "问题"
+          ? "产生问题"
+          : null;
+    if (!expectedRelation) error(`问题连线“${edge.label}”违反观察→问题、问题→答案、答案→问题语法：${source.kind}→${target.kind}`);
+    else if (edge.relation !== expectedRelation) error(`问题连线“${edge.label}”应标为“${expectedRelation}”，实际为“${edge.relation}”`);
+  });
+  nodes.forEach((node) => {
+    const incoming = map.edges.filter((edge) => edge.to === node.id);
+    const outgoing = map.edges.filter((edge) => edge.from === node.id);
+    if (node.kind === "观察" && incoming.length) error(`观察节点“${node.title}”不应由其他节点推出`);
+    if (node.kind === "答案" && !incoming.length) error(`答案节点“${node.title}”没有对应问题`);
+    if (node.kind === "问题" && !incoming.length) error(`问题节点“${node.title}”既不来自观察，也不来自答案`);
+    if (node.kind !== "问题" && !outgoing.length) warn(`${node.kind}节点“${node.title}”没有继续连接到问题`);
   });
 });
 
@@ -147,7 +175,7 @@ const ratings = (items: Array<{ stars?: Rating }>) => Object.fromEntries([1, 2, 
 console.log(`人物 ${philosopherProfiles.length}：${JSON.stringify(ratings(philosopherProfiles))}`);
 console.log(`流派 ${schoolProfiles.length}：${JSON.stringify(ratings(schoolProfiles))}`);
 console.log(`知识卡 ${terminology.length}：人物 ${terminology.filter((term) => term.category === "人物").length}、流派 ${terminology.filter((term) => term.category === "学派").length}、概念 ${terminology.filter((term) => term.category === "概念").length}、地点 ${terminology.filter((term) => term.category === "地名").length}`);
-console.log(`问题图谱 ${problemMaps.length}：${problemMaps.reduce((total, map) => total + map.phases.length, 0)} 个阶段、${problemMaps.reduce((total, map) => total + map.phases.flatMap((phase) => phase.nodes).length, 0)} 个节点`);
+console.log(`问题图谱 ${problemMaps.length}：${problemMaps.reduce((total, map) => total + map.phases.length, 0)} 个阶段、${problemMaps.reduce((total, map) => total + map.phases.flatMap((phase) => phase.nodes).length, 0)} 个节点、${problemMaps.reduce((total, map) => total + map.edges.length, 0)} 条连线`);
 issues.forEach((issue) => console.log(`${issue.level} ${issue.message}`));
 
 const errorCount = issues.filter((issue) => issue.level === "ERROR").length;
