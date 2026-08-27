@@ -161,7 +161,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 大格列高利</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 爱留根纳／教会改革</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
         <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
