@@ -5,6 +5,7 @@ import { chapters } from "../app/book-data";
 import { historyResponseLinks, historyStages } from "../app/history-data";
 import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
+import { problemMaps } from "../app/problem-map-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -32,6 +33,23 @@ duplicates(philosopherProfiles.map((profile) => profile.id)).forEach((id) => err
 duplicates(schoolProfiles.map((school) => school.id)).forEach((id) => error(`重复流派 ID：${id}`));
 duplicates(chapters.map((chapter) => chapter.id)).forEach((id) => error(`重复章节 ID：${id}`));
 duplicates(terminology.map((term) => term.id)).forEach((id) => error(`重复知识卡 ID：${id}`));
+duplicates(problemMaps.map((map) => map.id)).forEach((id) => error(`重复问题图谱 ID：${id}`));
+
+problemMaps.forEach((map) => {
+  if (!map.phases.length) error(`问题图谱“${map.title}”没有逻辑阶段`);
+  if (!map.sources.length) error(`问题图谱“${map.title}”没有来源说明`);
+  duplicates(map.phases.map((phase) => phase.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复阶段 ID：${id}`));
+  const nodes = map.phases.flatMap((phase) => phase.nodes);
+  duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
+  map.phases.forEach((phase) => {
+    if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
+    phase.nodes.forEach((node) => {
+      if (!node.pressure || !node.consequence) error(`问题节点“${node.title}”缺少推进压力或后续问题`);
+      node.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`问题节点“${node.title}”引用不存在的章节 ${id}`));
+      node.participants.filter((participant) => participant.philosopherId && !philosopherIds.has(participant.philosopherId)).forEach((participant) => error(`问题节点“${node.title}”引用不存在的人物 ${participant.philosopherId}`));
+    });
+  });
+});
 
 philosopherProfiles.forEach((profile) => {
   if (!profile.stars) error(`${profile.nameZh}缺少星级`);
@@ -108,6 +126,7 @@ schoolProfiles.forEach((school) => {
 
 const canonicalFiles = [
   "app/history-data.ts",
+  "app/problem-map-data.ts",
   "app/russell-structure-data.ts",
   "app/school-data.ts",
   "app/school-data-medieval.ts",
@@ -128,6 +147,7 @@ const ratings = (items: Array<{ stars?: Rating }>) => Object.fromEntries([1, 2, 
 console.log(`人物 ${philosopherProfiles.length}：${JSON.stringify(ratings(philosopherProfiles))}`);
 console.log(`流派 ${schoolProfiles.length}：${JSON.stringify(ratings(schoolProfiles))}`);
 console.log(`知识卡 ${terminology.length}：人物 ${terminology.filter((term) => term.category === "人物").length}、流派 ${terminology.filter((term) => term.category === "学派").length}、概念 ${terminology.filter((term) => term.category === "概念").length}、地点 ${terminology.filter((term) => term.category === "地名").length}`);
+console.log(`问题图谱 ${problemMaps.length}：${problemMaps.reduce((total, map) => total + map.phases.length, 0)} 个阶段、${problemMaps.reduce((total, map) => total + map.phases.flatMap((phase) => phase.nodes).length, 0)} 个节点`);
 issues.forEach((issue) => console.log(`${issue.level} ${issue.message}`));
 
 const errorCount = issues.filter((issue) => issue.level === "ERROR").length;

@@ -62,7 +62,21 @@ npm run build
 
 打开新 Codex 任务时，可以直接说：
 
-> 请先阅读 AGENTS.md、README.md 和 docs/PROJECT_STATUS.md，再检查最近提交和工作树状态，然后继续当前项目。不要依赖另一台电脑的聊天记录。
+> 请先阅读 AGENTS.md、README.md、docs/PROJECT_STATUS.md 和 docs/SYSTEM_SPEC.md，再检查最近提交和工作树状态，然后继续当前项目。若继续问题图谱，再完整阅读 docs/PROBLEM_MAP_GUIDE.md。不要依赖另一台电脑的聊天记录。
+
+### 继续问题图谱前
+
+问题图谱有独立的内容与实现手册 `docs/PROBLEM_MAP_GUIDE.md`。当前只完成一条“泰勒斯至柏拉图”的试验谱系；另一台电脑接手后应先确认内容审计仍报告 1 条谱系、5 个阶段、19 个节点。继续第一条谱系时，从“理念与个别物如何关联”的开放问题进入亚里士多德；新增第二条谱系前，必须先实现 `problemMapId` 选择、会话恢复、搜索定位和返回链，不能只向数据数组追加对象。
+
+建议接手后的最低验证：
+
+```bash
+npm run build
+npm run audit:content
+npm test
+```
+
+浏览器中的上次阅读位置保存在本机 `localStorage`，不会随 Git 同步。另一台电脑会得到相同的网站内容，但不会自动恢复上一台电脑的个人阅读位置。
 
 ## 一次工作结束时
 

@@ -4,6 +4,8 @@
 
 > 历史阶段 → 时代问题 → 哲学流派 → 哲学家 → 概念与论证 → 原书章节
 
+另设“问题图谱”作为跨人物的逻辑阅读层：节点是观察、问题、区分、回答、反驳和开放困难，哲学家只作为参与者附着其上。
+
 中文负责解释，中英双语主要用于人名、地名和哲学概念。网站支持本地运行、离线阅读和 Vercel 部署。
 
 ## 新电脑首次运行
@@ -72,7 +74,7 @@ npm run audit:content
 
 详细步骤见 [docs/MULTI_MACHINE_WORKFLOW.md](docs/MULTI_MACHINE_WORKFLOW.md)。Codex 在任何一台电脑接手时应先阅读 [AGENTS.md](AGENTS.md) 和 [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md)。
 
-若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录首页双入口与本机续读状态、当前所有页面模式、顶部导航默认进入人物／流派图谱、Section 01—06、搜索、星级、返回链、滚动位置恢复、离线构建和视觉响应式约束。
+若需要完整复刻现有产品而不依赖聊天记录，请再阅读 [docs/SYSTEM_SPEC.md](docs/SYSTEM_SPEC.md)。它记录首页双入口与本机续读状态、当前所有页面模式、顶部导航默认进入人物／流派图谱、Section 01—06、搜索、星级、返回链、滚动位置恢复、离线构建和视觉响应式约束。继续扩展问题图谱前必须阅读 [docs/PROBLEM_MAP_GUIDE.md](docs/PROBLEM_MAP_GUIDE.md)，其中记录内容语法、证据等级、稳定 ID、状态模型、多谱系前置改造和逐步验收清单。
 
 ## 主要文件
 
@@ -84,6 +86,8 @@ npm run audit:content
 - `app/school-data-medieval.ts`：第二卷 9 个教父、修道、伊斯兰、犹太与经院传统页。
 - `app/school-data-modern.ts`：第三卷 15 个现代问题传统、知识网络与方法转型页；明确标注不属于严格学派的分类边界。
 - `app/history-data.ts`：历史概览、事件、时代问题和关系复习数据。
+- `app/problem-map-data.ts`：问题谱系、思想动作、逻辑连接、参与人物和原书章节关系。
+- `app/problem-map.tsx`：稳定的方向性问题图谱页面；不使用自由漂浮的力导向布局。
 - `app/philosopher-data.ts`：哲学家资料页的数据结构与内容。
 - `app/philosopher-data-medieval.ts`：第二卷 24 位人物的结构化资料、关系、星级和来源。
 - `app/philosopher-data-modern.ts`：第三卷 29 位人物的结构化资料、关系、星级和来源。
@@ -92,6 +96,7 @@ npm run audit:content
 - `app/terminology-data.ts`：由人物、流派、概念和活动地点主数据汇总的知识卡与行内识别。
 - `app/geography-data.ts`：地点、历史语境和地图数据。
 - `docs/CONTENT_STYLE_GUIDE.md`：自然汉语、规范译名、星级篇幅、关系证据和知识卡的全站内容规范。
+- `docs/PROBLEM_MAP_GUIDE.md`：问题图谱的内容模型、首条谱系基线、代码接点、续写方式、多谱系改造和跨电脑接手清单。
 - `scripts/audit-content.ts`：内容覆盖、关系方向、卡片生成、名称冲突和篇幅分层的自动审计。
 - `visual-archive/figures.json`：人物图像来源、许可和证据说明。
 - `public/visual-archive/figures/`：网站使用的本地人物图像。

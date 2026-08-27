@@ -33,10 +33,12 @@ test("server-renders the learning entrance", async () => {
   assert.doesNotMatch(html, /Your site is taking shape|Building your site/);
 });
 
-test("keeps the complete philosopher and school graphs in the project", async () => {
-  const [page, styles, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+test("keeps the complete philosopher, school, and problem graphs in the project", async () => {
+  const [page, styles, problemMap, problemData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
@@ -57,10 +59,11 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /哲学家图谱/);
   assert.match(page, /onClick=\{openPhilosopherGraph\}>哲学家/);
   assert.match(page, /onClick=\{openSchoolGraph\}>哲学流派/);
+  assert.match(page, /onClick=\{openProblemMap\}>问题图谱/);
   const topNav = page.match(/<nav className="mode-tabs"[\s\S]*?<\/nav>/)?.[0] ?? "";
   assert.deepEqual(
-    [...topNav.matchAll(/>(历史概览|哲学流派|哲学家|原书索引|方法图谱|关系复习)<\/button>/g)].map((match) => match[1]),
-    ["历史概览", "哲学流派", "哲学家", "原书索引", "方法图谱", "关系复习"],
+    [...topNav.matchAll(/>(历史概览|哲学流派|哲学家|问题图谱|原书索引|方法图谱|关系复习)<\/button>/g)].map((match) => match[1]),
+    ["历史概览", "哲学流派", "哲学家", "问题图谱", "原书索引", "方法图谱", "关系复习"],
   );
   assert.match(page, /useState<Mode>\("history"\)/);
   assert.match(page, /ahowp-learning-session-v1/);
@@ -84,6 +87,16 @@ test("keeps the complete philosopher and school graphs in the project", async ()
   assert.match(page, /function MobileSearchPanel/);
   assert.match(styles, /scroll-snap-type: x mandatory/);
   assert.match(styles, /app-mode-history \.sidebar/);
+  assert.match(styles, /app-mode-problems \.sidebar/);
+  assert.match(problemMap, /function ProblemMapView/);
+  assert.match(problemMap, /为什么推进到这里/);
+  assert.match(problemMap, /在这里思考的人/);
+  assert.match(problemData, /从差异与变化到可知的形式/);
+  assert.match(problemData, /历史回应/);
+  assert.match(problemData, /本站推演/);
+  assert.match(problemData, /philosopherId: "plato"/);
+  assert.match(problemData, /"b1-18"/);
+  assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);
   assert.match(page, /returnFromInlineEntity/);
