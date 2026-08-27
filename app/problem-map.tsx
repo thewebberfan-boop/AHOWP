@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { chapters } from "./book-data";
+import { historyStages, stageDetailPanels } from "./history-data";
 import { philosopherProfiles } from "./philosopher-data";
 import { findSchoolProfilesByPhilosopher } from "./school-data";
 import {
@@ -10,6 +11,7 @@ import {
   problemRelationNotes,
   type ProblemConnectionKind,
   type ProblemEdge,
+  type ProblemHistoryLink,
   type ProblemNode,
   type ProblemNodeKind,
   type ProblemRelationKind,
@@ -84,11 +86,14 @@ function edgePath(edge: ProblemEdge, nodesById: Map<string, ProblemNode>) {
   return `M ${startX} ${startY} C ${startX} ${startY + bend}, ${endX} ${endY - bend}, ${endX} ${endY}`;
 }
 
-export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, onSchool, onChapter, showEnglish }: {
+export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish }: {
   activePhaseId: string;
+  activeNodeId: string;
   onPhaseChange: (id: string) => void;
+  onNodeChange: (id: string) => void;
   onPhilosopher: (id: string) => void;
   onSchool: (id: string) => void;
+  onHistory: (link: ProblemHistoryLink, nodeId: string) => void;
   onChapter: (id: string) => void;
   showEnglish: boolean;
 }) {
@@ -96,8 +101,7 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
-  const [selectedNodeId, setSelectedNodeId] = useState(allNodes[0].id);
-  const selectedNode = nodesById.get(selectedNodeId) || allNodes[0];
+  const selectedNode = nodesById.get(activeNodeId) || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
   const incomingEdges = map.edges.filter((edge) => edge.to === selectedNode.id);
   const outgoingEdges = map.edges.filter((edge) => edge.from === selectedNode.id);
@@ -132,7 +136,7 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
 
   const selectNode = (id: string) => {
     const phase = phaseByNodeId.get(id);
-    setSelectedNodeId(id);
+    onNodeChange(id);
     if (phase) onPhaseChange(phase.id);
   };
 
@@ -142,10 +146,10 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
     const target = phase?.nodes.find((node) => node.kind === "问题") || phase?.nodes[0];
     if (!target) return;
     const frame = window.requestAnimationFrame(() => {
-      setSelectedNodeId(target.id);
+      onNodeChange(target.id);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [activePhaseId, map.phases, selectedPhase.id]);
+  }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id]);
 
   return <article className="problem-map-page page-wrap">
     <header className="problem-map-hero">
@@ -157,7 +161,7 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 柏拉图</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 奥古斯丁</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
         <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
@@ -173,7 +177,7 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
       <div className="problem-relation-legend">
         {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span key={relation} title={problemRelationNotes[relation]}><b>{relation}</b><small>{relationEnglish[relation]}</small></span>)}
       </div>
-      <p>箭头表示问题如何被提出、回应和再次生成；线条颜色表示连接证据。点击任一节点查看完整内容和相邻关系。</p>
+      <p>箭头表示问题如何被提出、回应和再次生成；线条颜色表示连接证据。点击任一节点查看完整内容与下钻入口。</p>
     </section>
 
     <section className="problem-graph-workspace" id="problem-graph">
@@ -252,24 +256,16 @@ export function ProblemMapView({ activePhaseId, onPhaseChange, onPhilosopher, on
           <section><span>它又留下什么</span><p>{selectedNode.consequence}</p></section>
         </div>
 
-        <div className="problem-node-neighbours">
-          <section>
-            <span>由什么来到这里</span>
-            {incomingEdges.length ? incomingEdges.map((edge) => {
-              const source = nodesById.get(edge.from);
-              return source ? <button type="button" key={edge.id} onClick={() => selectNode(source.id)}><b>{source.title}</b><small>{edge.relation} · {edge.connection}</small><em>{edge.label}</em></button> : null;
-            }) : <p>这是当前谱系的观察起点，不由既有答案推出。</p>}
-          </section>
-          <section>
-            <span>由此通向哪里</span>
-            {outgoingEdges.length ? outgoingEdges.map((edge) => {
-              const target = nodesById.get(edge.to);
-              return target ? <button type="button" key={edge.id} onClick={() => selectNode(target.id)}><b>{target.title}</b><small>{edge.relation} · {edge.connection}</small><em>{edge.label}</em></button> : null;
-            }) : <p>这是当前试验谱系暂时保留的开放终点。</p>}
-          </section>
-        </div>
-
         <div className="problem-node-detail-links">
+          {selectedNode.observation && <section className="problem-observation-context">
+            <span>观察范围</span>
+            <div className="problem-observation-domain"><b>{selectedNode.observation.domain}</b><p>{selectedNode.observation.note}</p></div>
+            {(selectedNode.observation.historyLinks?.length || 0) > 0 && <div className="problem-history-links"><small>关联历史概览</small>{selectedNode.observation.historyLinks?.map((link) => {
+              const stage = historyStages.find((item) => item.id === link.stageId);
+              const event = stageDetailPanels[link.stageId]?.events.find((item) => item.id === link.eventId);
+              return stage ? <button type="button" key={`${selectedNode.id}-${link.stageId}-${link.eventId || link.responseId || "stage"}`} onClick={() => onHistory(link, selectedNode.id)}><small>{stage.years} · {stage.title}</small><b>{event?.title || link.label}</b><em>{link.note}</em><i aria-hidden="true">↗</i></button> : null;
+            })}</div>}
+          </section>}
           <section className="problem-participants"><span>对应哲学家</span><div>{relatedParticipants.length > 0 ? relatedParticipants.map((participant) => {
             const profile = participant.philosopherId ? philosopherProfiles.find((item) => item.id === participant.philosopherId) : undefined;
             return participant.philosopherId && profile

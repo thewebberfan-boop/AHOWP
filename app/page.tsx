@@ -11,7 +11,7 @@ import { russellStructureStageIdsByHistoryStage, russellStructureStages } from "
 import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
 import { ProblemMapView } from "./problem-map";
-import { ancientDifferenceProblemMap } from "./problem-map-data";
+import { ancientDifferenceProblemMap, type ProblemHistoryLink } from "./problem-map-data";
 import { findSchoolProfilesByPhilosopher, schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
 
@@ -35,6 +35,12 @@ type SchoolOrigin =
 type PhilosopherOrigin =
   | ({ source: "school"; schoolId: string } & Pick<HistoryOrigin, "scrollY" | "label">)
   | ({ source: "history" } & HistoryOrigin);
+type ProblemHistoryOrigin = {
+  problemPhaseId: string;
+  problemNodeId: string;
+  scrollY: number;
+  label: string;
+};
 type InlineEntityOrigin = {
   target: "school" | "philosopher";
   mode: Mode;
@@ -46,6 +52,7 @@ type InlineEntityOrigin = {
   responseId: string;
   methodId: string;
   problemPhaseId: string;
+  problemNodeId: string;
   chapterId: string;
   reviewIndex: number;
   chapterOrigin: ChapterOrigin | null;
@@ -66,12 +73,14 @@ type LearningSession = {
   responseId: string;
   methodId: string;
   problemPhaseId: string;
+  problemNodeId: string;
   chapterId: string;
   reviewIndex: number;
   chapterOrigin: ChapterOrigin | null;
   schoolOrigin: SchoolOrigin | null;
   philosopherOrigin: PhilosopherOrigin | null;
   inlineEntityOrigin: InlineEntityOrigin | null;
+  problemHistoryOrigin: ProblemHistoryOrigin | null;
   scrollY: number;
   savedAt: number;
 };
@@ -116,14 +125,25 @@ const EntityNavigationContext = createContext<((entity: NonNullable<TermEntry["e
 const learningSessionKey = "ahowp-learning-session-v1";
 const learningModes: Mode[] = ["schools", "philosophers", "problems", "history", "methods", "chapters", "review"];
 const defaultProblemPhaseId = ancientDifferenceProblemMap.phases[0].id;
+const problemMapNodes = ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes);
+const defaultProblemNodeId = problemMapNodes[0].id;
 
 function validProblemPhaseId(value: unknown) {
   return typeof value === "string" && ancientDifferenceProblemMap.phases.some((phase) => phase.id === value) ? value : defaultProblemPhaseId;
 }
 
+function validProblemNodeId(value: unknown) {
+  return typeof value === "string" && problemMapNodes.some((node) => node.id === value) ? value : defaultProblemNodeId;
+}
+
 function normalizeInlineOrigin(origin: InlineEntityOrigin | null | undefined): InlineEntityOrigin | null {
   if (!origin) return null;
-  return { ...origin, problemPhaseId: validProblemPhaseId(origin.problemPhaseId), previousInlineEntityOrigin: normalizeInlineOrigin(origin.previousInlineEntityOrigin) };
+  return {
+    ...origin,
+    problemPhaseId: validProblemPhaseId(origin.problemPhaseId),
+    problemNodeId: validProblemNodeId(origin.problemNodeId),
+    previousInlineEntityOrigin: normalizeInlineOrigin(origin.previousInlineEntityOrigin),
+  };
 }
 
 function loadSet(key: string) {
@@ -161,12 +181,18 @@ function loadLearningSession(): LearningSession | null {
       responseId: value.responseId,
       methodId: value.methodId,
       problemPhaseId: validProblemPhaseId(value.problemPhaseId),
+      problemNodeId: validProblemNodeId(value.problemNodeId),
       chapterId: value.chapterId,
       reviewIndex: typeof value.reviewIndex === "number" ? value.reviewIndex : 0,
       chapterOrigin: value.chapterOrigin ? { ...value.chapterOrigin, problemPhaseId: validProblemPhaseId(value.chapterOrigin.problemPhaseId) } : null,
       schoolOrigin: value.schoolOrigin || null,
       philosopherOrigin: value.philosopherOrigin || null,
       inlineEntityOrigin: normalizeInlineOrigin(value.inlineEntityOrigin),
+      problemHistoryOrigin: value.problemHistoryOrigin ? {
+        ...value.problemHistoryOrigin,
+        problemPhaseId: validProblemPhaseId(value.problemHistoryOrigin.problemPhaseId),
+        problemNodeId: validProblemNodeId(value.problemHistoryOrigin.problemNodeId),
+      } : null,
       scrollY: typeof value.scrollY === "number" ? Math.max(0, value.scrollY) : 0,
       savedAt: typeof value.savedAt === "number" ? value.savedAt : Date.now(),
     };
@@ -208,6 +234,7 @@ export default function Home() {
   const [responseId, setResponseId] = useState("epicureans");
   const [methodId, setMethodId] = useState("therapy");
   const [problemPhaseId, setProblemPhaseId] = useState(defaultProblemPhaseId);
+  const [problemNodeId, setProblemNodeId] = useState(defaultProblemNodeId);
   const [chapterId, setChapterId] = useState("b1-28");
   const [query, setQuery] = useState("");
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -221,6 +248,7 @@ export default function Home() {
   const [schoolOrigin, setSchoolOrigin] = useState<SchoolOrigin | null>(null);
   const [philosopherOrigin, setPhilosopherOrigin] = useState<PhilosopherOrigin | null>(null);
   const [inlineEntityOrigin, setInlineEntityOrigin] = useState<InlineEntityOrigin | null>(null);
+  const [problemHistoryOrigin, setProblemHistoryOrigin] = useState<ProblemHistoryOrigin | null>(null);
   const [pendingHistoryScroll, setPendingHistoryScroll] = useState<number | null>(null);
   const [pendingSchoolScroll, setPendingSchoolScroll] = useState<number | null>(null);
   const [pendingPhilosopherScroll, setPendingPhilosopherScroll] = useState<number | null>(null);
@@ -257,7 +285,7 @@ export default function Home() {
       window.cancelAnimationFrame(firstFrame);
       if (secondFrame) window.cancelAnimationFrame(secondFrame);
     };
-  }, [showLanding, mode, stageId, responseId, schoolId, philosopherId, problemPhaseId, chapterId, showSchoolGraph, showPhilosopherGraph, pendingResumeScroll]);
+  }, [showLanding, mode, stageId, responseId, schoolId, philosopherId, problemPhaseId, problemNodeId, chapterId, showSchoolGraph, showPhilosopherGraph, pendingResumeScroll]);
 
   useEffect(() => {
     if (mode !== "history" || pendingHistoryScroll === null) return;
@@ -332,7 +360,7 @@ export default function Home() {
       window.cancelAnimationFrame(firstFrame);
       if (secondFrame) window.cancelAnimationFrame(secondFrame);
     };
-  }, [mode, methodId, problemPhaseId, reviewIndex, pendingModeScroll]);
+  }, [mode, methodId, problemPhaseId, problemNodeId, reviewIndex, pendingModeScroll]);
 
   useEffect(() => {
     if (mode !== "problems" || !pendingProblemTargetId) return;
@@ -368,13 +396,15 @@ export default function Home() {
     responseId,
     methodId,
     problemPhaseId,
+    problemNodeId,
     chapterId,
     reviewIndex,
     chapterOrigin,
     schoolOrigin,
     philosopherOrigin,
     inlineEntityOrigin,
-  }), [mode, schoolId, showSchoolGraph, philosopherId, showPhilosopherGraph, stageId, responseId, methodId, problemPhaseId, chapterId, reviewIndex, chapterOrigin, schoolOrigin, philosopherOrigin, inlineEntityOrigin]);
+    problemHistoryOrigin,
+  }), [mode, schoolId, showSchoolGraph, philosopherId, showPhilosopherGraph, stageId, responseId, methodId, problemPhaseId, problemNodeId, chapterId, reviewIndex, chapterOrigin, schoolOrigin, philosopherOrigin, inlineEntityOrigin, problemHistoryOrigin]);
 
   const makeLearningSession = useCallback((scrollY: number): LearningSession => ({
     version: 1,
@@ -440,7 +470,12 @@ export default function Home() {
     ancientDifferenceProblemMap.phases.forEach((phase) => {
       if (includesText([
         ancientDifferenceProblemMap.title, ancientDifferenceProblemMap.english, phase.label, phase.title, phase.question, phase.transition,
-        ...phase.nodes.flatMap((node) => [node.kind, node.answerRole || "", node.title, node.summary, node.pressure, node.consequence, ...node.participants.flatMap((participant) => [participant.name, participant.role])]),
+        ...phase.nodes.flatMap((node) => [
+          node.kind, node.answerRole || "", node.title, node.summary, node.pressure, node.consequence,
+          node.observation?.domain, node.observation?.note,
+          ...(node.observation?.historyLinks || []).flatMap((link) => [link.label, link.note]),
+          ...node.participants.flatMap((participant) => [participant.name, participant.role]),
+        ]),
         ...ancientDifferenceProblemMap.edges.filter((edge) => phase.nodes.some((node) => node.id === edge.from || node.id === edge.to)).flatMap((edge) => [edge.relation, edge.label, edge.connection]),
       ], needle)) results.push({ kind: "problem", id: phase.id, title: phase.title, meta: `${phase.label} · 问题图谱` });
     });
@@ -525,6 +560,8 @@ export default function Home() {
 
   const openProblemMap = () => {
     setProblemPhaseId(defaultProblemPhaseId);
+    setProblemNodeId(defaultProblemNodeId);
+    setProblemHistoryOrigin(null);
     setMode("problems");
     setQuery("");
     setCopied(false);
@@ -533,7 +570,10 @@ export default function Home() {
 
   const openProblemPhase = (id: string) => {
     const phase = ancientDifferenceProblemMap.phases.find((item) => item.id === id) || ancientDifferenceProblemMap.phases[0];
+    const targetNode = phase.nodes.find((node) => node.kind === "问题") || phase.nodes[0];
     setProblemPhaseId(phase.id);
+    setProblemNodeId(targetNode.id);
+    setProblemHistoryOrigin(null);
     setMode("problems");
     setPendingProblemTargetId("problem-graph");
     setQuery("");
@@ -543,6 +583,49 @@ export default function Home() {
   const observeProblemPhase = useCallback((id: string) => {
     setProblemPhaseId((current) => current === id ? current : id);
   }, []);
+
+  const observeProblemNode = useCallback((id: string) => {
+    setProblemNodeId((current) => current === id ? current : validProblemNodeId(id));
+  }, []);
+
+  const openHistoryFromProblem = (link: ProblemHistoryLink, nodeId: string) => {
+    const stage = historyStages.find((item) => item.id === link.stageId) || historyStages[0];
+    const response = link.responseId && stage.responses.some((item) => item.id === link.responseId)
+      ? link.responseId
+      : stage.responses[0].id;
+    const node = problemMapNodes.find((item) => item.id === nodeId) || problemMapNodes[0];
+    const phase = ancientDifferenceProblemMap.phases.find((item) => item.nodes.some((candidate) => candidate.id === node.id)) || ancientDifferenceProblemMap.phases[0];
+    setProblemNodeId(node.id);
+    setProblemPhaseId(phase.id);
+    setProblemHistoryOrigin({ problemPhaseId: phase.id, problemNodeId: node.id, scrollY: window.scrollY, label: `问题图谱 · ${node.title}` });
+    setStageId(stage.id);
+    setResponseId(response);
+    setPendingHistoryScroll(null);
+    setMode("history");
+    setQuery("");
+    setCopied(false);
+    scrollWithoutAnimation(0);
+  };
+
+  const returnFromProblemHistory = () => {
+    if (!problemHistoryOrigin) return;
+    setProblemPhaseId(problemHistoryOrigin.problemPhaseId);
+    setProblemNodeId(problemHistoryOrigin.problemNodeId);
+    setPendingModeScroll(problemHistoryOrigin.scrollY);
+    setMode("problems");
+    setProblemHistoryOrigin(null);
+    setQuery("");
+    setCopied(false);
+  };
+
+  const openHistoryOverview = () => {
+    setProblemHistoryOrigin(null);
+    setPendingHistoryScroll(null);
+    setMode("history");
+    setQuery("");
+    setCopied(false);
+    scrollWithoutAnimation(0);
+  };
 
   const openPhilosopherFromSchool = (id: string, sectionLabel: string) => {
     setPhilosopherOrigin({ source: "school", schoolId: selectedSchool.id, scrollY: window.scrollY, label: `${selectedSchool.nameZh} · ${sectionLabel}` });
@@ -636,6 +719,7 @@ export default function Home() {
       responseId,
       methodId,
       problemPhaseId,
+      problemNodeId,
       chapterId,
       reviewIndex,
       chapterOrigin,
@@ -660,6 +744,7 @@ export default function Home() {
     setResponseId(origin.responseId);
     setMethodId(origin.methodId);
     setProblemPhaseId(origin.problemPhaseId);
+    setProblemNodeId(origin.problemNodeId);
     setChapterId(origin.chapterId);
     setReviewIndex(origin.reviewIndex);
     setChapterOrigin(origin.chapterOrigin);
@@ -748,6 +833,7 @@ export default function Home() {
     setSchoolOrigin(null);
     setPhilosopherOrigin(null);
     setInlineEntityOrigin(null);
+    setProblemHistoryOrigin(null);
     setQuery("");
     setCopied(false);
     setShowLanding(false);
@@ -770,12 +856,14 @@ export default function Home() {
     setResponseId(resumedStage.responses.some((item) => item.id === lastSession.responseId) ? lastSession.responseId : resumedStage.responses[0].id);
     setMethodId(resumedMethod.id);
     setProblemPhaseId(ancientDifferenceProblemMap.phases.some((phase) => phase.id === lastSession.problemPhaseId) ? lastSession.problemPhaseId : ancientDifferenceProblemMap.phases[0].id);
+    setProblemNodeId(validProblemNodeId(lastSession.problemNodeId));
     setChapterId(resumedChapter.id);
     setReviewIndex(lastSession.reviewIndex % historyStages.length);
     setChapterOrigin(lastSession.chapterOrigin);
     setSchoolOrigin(lastSession.schoolOrigin);
     setPhilosopherOrigin(lastSession.philosopherOrigin);
     setInlineEntityOrigin(lastSession.inlineEntityOrigin);
+    setProblemHistoryOrigin(lastSession.problemHistoryOrigin);
     setPendingHistoryScroll(null);
     setPendingSchoolScroll(null);
     setPendingPhilosopherScroll(null);
@@ -894,12 +982,12 @@ export default function Home() {
       </aside>
 
       <section className="reading-pane">
-        <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={() => setMode("history")}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "problems" ? "active" : ""} onClick={openProblemMap}>问题图谱</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "problems" ? "观察—问题—答案" : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className="mobile-search-toggle" type="button" onClick={() => { if (showMobileSearch) { setQuery(""); setMobileSearchOpen(false); } else setMobileSearchOpen(true); }} aria-label="搜索全站" aria-expanded={showMobileSearch}>⌕</button><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
+        <header className="topbar"><nav className="mode-tabs" aria-label="学习视图"><button className={mode === "history" ? "active" : ""} onClick={openHistoryOverview}>历史概览</button><button className={mode === "schools" ? "active" : ""} onClick={openSchoolGraph}>哲学流派</button><button className={mode === "philosophers" ? "active" : ""} onClick={openPhilosopherGraph}>哲学家</button><button className={mode === "problems" ? "active" : ""} onClick={openProblemMap}>问题图谱</button><button className={mode === "chapters" ? "active" : ""} onClick={() => { setChapterOrigin(null); setMode("chapters"); }}>原书索引</button><button className={mode === "methods" ? "active" : ""} onClick={() => setMode("methods")}>方法图谱</button><button className={mode === "review" ? "active" : ""} onClick={() => setMode("review")}>关系复习</button></nav><div className="topbar-tools"><span className="zoom-path">全书 <i>›</i> {mode === "schools" ? showSchoolGraph ? "流派图谱" : selectedSchool.nameZh : mode === "philosophers" ? showPhilosopherGraph ? "哲学家图谱" : selectedPhilosopher.nameZh : mode === "problems" ? "观察—问题—答案" : mode === "history" ? selectedStage.title : mode === "methods" ? selectedMethod.title : mode === "chapters" ? selectedChapter.title : "主动回忆"}</span><button className="mobile-search-toggle" type="button" onClick={() => { if (showMobileSearch) { setQuery(""); setMobileSearchOpen(false); } else setMobileSearchOpen(true); }} aria-label="搜索全站" aria-expanded={showMobileSearch}>⌕</button><button className={showEnglishTerms ? "language-toggle active" : "language-toggle"} onClick={toggleEnglishTerms} aria-pressed={showEnglishTerms}><span>术语</span><b>{showEnglishTerms ? "中英" : "中文"}</b></button></div></header>
         {showMobileSearch ? <MobileSearchPanel query={query} results={searchResults} onQueryChange={setQuery} onResult={openSearchResult} onClose={() => { setQuery(""); setMobileSearchOpen(false); }} /> : mobileRailItems.length > 0 && <MobileObjectRail label={mode === "history" ? "历史阶段" : mode === "schools" ? "哲学流派" : "哲学家"} activeKey={sidebarFocusKey || mobileRailItems[0].key} items={mobileRailItems} />}
         {mode === "schools" && (showSchoolGraph ? <SchoolGraphView initialSchoolId={selectedSchool.id} onSchool={openSchool} /> : <SchoolView profile={selectedSchool} onSchool={(id) => openSchool(id, false, true)} onPhilosopher={openPhilosopherFromSchool} onChapter={openChapter} originLabel={schoolInlineOrigin?.label || schoolOrigin?.label} onBack={schoolInlineOrigin ? returnFromInlineEntity : schoolOrigin ? returnFromSchool : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onSchool={openSchoolFromPhilosopher} onChapter={openChapter} originLabel={philosopherInlineOrigin?.label || philosopherOrigin?.label} onBack={philosopherInlineOrigin ? returnFromInlineEntity : philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
-        {mode === "problems" && <ProblemMapView activePhaseId={problemPhaseId} onPhaseChange={observeProblemPhase} onPhilosopher={(id) => openInlineEntity({ kind: "philosopher", id })} onSchool={(id) => openInlineEntity({ kind: "school", id })} onChapter={openChapter} showEnglish={showEnglishTerms} />}
-        {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
+        {mode === "problems" && <ProblemMapView activePhaseId={problemPhaseId} activeNodeId={problemNodeId} onPhaseChange={observeProblemPhase} onNodeChange={observeProblemNode} onPhilosopher={(id) => openInlineEntity({ kind: "philosopher", id })} onSchool={(id) => openInlineEntity({ kind: "school", id })} onHistory={openHistoryFromProblem} onChapter={openChapter} showEnglish={showEnglishTerms} />}
+        {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} originLabel={problemHistoryOrigin?.label} onBack={problemHistoryOrigin ? returnFromProblemHistory : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "methods" && <MethodsView method={selectedMethod} onMethod={setMethodId} onStage={openStage} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "chapters" && <ChapterView chapter={selectedChapter} note={selectedNote} starred={starredChapters.has(selectedChapter.id)} onStar={() => toggleSet(selectedChapter.id, starredChapters, "ahowp-starred", setStarredChapters)} copied={copied} onCopy={async () => { await navigator.clipboard?.writeText(`《西方哲学史》PDF 第 ${selectedChapter.pdfPage} 页`); setCopied(true); }} onTheme={(theme) => setQuery(theme)} originLabel={chapterOrigin?.label} onBack={returnFromChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "review" && <ReviewView stage={reviewStage} index={reviewIndex} flipped={flipped} reviewed={reviewedStages.has(reviewStage.id)} onFlip={() => setFlipped(!flipped)} onOpen={() => openStage(reviewStage.id)} onNext={() => { const next = new Set(reviewedStages).add(reviewStage.id); persistSet("ahowp-stage-reviewed", next, setReviewedStages); setReviewIndex((value) => (value + 1) % historyStages.length); setFlipped(false); }} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
@@ -1279,7 +1367,7 @@ function PhilosopherView({ profile, onSchool, onChapter, originLabel, onBack, sh
   </article>;
 }
 
-function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onChapter, showEnglish, onTerm }: { stage: HistoryStage; response: ResponseNode; onResponse: (id: string) => void; onSchool: (id: string) => void; onPhilosopher: (id: string) => void; onChapter: (id: string) => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
+function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onChapter, originLabel, onBack, showEnglish, onTerm }: { stage: HistoryStage; response: ResponseNode; onResponse: (id: string) => void; onSchool: (id: string) => void; onPhilosopher: (id: string) => void; onChapter: (id: string) => void; originLabel?: string; onBack?: () => void; showEnglish: boolean; onTerm: (term: TermEntry) => void }) {
   const stageIndex = historyStages.findIndex((item) => item.id === stage.id);
   const linkStart = Math.min(Math.max(0, stageIndex - 1), longLinks.length - 3);
   const details = stageDetailPanels[stage.id];
@@ -1301,6 +1389,7 @@ function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onC
   }, [activeDetail]);
 
   return <article className="history-page page-wrap">
+    {onBack && <button className="context-back" onClick={onBack}><span>←</span><small>返回问题图谱中的观察</small><b>{originLabel || "刚才的图谱节点"}</b></button>}
     <header className="history-hero"><div className="hero-number"><span>{String(stageIndex + 1).padStart(2, "0")}</span><i /></div><div><p className="eyebrow">{stage.years} · {stage.subtitle}</p><h2><TermText text={stage.title} showEnglish={showEnglish} onTerm={onTerm} interactive={false} /></h2><p className="transition"><TermText text={stage.transition} showEnglish={showEnglish} onTerm={onTerm} /></p></div><div className="coverage-tag"><span>{stage.coverage === "personal" ? "个人笔记已覆盖" : "原书框架"}</span><small>{stage.responses.length} 种同期回应</small></div></header>
     <section className="world-section">
       <p className="section-label">01 · 先看同一个世界</p>

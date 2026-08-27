@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { findPhilosopherProfilesByTarget, philosopherProfiles } from "../app/philosopher-data";
 import { findSchoolProfileByTarget, schoolProfiles } from "../app/school-data";
 import { chapters } from "../app/book-data";
-import { historyResponseLinks, historyStages } from "../app/history-data";
+import { historyResponseLinks, historyStages, stageDetailPanels } from "../app/history-data";
 import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
 import { problemMaps } from "../app/problem-map-data";
@@ -49,6 +49,17 @@ problemMaps.forEach((map) => {
       if (!node.pressure || !node.consequence) error(`问题节点“${node.title}”缺少推进压力或后续问题`);
       if (node.kind === "答案" && !node.answerRole) error(`答案节点“${node.title}”缺少作用标签`);
       if (node.kind !== "答案" && node.answerRole) error(`非答案节点“${node.title}”错误使用答案作用标签`);
+      if (node.kind === "观察" && !node.observation) error(`观察节点“${node.title}”缺少观察范围与说明`);
+      if (node.kind !== "观察" && node.observation) error(`非观察节点“${node.title}”错误使用观察元数据`);
+      node.observation?.historyLinks?.forEach((link) => {
+        const stage = historyStages.find((item) => item.id === link.stageId);
+        if (!stage) {
+          error(`观察节点“${node.title}”引用不存在的历史阶段 ${link.stageId}`);
+          return;
+        }
+        if (link.responseId && !stage.responses.some((response) => response.id === link.responseId)) error(`观察节点“${node.title}”在阶段 ${link.stageId} 引用不存在的回应 ${link.responseId}`);
+        if (link.eventId && !stageDetailPanels[link.stageId]?.events.some((event) => event.id === link.eventId)) error(`观察节点“${node.title}”在阶段 ${link.stageId} 引用不存在的历史事件 ${link.eventId}`);
+      });
       node.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`问题节点“${node.title}”引用不存在的章节 ${id}`));
       node.participants.filter((participant) => participant.philosopherId && !philosopherIds.has(participant.philosopherId)).forEach((participant) => error(`问题节点“${node.title}”引用不存在的人物 ${participant.philosopherId}`));
     });
@@ -78,6 +89,21 @@ problemMaps.forEach((map) => {
     if (node.kind !== "问题" && !outgoing.length) warn(`${node.kind}节点“${node.title}”没有继续连接到问题`);
   });
 });
+
+const publishedProblemMap = problemMaps.find((map) => map.id === "difference-change-knowledge");
+if (!publishedProblemMap) {
+  error("缺少已发布问题谱系 difference-change-knowledge");
+} else {
+  const nodes = publishedProblemMap.phases.flatMap((phase) => phase.nodes);
+  const coveredChapters = new Set(nodes.flatMap((node) => node.chapterIds));
+  chapters.filter((chapter) => chapter.book === "ancient" && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第一卷问题谱系尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const participatingPhilosophers = new Set(nodes.flatMap((node) => node.participants.map((participant) => participant.philosopherId).filter((id): id is string => Boolean(id))));
+  philosopherProfiles.filter((profile) => profile.chapterIds.some((id) => id.startsWith("b1-")) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第一卷问题谱系尚未连接人物 ${profile.nameZh}`));
+  const openingChapterIds = new Set(["b2-01", "b2-02", "b2-03", "b2-04"]);
+  chapters.filter((chapter) => openingChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷开篇阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const openingPhilosopherIds = new Set(["philo-alexandria", "origen", "ambrose", "jerome", "augustine"]);
+  philosopherProfiles.filter((profile) => openingPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷开篇阶段尚未连接人物 ${profile.nameZh}`));
+}
 
 philosopherProfiles.forEach((profile) => {
   if (!profile.stars) error(`${profile.nameZh}缺少星级`);

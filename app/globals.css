@@ -1076,19 +1076,22 @@ button { cursor: pointer; }
 .problem-node-detail-logic { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
 .problem-node-detail-logic section { min-width: 0; padding: 14px; }
 .problem-node-detail-logic section:first-child { border-right: 1px solid var(--line); }
-.problem-node-detail-logic span, .problem-node-neighbours section > span, .problem-node-detail-links section > span { display: block; margin-bottom: 8px; color: var(--red); font-size: 7px; letter-spacing: .08em; }
+.problem-node-detail-logic span, .problem-node-detail-links section > span { display: block; margin-bottom: 8px; color: var(--red); font-size: 7px; letter-spacing: .08em; }
 .problem-node-detail-logic p { margin: 0; font: 10px/1.58 var(--serif); }
-.problem-node-neighbours { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
-.problem-node-neighbours section { min-width: 0; padding: 13px; }
-.problem-node-neighbours section:first-child { border-right: 1px solid var(--line); }
-.problem-node-neighbours button { display: grid; gap: 3px; width: 100%; margin-top: 6px; padding: 8px; border: 1px solid var(--line); background: transparent; text-align: left; }
-.problem-node-neighbours button:hover, .problem-node-neighbours button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
-.problem-node-neighbours button b { font: 500 10px/1.35 var(--serif); }
-.problem-node-neighbours button small { color: var(--red); font-size: 6px; }
-.problem-node-neighbours button em { color: var(--muted); font: normal 7px/1.35 var(--serif); }
-.problem-node-neighbours section > p { margin: 0; color: var(--muted); font: 9px/1.55 var(--serif); }
 .problem-node-detail-links > section { padding: 13px; border-bottom: 1px solid var(--line); }
 .problem-node-detail-links > section:last-child { border-bottom: 0; }
+.problem-observation-domain { display: grid; gap: 6px; }
+.problem-observation-domain b { width: fit-content; padding: 4px 7px; border: 1px solid var(--green); color: var(--green); font: 500 8px/1 Arial, sans-serif; letter-spacing: .06em; }
+.problem-observation-domain p { margin: 0; color: #4e514c; font: 10px/1.58 var(--serif); }
+.problem-history-links { display: grid; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.problem-history-links > small { color: var(--muted); font-size: 7px; letter-spacing: .08em; }
+.problem-history-links button { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 12px; gap: 4px 8px; width: 100%; padding: 9px; border: 1px solid var(--line); background: transparent; text-align: left; }
+.problem-history-links button:hover, .problem-history-links button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.problem-history-links button small, .problem-history-links button b, .problem-history-links button em { grid-column: 1; }
+.problem-history-links button small { color: var(--red); font-size: 7px; }
+.problem-history-links button b { font: 500 11px/1.35 var(--serif); }
+.problem-history-links button em { color: var(--muted); font: normal 8px/1.45 var(--serif); }
+.problem-history-links button i { grid-column: 2; grid-row: 1 / 4; align-self: center; color: var(--green); font-style: normal; }
 .problem-node-detail .problem-participants button, .problem-node-detail .problem-participant-pending { min-width: 100%; }
 .problem-node-detail .problem-participants button b, .problem-node-detail .problem-participant-pending b { font-size: 11px; }
 .problem-school-links > div { display: grid; gap: 6px; }
@@ -1104,7 +1107,7 @@ button { cursor: pointer; }
   .problem-graph-intro { grid-template-columns: 1fr 1fr; }
   .problem-graph-intro > p { grid-column: 1 / -1; }
   .problem-graph-workspace { grid-template-columns: 1fr; }
-  .problem-node-detail-logic, .problem-node-neighbours { grid-template-columns: 1fr 1fr; }
+  .problem-node-detail-logic { grid-template-columns: 1fr 1fr; }
 }
 
 /* Global type scale and reading rhythm */
@@ -1608,8 +1611,8 @@ span.place-token {
   .problem-graph-evidence { gap: 8px 11px; }
   .problem-node-detail { position: static; width: auto; max-height: none; margin-top: 16px; }
   .problem-node-detail h3 { font-size: 21px; }
-  .problem-node-detail-logic, .problem-node-neighbours { grid-template-columns: 1fr; }
-  .problem-node-detail-logic section:first-child, .problem-node-neighbours section:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+  .problem-node-detail-logic { grid-template-columns: 1fr; }
+  .problem-node-detail-logic section:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 
 @media (prefers-reduced-motion: reduce) {
