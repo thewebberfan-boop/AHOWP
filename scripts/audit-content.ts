@@ -103,6 +103,10 @@ if (!publishedProblemMap) {
   chapters.filter((chapter) => openingChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷开篇阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const openingPhilosopherIds = new Set(["philo-alexandria", "origen", "ambrose", "jerome", "augustine"]);
   philosopherProfiles.filter((profile) => openingPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷开篇阶段尚未连接人物 ${profile.nameZh}`));
+  const institutionalChapterIds = new Set(["b2-05", "b2-06", "b2-07"]);
+  chapters.filter((chapter) => institutionalChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷制度保存阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const institutionalPhilosopherIds = new Set(["boethius", "benedict", "gregory-great"]);
+  philosopherProfiles.filter((profile) => institutionalPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷制度保存阶段尚未连接人物 ${profile.nameZh}`));
 }
 
 philosopherProfiles.forEach((profile) => {
