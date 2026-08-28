@@ -19,7 +19,8 @@ import {
 
 const GRAPH_WIDTH = 1280;
 const NODE_WIDTH = 220;
-const NODE_HEIGHT = 82;
+const NODE_COMPACT_HEIGHT = 82;
+const NODE_TITLE_LINE_HEIGHT = 19;
 const GRAPH_TOP = 58;
 const GRAPH_LEFT = 48;
 const ROW_GAP = 132;
@@ -72,6 +73,11 @@ function splitTitle(title: string, limit = 13) {
   return lines.slice(0, 3);
 }
 
+function nodeHeight(node: ProblemNode) {
+  const extraLines = Math.max(0, splitTitle(node.title).length - 2);
+  return NODE_COMPACT_HEIGHT + extraLines * NODE_TITLE_LINE_HEIGHT;
+}
+
 function edgePath(edge: ProblemEdge, nodesById: Map<string, ProblemNode>) {
   const source = nodesById.get(edge.from);
   const target = nodesById.get(edge.to);
@@ -79,7 +85,7 @@ function edgePath(edge: ProblemEdge, nodesById: Map<string, ProblemNode>) {
   const sourcePoint = graphPoint(source);
   const targetPoint = graphPoint(target);
   const startX = sourcePoint.x + NODE_WIDTH / 2;
-  const startY = sourcePoint.y + NODE_HEIGHT;
+  const startY = sourcePoint.y + nodeHeight(source);
   const endX = targetPoint.x + NODE_WIDTH / 2;
   const endY = targetPoint.y;
   const bend = Math.max(42, (endY - startY) * 0.48);
@@ -131,8 +137,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     });
     return [...unique.values()].sort((left, right) => left.order - right.order);
   }, [relatedParticipants]);
-  const maxRow = Math.max(...allNodes.map((node) => node.graph.row));
-  const graphHeight = GRAPH_TOP + maxRow * ROW_GAP + ROOT_QUESTION_ANSWER_GAP + NODE_HEIGHT + 70;
+  const graphHeight = Math.max(...allNodes.map((node) => graphPoint(node).y + nodeHeight(node))) + 70;
 
   const selectNode = (id: string) => {
     const phase = phaseByNodeId.get(id);
@@ -161,7 +166,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 爱留根纳／教会改革</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 十二世纪学校与辩证法</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
         <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
@@ -215,6 +220,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
                 const selected = node.id === selectedNode.id;
                 const connected = connectedNodeIds.has(node.id);
                 const lines = splitTitle(node.title);
+                const height = nodeHeight(node);
                 return <g
                   className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}`}
                   id={`problem-node-${node.id}`}
@@ -226,10 +232,10 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
                   onClick={() => selectNode(node.id)}
                   onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectNode(node.id); } }}
                 >
-                  <rect width={NODE_WIDTH} height={NODE_HEIGHT} rx="7" />
+                  <rect width={NODE_WIDTH} height={height} rx="7" />
                   <text className="problem-graph-node-meta" x="13" y="18">{String(index + 1).padStart(2, "0")} · {kindEnglish[node.kind]}{node.answerRole ? ` · ${node.answerRole}` : ""}</text>
                   <text className="problem-graph-node-title" x="13" y="41">
-                    {lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : 19} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}
+                    {lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : NODE_TITLE_LINE_HEIGHT} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}
                   </text>
                   <circle cx={NODE_WIDTH - 14} cy="14" r="3.5" />
                 </g>;
