@@ -43,6 +43,7 @@ problemMaps.forEach((map) => {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
   duplicates(map.edges.map((edge) => edge.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复连线 ID：${id}`));
+  duplicates(map.sources.map((source) => source.label)).forEach((label) => error(`问题图谱“${map.title}”存在重复来源标签：${label}`));
   map.phases.forEach((phase) => {
     if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
     phase.nodes.forEach((node) => {
@@ -119,6 +120,18 @@ if (!publishedProblemMap) {
   chapters.filter((chapter) => dialecticChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷学校辩证阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const dialecticPhilosopherIds = new Set(["anselm", "roscelin", "abelard", "bernard-clairvaux"]);
   philosopherProfiles.filter((profile) => dialecticPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷学校辩证阶段尚未连接人物 ${profile.nameZh}`));
+  const universitySynthesisChapterIds = new Set(["b2-12", "b2-13"]);
+  chapters.filter((chapter) => universitySynthesisChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷大学综合阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const universitySynthesisPhilosopherIds = new Set(["albert-great", "aquinas"]);
+  philosopherProfiles.filter((profile) => universitySynthesisPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷大学综合阶段尚未连接人物 ${profile.nameZh}`));
+  const franciscanChapterIds = new Set(["b2-14"]);
+  chapters.filter((chapter) => franciscanChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷方济各会阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const franciscanPhilosopherIds = new Set(["bonaventure", "roger-bacon", "duns-scotus", "ockham"]);
+  philosopherProfiles.filter((profile) => franciscanPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷方济各会阶段尚未连接人物 ${profile.nameZh}`));
+  const papalEclipseChapterIds = new Set(["b2-15"]);
+  chapters.filter((chapter) => papalEclipseChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷教皇制衰落阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const papalEclipsePhilosopherIds = new Set(["ockham", "marsilius-padua"]);
+  philosopherProfiles.filter((profile) => papalEclipsePhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷教皇制衰落阶段尚未连接人物 ${profile.nameZh}`));
 }
 
 philosopherProfiles.forEach((profile) => {

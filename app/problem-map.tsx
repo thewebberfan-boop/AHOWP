@@ -166,7 +166,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 十二世纪学校与辩证法</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 第二卷结束</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
         <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>

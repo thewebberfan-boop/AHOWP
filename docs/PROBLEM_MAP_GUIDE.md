@@ -80,18 +80,18 @@
 
 ## 6. 当前基线
 
-当前只有一条由整部第一卷继续推进至第二卷前十一章的谱系：
+当前只有一条覆盖整部第一卷与第二卷的谱系：
 
 - ID：`difference-change-knowledge`
-- 标题：从多样与变化到翻译、辩证与学校知识
-- 范围：第一卷全部 30 章，并继续到第二卷第一至十一章；泰勒斯至安瑟伦、罗瑟林、阿伯拉尔与克莱尔沃的伯尔纳
-- 数据维护分组：15 个
-- 节点：181 个，其中观察 24、问题 78、答案 79
-- 有向边：233 条
-- 人物覆盖：现有第一卷 29 位人物全部至少连接一个节点；第二卷由斐洛至迈蒙尼德的十三位既有人物，以及安瑟伦、罗瑟林、阿伯拉尔与克莱尔沃的伯尔纳全部进入图谱
-- 章节覆盖：`b1-01` 至 `b1-30`、`b2-01` 至 `b2-11` 全部至少连接一个节点
+- 标题：从多样与变化到多重权威的近代门槛
+- 范围：第一卷全部 30 章与第二卷全部 15 章；泰勒斯至教皇制衰落、会议主义与威克里夫改革
+- 数据维护分组：21 个
+- 节点：318 个，其中观察 36、问题 146、答案 136
+- 有向边：392 条
+- 人物覆盖：现有第一卷 29 位人物全部至少连接一个节点；第二卷由斐洛至奥卡姆的 23 位既有人物，以及帕多瓦的马西略全部进入图谱；威克里夫作为无独立人物页的参与者附着于思想节点
+- 章节覆盖：`b1-01` 至 `b1-30`、`b2-01` 至 `b2-15` 全部至少连接一个节点
 
-十五个分组只服务数据维护与搜索定位，不再作为页面导航或用户必须接受的哲学分类。页面直接展示完整关系图。内容审计会把第一卷章节与人物，以及第二卷前十一章和十七位参与人物的覆盖作为硬约束；增加人物或章节后若没有进入谱系，审计必须报错。
+二十一个分组只服务数据维护与搜索定位，不再作为页面导航或用户必须接受的哲学分类。页面直接展示完整关系图。内容审计会把第一卷章节与人物，以及第二卷全部章节和 24 位既有人物的覆盖作为硬约束；增加人物或章节后若没有进入谱系，审计必须报错。
 
 已发布的稳定节点 ID 均须保留。当前观察层除早期的 `difference-as-observation`、`change-over-time-observation` 与 `same-thing-different-appearance` 外，还新增：
 
@@ -113,6 +113,18 @@
 - `carolingian-learning-revival-observation`：宫廷、修院和学校重新汇集文本、翻译与逻辑训练，使不同权威解释进入可比较的知识实践；
 - `office-property-appointment-entanglement-observation`：圣职同时牵涉土地、效忠和灵性职能，使任命不再只是教内事务。
 - `greek-syriac-arabic-translation-observation`：希腊文本经叙利亚语与阿拉伯语翻译后，在注释、医学、法学与原创论证中被重新组织。
+- `university-corporation-observation`：教师与学生团体取得立规、停课、资格与上诉程序，使知识争论获得稳定管辖层级。
+- `restricted-aristotle-books-observation`：新自然著作一面受到局部限制、修订和监督，一面持续成为课程资源。
+- `mendicants-in-university-observation`：以贫穷、传教与跨地域服从为身份的托钵修会进入城市大学并取得教席。
+- `shared-goods-variable-actions-observation`：人追求若干共同善，但具体行动始终随处境、角色和共同体变化。
+- `mendicant-learning-poverty-observation`：方济各会同时承担贫穷理想、牧灵和大学教学，提出学习目的与制度角色的张力。
+- `translation-measurement-error-observation`：权威文本、翻译、计算和观察之间出现可定位错误，提出跨学科纠错问题。
+- `shared-nature-distinct-individuals-observation`：同类对象共享可理解内容却不可互换，提出共同性与个体化问题。
+- `poverty-property-papal-conflict-observation`：贫穷实践、财产安排和教皇裁决冲突，使最高职位本身进入可错性检验。
+- `territorial-tax-legal-observation`：教会命令、王国税法和地方程序共同作用于同一人口，提出普世—属地管辖问题。
+- `lay-commercial-legal-knowledge-observation`：教士之外的法学家、医师、商人与城市官员积累组织公共生活的专业能力。
+- `rival-papal-obediences-observation`：罗马与阿维尼翁的教皇序列各自复制继承与承认网络，使内部程序无法自动结束分裂。
+- `church-wealth-vernacular-scripture-observation`：教会财产、属地财政与本地语言传道并存，提出财产和改革权威问题。
 
 其他重要的稳定节点包括：
 
@@ -157,6 +169,33 @@
 - `law-orders-body-and-soul`
 - `hebrew-latin-translations-remake-curricula`
 - `how-latin-schools-judge-new-authorities`
+- `corporate-privileges-faculty-jurisdictions`
+- `albert-paraphrases-complete-sciences`
+- `natural-science-reason-sense-own-method`
+- `truth-cannot-contradict-truth`
+- `natural-preambles-revealed-mysteries`
+- `five-ways-from-effects`
+- `subsistent-being-creatures-participate`
+- `created-causes-real-under-first-cause`
+- `each-human-soul-has-intellectual-powers`
+- `practical-reason-first-principles-natural-law`
+- `nature-grace-ordered-synthesis`
+- `what-survives-synthesis-under-franciscan-pressure`
+- `created-causes-with-divine-illumination`
+- `experience-certifies-theoretical-conclusions`
+- `univocal-being-infinite-finite-modes`
+- `common-nature-contracted-by-haecceity`
+- `intuitive-cognition-causes-mental-language`
+- `parsimony-bounded-by-reason-experience-scripture`
+- `papal-authority-fallible-and-limited`
+- `what-orders-world-after-universal-authority-fractures`
+- `papal-plenitude-unam-sanctam`
+- `human-legislator-people-prevailing-part`
+- `general-council-represents-faithful-secular-enforcement`
+- `pisa-fails-constance-restores-unity`
+- `dominion-in-grace-poor-church-secular-remedy`
+- `plural-authorities-replace-single-center`
+- `how-can-thought-judge-state-classics-scripture-experience`
 
 不要轻易改动已发布的谱系、分组或节点 ID；页面状态、搜索和将来的学习记录会依赖它们。
 
@@ -176,7 +215,7 @@
 
 观察在整张图中反复作为检查点重新进入：爱奥尼亚知识网络关联自然差异，雅典公共生活关联共同判断，生物研究关联组织与功能，政体比较关联好生活，马其顿征服关联个人伦理，罗马法律关联世界城邦，三世纪危机关联内向与超越。历史概览不是被复制进图谱；只有确实改变问题条件的事件或制度才成为观察或历史入口。
 
-十五个维护分组的逻辑范围如下：
+二十一个维护分组的逻辑范围如下：
 
 1. 并存多样、时间变化、条件关联、周期与过程持续；
 2. 米利都、毕达哥拉斯与赫拉克利特的自然内部解释；
@@ -193,8 +232,14 @@
 13. 加洛林知识复兴使理性进入权威解释内部，由爱留根纳的自然四分、神显与否定神学检验超越和创造；圣职、土地与政治任命的纠缠则推动教会改革与授职冲突，最终以精神—世俗双重秩序的相互限制，开放跨语言新知识如何进入学校和权威体系的问题。
 14. 希腊—叙利亚—阿拉伯翻译网络把古代文本改造成新的证明科学；阿维森纳的本质—存在与灵魂论、安萨里与阿威罗伊的因果—证明争论、迈蒙尼德的否定神学与律法目标形成多条竞争支线，再由希伯来语与拉丁语翻译汇入“旧权威怎样判断新权威”的开放问题。
 15. 十二世纪竞争学校把权威冲突组织为问题、反对和区分；安瑟伦从信仰内理解进入概念论证，罗瑟林与阿伯拉尔从共同名称进入共相和神学语言，阿伯拉尔与伯尔纳又围绕辩证法、意图、谦卑和审查权形成分支，最终开放十三世纪大学中的学科与知识管辖问题。
+16. 十三世纪大学以团体特权、学院分工和上诉程序稳定知识管辖；亚里士多德自然著作的局部限制与持续进入课程并存，托钵修会又把贫穷、国际网络和教席结合。大阿尔伯特以百科释义与自然学方法把“能否阅读”改写为“怎样理解并判断”，最终开放真理一致与具体冲突的关系。
+17. 阿奎那先区分自然理性可及的信仰前导与启示奥秘，再由五路和神圣属性进入类比与存在参与，由第一—次级原因进入创造与时间开端，由单一理智争论进入个体灵魂和抽象，由共同善进入自然法、德性、法律与恩典；各支线汇入自然—恩典层级，并开放方济各会、谴责与经验改革将怎样检验综合。
+18. 方济各会进入大学后的贫穷—学习张力，一支由波那文图拉以受造认知与神圣照明区分确定性、再以智慧和爱统摄诸学；另一支由罗杰·培根以语言、数学、光学与经验认证纠正权威错误，同时保留其道德—神学改革目的，最终开放不同方济各会改革是否需要同一形而上学。
+19. 司各脱由存在单义与无限—有限方式进入共同本性、此性和意志的同时性可能；奥卡姆则以个体、直观认知和心理语言拒绝实在共相，并把反共相论证与有条件的简约原则分开。使徒贫穷争论再把证据可错性推进到教皇权力边界和两种权力的非常纠错，终端开放第二卷第十五章的普遍权威瓦解问题。
+20. 波尼法爵八世以《唯一至圣》把权力圆满推向极端，法国王权的属地税法与等级支持暴露普世主张的执行边界；阿维尼翁同时强化教廷行政并增加地域依赖疑虑。另一支由世俗专业知识进入马西略的人类立法者、非现代普选的同意原则、教士无独立强制权与信徒代表会议，开放代表机构如何避免新绝对主义。
+21. 西方大分裂使竞争教皇序列自我复制，巴黎大学会议主义经比萨失败和康斯坦茨修复完成一次非常纠错，却未建立持久会议宪制；威克里夫支线从神圣 dominium、恩典和教会财产进入经文、可见教会与圣礼批评，并排除其直接发动农民起义的单因果叙事。两支最终以国家、城市法、会议、经文与大学等多重权威收束第二卷，开放第三卷入口。
 
-页面使用一张确定性 SVG 有向图，不是纵向文字列表，也不是自由漂浮的 D3 力导向图：刷新后空间关系保持稳定，分叉和汇合可以直接看见。图按正文可用宽度完整呈现，不使用横向滚动；整个页面只保留纵向阅读。边的说明文字保存在数据中，不直接覆盖在 SVG 连线上。左侧固定区显示当前节点的摘要、压力、后果、参与者、流派和原书章节；观察节点另显示领域说明，以及存在可靠语境时的历史概览入口。来路与去向只由图中有向边表达，左侧不重复邻接节点，也不显示十五个维护分组。
+页面使用一张确定性 SVG 有向图，不是纵向文字列表，也不是自由漂浮的 D3 力导向图：刷新后空间关系保持稳定，分叉和汇合可以直接看见。图按正文可用宽度完整呈现，不使用横向滚动；整个页面只保留纵向阅读。边的说明文字保存在数据中，不直接覆盖在 SVG 连线上。左侧固定区显示当前节点的摘要、压力、后果、参与者、流派和原书章节；观察节点另显示领域说明，以及存在可靠语境时的历史概览入口。来路与去向只由图中有向边表达，左侧不重复邻接节点，也不显示二十一个维护分组。
 
 ## 8. 状态、搜索与返回
 
@@ -233,7 +278,7 @@ npm run build
 npm run build:offline
 ```
 
-内容审计必须验证 ID 唯一、边端点存在、三种方向与关系匹配、答案具有 `answerRole`、每个观察具有领域元数据且没有入边、历史链接指向存在的阶段／回应／事件、答案至少有问题入边、问题至少由观察或答案提出；第一卷 30 章和现有 29 位第一卷人物，以及第二卷第一至十一章和十七位参与人物还必须全部被谱系覆盖。当前基线应为 1 条谱系、15 个维护分组、181 个节点、233 条边。
+内容审计必须验证 ID 唯一、边端点存在、三种方向与关系匹配、答案具有 `answerRole`、每个观察具有领域元数据且没有入边、历史链接指向存在的阶段／回应／事件、答案至少有问题入边、问题至少由观察或答案提出；第一卷 30 章和现有 29 位第一卷人物，以及第二卷全部 15 章和 24 位参与人物还必须全部被谱系覆盖。当前基线应为 1 条谱系、21 个维护分组、318 个节点、392 条边。
 
 真实浏览器还要检查：三类节点与箭头方向能否一眼分辨；分叉、汇合和长边是否可理解；节点详情是否在左侧同步更新；桌面是否没有横向滚动；人物／章节下钻及返回是否可靠；手机上图与详情是否仍可阅读。
 
