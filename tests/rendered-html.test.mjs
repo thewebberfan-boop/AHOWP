@@ -34,11 +34,13 @@ test("server-renders the learning entrance", async () => {
 });
 
 test("keeps the complete philosopher, school, and problem graphs in the project", async () => {
-  const [page, styles, problemMap, problemData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, styles, problemMap, problemData, modernProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("app/problem-map.tsx", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-modern-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-view-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/philosopher-graph.tsx", projectRoot), "utf8"),
@@ -90,7 +92,18 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(styles, /app-mode-problems \.sidebar/);
   assert.match(problemMap, /function ProblemMapView/);
   assert.match(problemMap, /为什么进入图谱/);
-  assert.match(problemMap, /完整宽度呈现 · 页面仅纵向阅读/);
+  assert.match(problemMap, /选择问题图谱的组织尺度/);
+  assert.match(problemMap, /局部聚焦 · 前后/);
+  assert.match(problemMap, /连续论证链/);
+  assert.match(problemMap, /并行答案扇面/);
+  assert.match(problemMap, /解释边界/);
+  assert.match(problemViewData, /id: "guide"/);
+  assert.match(problemViewData, /id: "backbone"/);
+  assert.match(problemViewData, /id: "standard"/);
+  assert.match(problemViewData, /id: "complete"/);
+  assert.match(problemViewData, /id: "research"/);
+  assert.match(problemViewData, /世界、变化与因果/);
+  assert.match(problemViewData, /how-live-uncontrollable-world/);
   assert.match(problemMap, /对应哲学家/);
   assert.match(problemMap, /观察范围/);
   assert.match(problemMap, /关联历史概览/);
@@ -102,12 +115,12 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemData, /public-disagreement-observation/);
   assert.match(problemData, /eventId: "athenian-democracy"/);
   assert.match(problemData, /type ProblemRelationKind = "提出问题" \| "回应问题" \| "产生问题"/);
-  assert.match(problemData, /从多样与变化到多重权威的近代门槛/);
+  assert.match(problemData, /从多样与变化到人工人格与主权/);
   assert.match(problemData, /历史回应/);
   assert.match(problemData, /本站推演/);
   assert.match(problemData, /philosopherId: "plato"/);
   assert.match(problemData, /"b1-18"/);
-  assert.match(problemMap, /泰勒斯 → 第二卷结束/);
+  assert.match(problemMap, /泰勒斯 → 霍布斯/);
   assert.match(problemData, /reason-or-divine-aid/);
   assert.match(problemData, /can-salvation-community-survive-empire/);
   assert.match(problemData, /who-reforms-preserving-church/);
@@ -123,7 +136,26 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemData, /territorial-law-papal-eclipse/);
   assert.match(problemData, /schism-conciliar-reform-transition/);
   assert.match(problemData, /how-can-thought-judge-state-classics-scripture-experience/);
-  assert.match(spec, /318 个节点和 392 条边/);
+  assert.match(modernProblemData, /renaissance-texts-cities-human-agency/);
+  assert.match(modernProblemData, /machiavelli-fortune-virtue-republic/);
+  assert.match(modernProblemData, /humanism-reformation-conscience-authority/);
+  assert.match(modernProblemData, /what-can-publicly-correct-text-church-state-nature/);
+  assert.match(modernProblemData, /mathematized-nature-models-observation/);
+  assert.match(modernProblemData, /plural-methods-form-public-correction-network/);
+  assert.match(modernProblemData, /how-can-discovery-be-organized-beyond-genius/);
+  assert.match(modernProblemData, /bacon-idols-induction-collaborative-discovery/);
+  assert.match(modernProblemData, /four-idols-diagnose-inquiry-obstacles/);
+  assert.match(modernProblemData, /tables-and-exclusion-build-gradual-induction/);
+  assert.match(modernProblemData, /division-of-labor-and-salomons-house/);
+  assert.match(modernProblemData, /can-civil-order-be-reconstructed-as-systematic-artifice/);
+  assert.match(modernProblemData, /hobbes-motion-language-covenant-sovereignty/);
+  assert.match(modernProblemData, /sensation-imagination-passions-as-bodily-motion/);
+  assert.match(modernProblemData, /state-of-nature-tests-absence-of-common-power/);
+  assert.match(modernProblemData, /mutual-covenant-authorizes-artificial-person/);
+  assert.match(modernProblemData, /self-preservation-and-protection-bound-obedience/);
+  assert.match(modernProblemData, /what-can-thought-know-when-sense-and-words-mislead/);
+  assert.match(problemViewData, /how-should-christian-society-be-reformed/);
+  assert.match(spec, /452 个节点和 544 条边/);
   assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);

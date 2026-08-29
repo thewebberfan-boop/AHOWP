@@ -6,6 +6,7 @@ import { historyResponseLinks, historyStages, stageDetailPanels } from "../app/h
 import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
 import { problemMaps } from "../app/problem-map-data";
+import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -96,6 +97,7 @@ if (!publishedProblemMap) {
   error("缺少已发布问题谱系 difference-change-knowledge");
 } else {
   const nodes = publishedProblemMap.phases.flatMap((phase) => phase.nodes);
+  const nodeById = new Map(nodes.map((node) => [node.id, node]));
   const coveredChapters = new Set(nodes.flatMap((node) => node.chapterIds));
   chapters.filter((chapter) => chapter.book === "ancient" && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第一卷问题谱系尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const participatingPhilosophers = new Set(nodes.flatMap((node) => node.participants.map((participant) => participant.philosopherId).filter((id): id is string => Boolean(id))));
@@ -132,6 +134,58 @@ if (!publishedProblemMap) {
   chapters.filter((chapter) => papalEclipseChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第二卷教皇制衰落阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const papalEclipsePhilosopherIds = new Set(["ockham", "marsilius-padua"]);
   philosopherProfiles.filter((profile) => papalEclipsePhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第二卷教皇制衰落阶段尚未连接人物 ${profile.nameZh}`));
+  const earlyModernChapterIds = new Set(["b3-01", "b3-02", "b3-03", "b3-04", "b3-05"]);
+  chapters.filter((chapter) => earlyModernChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷前五章问题谱系尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const earlyModernPhilosopherIds = new Set(["machiavelli", "erasmus", "thomas-more", "luther"]);
+  philosopherProfiles.filter((profile) => earlyModernPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷前五章问题谱系尚未连接人物 ${profile.nameZh}`));
+  const riseOfScienceChapterIds = new Set(["b3-06"]);
+  chapters.filter((chapter) => riseOfScienceChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷科学兴起阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const riseOfSciencePhilosopherIds = new Set(["copernicus", "kepler", "galileo", "francis-bacon"]);
+  philosopherProfiles.filter((profile) => riseOfSciencePhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷科学兴起阶段尚未连接人物 ${profile.nameZh}`));
+  const baconChapterIds = new Set(["b3-07"]);
+  chapters.filter((chapter) => baconChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷培根阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const baconPhilosopherIds = new Set(["francis-bacon"]);
+  philosopherProfiles.filter((profile) => baconPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷培根阶段尚未连接人物 ${profile.nameZh}`));
+  const hobbesChapterIds = new Set(["b3-08"]);
+  chapters.filter((chapter) => hobbesChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷霍布斯阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const hobbesPhilosopherIds = new Set(["hobbes"]);
+  philosopherProfiles.filter((profile) => hobbesPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷霍布斯阶段尚未连接人物 ${profile.nameZh}`));
+
+  duplicates(problemDensityOptions.map((option) => option.id)).forEach((id) => error(`问题图谱存在重复密度档位 ${id}`));
+  if (problemDensityOptions.length !== 5) error(`问题图谱密度档位应为 5 档，实际为 ${problemDensityOptions.length} 档`);
+  problemDensityOptions.forEach((option) => {
+    if (!option.label || !option.english || !option.description) error(`问题图谱密度档位 ${option.id} 缺少完整说明`);
+  });
+  duplicates(problemFamilies.map((family) => family.id)).forEach((id) => error(`问题图谱存在重复问题家族 ${id}`));
+  duplicates(problemFamilies.map((family) => String(family.lane))).forEach((lane) => error(`问题图谱问题家族重复使用导览列 ${lane}`));
+  if (problemFamilies.length !== 5) error(`问题图谱导览应有 5 个问题家族，实际为 ${problemFamilies.length} 个`);
+  problemFamilies.forEach((family) => {
+    if (!family.description || !family.anchorNodeIds.length) error(`问题家族“${family.label}”缺少说明或锚点`);
+    duplicates(family.anchorNodeIds).forEach((id) => error(`问题家族“${family.label}”重复引用节点 ${id}`));
+    family.anchorNodeIds.filter((id) => !nodeById.has(id)).forEach((id) => error(`问题家族“${family.label}”引用不存在的节点 ${id}`));
+  });
+  const historyStageIds = new Set(historyStages.map((stage) => stage.id));
+  publishedProblemMap.phases.forEach((phase) => {
+    const stageId = problemPhaseHistoryStageIds[phase.id];
+    if (!stageId) error(`问题阶段“${phase.title}”缺少历史背景带映射`);
+    else if (!historyStageIds.has(stageId)) error(`问题阶段“${phase.title}”映射到不存在的历史阶段 ${stageId}`);
+  });
+  Object.entries(problemBoundaryNotes).forEach(([nodeId, notes]) => {
+    if (!nodeById.has(nodeId)) error(`解释边界引用不存在的节点 ${nodeId}`);
+    if (!notes.length || notes.some((note) => !note.label || !note.note)) error(`节点 ${nodeId} 的解释边界不完整`);
+  });
+  problemComparisonFans.forEach((fan) => {
+    const question = nodeById.get(fan.questionId);
+    if (!question) error(`并行答案扇面引用不存在的问题 ${fan.questionId}`);
+    else if (question.kind !== "问题") error(`并行答案扇面起点 ${fan.questionId} 不是问题节点`);
+    if (fan.answerIds.length < 3) error(`并行答案扇面“${fan.label}”至少需要三个答案`);
+    fan.answerIds.forEach((answerId) => {
+      const answer = nodeById.get(answerId);
+      if (!answer) error(`并行答案扇面“${fan.label}”引用不存在的答案 ${answerId}`);
+      else if (answer.kind !== "答案") error(`并行答案扇面成员 ${answerId} 不是答案节点`);
+      if (!publishedProblemMap.edges.some((edge) => edge.from === fan.questionId && edge.to === answerId && edge.relation === "回应问题")) error(`并行答案扇面“${fan.label}”缺少 ${fan.questionId} → ${answerId} 的回应关系`);
+    });
+  });
 }
 
 philosopherProfiles.forEach((profile) => {
@@ -210,6 +264,7 @@ schoolProfiles.forEach((school) => {
 const canonicalFiles = [
   "app/history-data.ts",
   "app/problem-map-data.ts",
+  "app/problem-map-view-data.ts",
   "app/russell-structure-data.ts",
   "app/school-data.ts",
   "app/school-data-medieval.ts",

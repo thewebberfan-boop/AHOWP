@@ -1,3 +1,5 @@
+import { modernProblemEdges, modernProblemPhases, modernProblemSources } from "./problem-map-modern-data";
+
 export type ProblemNodeKind = "观察" | "问题" | "答案";
 export type ProblemAnswerRole = "提出" | "区分" | "反驳" | "修复" | "转向" | "综合";
 export type ProblemRelationKind = "提出问题" | "回应问题" | "产生问题";
@@ -96,11 +98,11 @@ export const problemRelationNotes: Record<ProblemRelationKind, string> = {
 
 export const ancientDifferenceProblemMap: ProblemMap = {
   id: "difference-change-knowledge",
-  title: "从多样与变化到多重权威的近代门槛",
+  title: "从多样与变化到人工人格与主权",
   english: "OBSERVATION → QUESTION → ANSWER → NEW QUESTION",
-  period: "第一卷至第二卷全部 · 泰勒斯至教皇制衰落与会议主义",
-  thesis: "从自然中的多样、变化和秩序出发，经由知识、实体、因果与好生活，继续追踪城邦瓦解、帝国角色、经文共同体、西罗马制度断裂、教会改革、跨语言翻译、学校辩证法与十三世纪大学怎样重新提出自由、创造、因果、理智、共相、律法、学科自治、照明、经验、个体、意志与简约，最终进入属地王权、公民立法、会议纠错、经文改革与多重权威竞争的问题。",
-  scopeNote: "这不是一条被古代、教父、修院、伊斯兰、犹太或拉丁学校作者共同承认的师承路线，也不是把原书改写成单线进步史。图中只有观察、问题和答案三类节点；人物作为参与者附着其上。历史变化只在确实改变问题条件时进入观察层，连线同时说明逻辑作用与证据性质。当前已经覆盖第二卷全部十五章：既把阿拉伯语与犹太哲学按自身语境呈现，也把大学、阿奎那综合、方济各会多路线，以及教皇权力圆满、属地法权、马西略、教会大分裂、会议主义和威克里夫写成互相竞争且并不直达现代国家的方案。",
+  period: "第一卷、第二卷全部及第三卷前八章 · 泰勒斯至霍布斯",
+  thesis: "从自然中的多样、变化和秩序出发，经由知识、实体、因果与好生活，继续追踪城邦、帝国、经文共同体、教会、翻译网络、大学和属地政治怎样反复重组自由、律法、证明与纠错。第三卷前八章把多重权威进一步分成文本校勘、政治后果、宗教改革与新自然研究；科学公共纠错经培根成为可组织发现，霍布斯再从身体、语言、私人判断和战争风险出发，以契约、授权与代表构造国家这一人工人格。",
+  scopeNote: "这不是一条被古代、中世纪或近代作者共同承认的师承路线，也不是把原书改写成单线进步史。图中只有观察、问题和答案三类节点；人物作为参与者附着其上。历史变化只在确实改变问题条件时进入观察层，连线同时说明逻辑作用与证据性质。当前覆盖第一、二卷全部章节和第三卷第一至八章；文艺复兴不被写成突然世俗化，宗教改革不被提前等同现代自由，科学革命不被写成单一方法，培根纲领不被写成无假说算法，霍布斯也不被压成‘人性邪恶所以君主天然正确’：自然状态是共同权威缺失的压力测试，机械论不能独自推出主权，授权与自保、保护和责任边界必须同时保留。",
   phases: [
     {
       id: "encounter-difference",
@@ -4298,6 +4300,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
         },
       ],
     },
+    ...modernProblemPhases,
   ],
   edges: [
     { id: "root-01", from: "difference-as-observation", to: "difference-derived-or-original", relation: "提出问题", label: "从并存差异追问来源", connection: "本站推演" },
@@ -4710,6 +4713,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     { id: "y20", from: "no-direct-causation-distinct-reform-networks", to: "does-papal-decline-yield-one-successor-authority", relation: "产生问题", label: "改革网络分化排除单一接班叙事", connection: "本站推演" },
     { id: "y21", from: "does-papal-decline-yield-one-successor-authority", to: "plural-authorities-replace-single-center", relation: "回应问题", label: "以功能分化的多重权威收束第二卷", connection: "本站推演" },
     { id: "y22", from: "plural-authorities-replace-single-center", to: "how-can-thought-judge-state-classics-scripture-experience", relation: "产生问题", label: "多中心秩序开放第三卷的比较与纠错问题", connection: "本站推演" },
+    ...modernProblemEdges,
   ],
   sources: [
     { label: "罗素《西方哲学史》第一卷", url: "", note: "本站主叙述骨架；覆盖希腊文明兴起、前苏格拉底自然哲学、雅典体系、希腊化学派、罗马文化与普罗提诺三十章。" },
@@ -4773,6 +4777,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     { label: "Indiana University · Avignon and Its Papacy 书评", url: "https://scholarworks.iu.edu/journals/index.php/tmr/article/view/22341", note: "用于校正把阿维尼翁教廷简化为完全受法国控制的旧叙事，同时保留法国压力、行政集中与普世可信度之间的张力。" },
     { label: "Council of Constance · Haec Sancta（1415）", url: "https://sourcebooks.web.fordham.edu/source/constance1.asp", note: "作为康斯坦茨会议在分裂与改革事项上主张会议代表普世教会、包括教皇在内者应服从的一手文本入口；其长期规范地位与会议主义成败另行区分。" },
     { label: "SEP · John Wyclif", url: "https://plato.stanford.edu/entries/wyclif/", note: "用于校正威克里夫的神圣与人类 dominium、恩典、教会财产、经文与可见教会关系，并标明恩典不可观察给公共产权程序带来的困难。" },
+    ...modernProblemSources,
   ],
 };
 

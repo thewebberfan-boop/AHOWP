@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { chapters } from "./book-data";
 import { historyStages, stageDetailPanels } from "./history-data";
 import { philosopherProfiles } from "./philosopher-data";
@@ -16,6 +16,15 @@ import {
   type ProblemNodeKind,
   type ProblemRelationKind,
 } from "./problem-map-data";
+import {
+  problemBoundaryNotes,
+  problemComparisonFans,
+  problemDensityOptions,
+  problemFamilies,
+  problemPhaseHistoryStageIds,
+  type ProblemDensityId,
+  type ProblemFamily,
+} from "./problem-map-view-data";
 
 const GRAPH_WIDTH = 1280;
 const NODE_WIDTH = 220;
@@ -24,8 +33,8 @@ const NODE_TITLE_LINE_HEIGHT = 19;
 const GRAPH_TOP = 58;
 const GRAPH_LEFT = 48;
 const ROW_GAP = 132;
-const ROOT_QUESTION_ANSWER_GAP = 116;
 const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT * 2 - NODE_WIDTH) / 4;
+const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
   观察: "OBSERVATION",
@@ -47,12 +56,30 @@ const connectionClass: Record<ProblemConnectionKind, string> = {
   后世重构: "retrospective",
 };
 
-function graphPoint(node: ProblemNode) {
-  return {
-    x: GRAPH_LEFT + node.graph.lane * LANE_GAP,
-    y: GRAPH_TOP + node.graph.row * ROW_GAP + (node.graph.row >= 2 ? ROOT_QUESTION_ANSWER_GAP : 0),
-  };
-}
+type ChainGroup = {
+  id: string;
+  leaderId: string;
+  nodeIds: string[];
+};
+
+type DisplayEdge = ProblemEdge & {
+  folded: boolean;
+  hiddenNodeCount: number;
+  underlyingEdgeIds: string[];
+  connectionKinds: ProblemConnectionKind[];
+};
+
+type GraphPoint = {
+  x: number;
+  y: number;
+  row: number;
+  lane: number;
+};
+
+const familyByAnchorNodeId = new Map<string, ProblemFamily>();
+problemFamilies.forEach((family) => family.anchorNodeIds.forEach((nodeId) => {
+  if (!familyByAnchorNodeId.has(nodeId)) familyByAnchorNodeId.set(nodeId, family);
+}));
 
 function splitTitle(title: string, limit = 13) {
   const lines: string[] = [];
@@ -73,19 +100,122 @@ function splitTitle(title: string, limit = 13) {
   return lines.slice(0, 3);
 }
 
-function nodeHeight(node: ProblemNode) {
+function nodeHeight(node: ProblemNode, chain?: ChainGroup) {
   const extraLines = Math.max(0, splitTitle(node.title).length - 2);
-  return NODE_COMPACT_HEIGHT + extraLines * NODE_TITLE_LINE_HEIGHT;
+  return NODE_COMPACT_HEIGHT + extraLines * NODE_TITLE_LINE_HEIGHT + (chain ? 18 : 0);
 }
 
-function edgePath(edge: ProblemEdge, nodesById: Map<string, ProblemNode>) {
+function buildDegreeMaps(nodes: ProblemNode[], edges: ProblemEdge[]) {
+  const incoming = new Map(nodes.map((node) => [node.id, [] as ProblemEdge[]]));
+  const outgoing = new Map(nodes.map((node) => [node.id, [] as ProblemEdge[]]));
+  edges.forEach((edge) => {
+    incoming.get(edge.to)?.push(edge);
+    outgoing.get(edge.from)?.push(edge);
+  });
+  return { incoming, outgoing };
+}
+
+function buildChainGroups(nodes: ProblemNode[], edges: ProblemEdge[], phaseIdByNodeId: Map<string, string>) {
+  const { incoming, outgoing } = buildDegreeMaps(nodes, edges);
+  const candidateIds = new Set(nodes
+    .filter((node) => incoming.get(node.id)?.length === 1 && outgoing.get(node.id)?.length === 1)
+    .map((node) => node.id));
+  const starts = nodes.filter((node) => {
+    if (!candidateIds.has(node.id)) return false;
+    const predecessorId = incoming.get(node.id)?.[0]?.from;
+    return !predecessorId
+      || !candidateIds.has(predecessorId)
+      || phaseIdByNodeId.get(predecessorId) !== phaseIdByNodeId.get(node.id);
+  });
+  const groups: ChainGroup[] = [];
+  const visited = new Set<string>();
+
+  starts.forEach((start) => {
+    if (visited.has(start.id)) return;
+    const nodeIds = [start.id];
+    visited.add(start.id);
+    let currentId = start.id;
+    while (true) {
+      const nextId = outgoing.get(currentId)?.[0]?.to;
+      if (!nextId || !candidateIds.has(nextId) || visited.has(nextId)) break;
+      if (phaseIdByNodeId.get(nextId) !== phaseIdByNodeId.get(start.id)) break;
+      nodeIds.push(nextId);
+      visited.add(nextId);
+      currentId = nextId;
+    }
+    if (nodeIds.length >= 2) groups.push({ id: `chain-${start.id}`, leaderId: start.id, nodeIds });
+  });
+  return groups;
+}
+
+function buildDisplayEdges(edges: ProblemEdge[], visibleNodeIds: Set<string>) {
+  const outgoing = new Map<string, ProblemEdge[]>();
+  edges.forEach((edge) => outgoing.set(edge.from, [...(outgoing.get(edge.from) || []), edge]));
+  const displayEdges: DisplayEdge[] = [];
+
+  const follow = (sourceId: string, edge: ProblemEdge, path: ProblemEdge[], visitedNodeIds: Set<string>) => {
+    if (visitedNodeIds.has(edge.to)) return;
+    if (visibleNodeIds.has(edge.to)) {
+      const connectionKinds = [...new Set(path.map((item) => item.connection))];
+      displayEdges.push({
+        ...path[0],
+        id: `display-${sourceId}-${path.map((item) => item.id).join("-")}`,
+        from: sourceId,
+        to: edge.to,
+        label: path.length === 1 ? path[0].label : `折叠路径：${path.map((item) => item.label).join("；")}`,
+        folded: path.length > 1,
+        hiddenNodeCount: Math.max(0, path.length - 1),
+        underlyingEdgeIds: path.map((item) => item.id),
+        connectionKinds,
+      });
+      return;
+    }
+    const nextVisited = new Set(visitedNodeIds).add(edge.to);
+    (outgoing.get(edge.to) || []).forEach((nextEdge) => follow(sourceId, nextEdge, [...path, nextEdge], nextVisited));
+  };
+
+  visibleNodeIds.forEach((sourceId) => {
+    (outgoing.get(sourceId) || []).forEach((edge) => follow(sourceId, edge, [edge], new Set([sourceId])));
+  });
+  return displayEdges;
+}
+
+function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId) {
+  const points = new Map<string, GraphPoint>();
+  const nodesByOriginalRow = new Map<number, ProblemNode[]>();
+  nodes.forEach((node) => nodesByOriginalRow.set(node.graph.row, [...(nodesByOriginalRow.get(node.graph.row) || []), node]));
+  let rowCursor = 0;
+
+  [...nodesByOriginalRow.entries()].sort(([left], [right]) => left - right).forEach(([, rowNodes]) => {
+    const occupiedLanesBySubrow: Set<number>[] = [];
+    rowNodes.sort((left, right) => left.graph.lane - right.graph.lane).forEach((node) => {
+      const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
+      let subrow = occupiedLanesBySubrow.findIndex((occupied) => !occupied.has(lane));
+      if (subrow < 0) {
+        subrow = occupiedLanesBySubrow.length;
+        occupiedLanesBySubrow.push(new Set());
+      }
+      occupiedLanesBySubrow[subrow].add(lane);
+      points.set(node.id, {
+        x: GRAPH_LEFT + lane * LANE_GAP,
+        y: GRAPH_TOP + (rowCursor + subrow) * ROW_GAP,
+        row: rowCursor + subrow,
+        lane,
+      });
+    });
+    rowCursor += Math.max(1, occupiedLanesBySubrow.length);
+  });
+  return points;
+}
+
+function edgePath(edge: DisplayEdge, nodesById: Map<string, ProblemNode>, points: Map<string, GraphPoint>, chainByLeaderId: Map<string, ChainGroup>) {
   const source = nodesById.get(edge.from);
   const target = nodesById.get(edge.to);
-  if (!source || !target) return "";
-  const sourcePoint = graphPoint(source);
-  const targetPoint = graphPoint(target);
+  const sourcePoint = points.get(edge.from);
+  const targetPoint = points.get(edge.to);
+  if (!source || !target || !sourcePoint || !targetPoint) return "";
   const startX = sourcePoint.x + NODE_WIDTH / 2;
-  const startY = sourcePoint.y + nodeHeight(source);
+  const startY = sourcePoint.y + nodeHeight(source, chainByLeaderId.get(source.id));
   const endX = targetPoint.x + NODE_WIDTH / 2;
   const endY = targetPoint.y;
   const bend = Math.max(42, (endY - startY) * 0.48);
@@ -104,15 +234,99 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   showEnglish: boolean;
 }) {
   const map = ancientDifferenceProblemMap;
+  const [density, setDensity] = useState<ProblemDensityId>("standard");
+  const [focusDepth, setFocusDepth] = useState<0 | 1 | 2>(0);
+  const [expandedChainIds, setExpandedChainIds] = useState<Set<string>>(() => new Set());
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
+  const phaseIdByNodeId = useMemo(() => new Map([...phaseByNodeId].map(([nodeId, phase]) => [nodeId, phase.id])), [phaseByNodeId]);
+  const { incoming: incomingByNodeId, outgoing: outgoingByNodeId } = useMemo(() => buildDegreeMaps(allNodes, map.edges), [allNodes, map.edges]);
+  const chainGroups = useMemo(() => buildChainGroups(allNodes, map.edges, phaseIdByNodeId), [allNodes, map.edges, phaseIdByNodeId]);
+  const chainByNodeId = useMemo(() => new Map(chainGroups.flatMap((group) => group.nodeIds.map((nodeId) => [nodeId, group]))), [chainGroups]);
   const selectedNode = nodesById.get(activeNodeId) || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
-  const incomingEdges = map.edges.filter((edge) => edge.to === selectedNode.id);
-  const outgoingEdges = map.edges.filter((edge) => edge.from === selectedNode.id);
-  const connectedEdgeIds = new Set([...incomingEdges, ...outgoingEdges].map((edge) => edge.id));
-  const connectedNodeIds = new Set([selectedNode.id, ...incomingEdges.map((edge) => edge.from), ...outgoingEdges.map((edge) => edge.to)]);
+  const selectedChain = chainByNodeId.get(selectedNode.id);
+  const incomingEdges = incomingByNodeId.get(selectedNode.id) || [];
+  const outgoingEdges = outgoingByNodeId.get(selectedNode.id) || [];
+  const densityOption = problemDensityOptions.find((option) => option.id === density) || problemDensityOptions[2];
+
+  const focusNodeIds = useMemo(() => {
+    if (!focusDepth) return null;
+    const visible = new Set([selectedNode.id]);
+    let frontier = new Set([selectedNode.id]);
+    for (let depth = 0; depth < focusDepth; depth += 1) {
+      const next = new Set<string>();
+      frontier.forEach((nodeId) => {
+        [...(incomingByNodeId.get(nodeId) || []), ...(outgoingByNodeId.get(nodeId) || [])].forEach((edge) => {
+          const adjacentId = edge.from === nodeId ? edge.to : edge.from;
+          if (!visible.has(adjacentId)) next.add(adjacentId);
+          visible.add(adjacentId);
+        });
+      });
+      frontier = next;
+    }
+    return visible;
+  }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id]);
+
+  const visibleNodeIds = useMemo(() => {
+    if (focusNodeIds) return focusNodeIds;
+    if (density === "complete" || density === "research") return new Set(allNodes.map((node) => node.id));
+    if (density === "guide") {
+      const visible = new Set(problemFamilies.flatMap((family) => family.anchorNodeIds));
+      visible.add(selectedNode.id);
+      return visible;
+    }
+    if (density === "backbone") {
+      const landmarks = new Set(problemFamilies.flatMap((family) => family.anchorNodeIds));
+      const visible = new Set(allNodes.filter((node) => {
+        const incomingCount = incomingByNodeId.get(node.id)?.length || 0;
+        const outgoingCount = outgoingByNodeId.get(node.id)?.length || 0;
+        return incomingCount !== 1 || outgoingCount !== 1 || landmarks.has(node.id);
+      }).map((node) => node.id));
+      visible.add(selectedNode.id);
+      return visible;
+    }
+    const visible = new Set(allNodes.map((node) => node.id));
+    chainGroups.forEach((group) => {
+      const selectedMemberNeedsExpansion = group.nodeIds.includes(selectedNode.id) && selectedNode.id !== group.leaderId;
+      if (expandedChainIds.has(group.id) || selectedMemberNeedsExpansion) return;
+      group.nodeIds.slice(1).forEach((nodeId) => visible.delete(nodeId));
+    });
+    return visible;
+  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id]);
+
+  const displayNodes = useMemo(() => allNodes.filter((node) => visibleNodeIds.has(node.id)), [allNodes, visibleNodeIds]);
+  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds), [map.edges, visibleNodeIds]);
+  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, density), [density, displayNodes]);
+  const collapsedChainByLeaderId = useMemo(() => {
+    const result = new Map<string, ChainGroup>();
+    if (density !== "standard" || focusDepth) return result;
+    chainGroups.forEach((group) => {
+      if (!expandedChainIds.has(group.id) && visibleNodeIds.has(group.leaderId) && !visibleNodeIds.has(group.nodeIds[1])) result.set(group.leaderId, group);
+    });
+    return result;
+  }, [chainGroups, density, expandedChainIds, focusDepth, visibleNodeIds]);
+  const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id))), 180) + 70;
+  const historyBands = useMemo(() => historyStages.map((stage) => {
+    const stageNodes = displayNodes.filter((node) => {
+      const phase = phaseByNodeId.get(node.id);
+      return phase && problemPhaseHistoryStageIds[phase.id] === stage.id;
+    });
+    if (!stageNodes.length) return null;
+    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - 30;
+    const bottom = Math.max(...stageNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id)))) + 28;
+    return { stage, top, height: bottom - top };
+  }).filter((band): band is NonNullable<typeof band> => Boolean(band)), [collapsedChainByLeaderId, displayNodes, graphPoints, phaseByNodeId]);
+  const selectedHistoryStageId = problemPhaseHistoryStageIds[selectedPhase.id];
+  const selectedFamily = familyByAnchorNodeId.get(selectedNode.id);
+  const selectedBoundaryNotes = problemBoundaryNotes[selectedNode.id] || [];
+  const selectedComparisonFan = problemComparisonFans.find((fan) => fan.questionId === selectedNode.id || fan.answerIds.includes(selectedNode.id));
+  const comparisonNodeIds = new Set(selectedComparisonFan ? [selectedComparisonFan.questionId, ...selectedComparisonFan.answerIds] : []);
+  const connectedDisplayEdges = displayEdges.filter((edge) => edge.from === selectedNode.id || edge.to === selectedNode.id);
+  const connectedEdgeIds = new Set(connectedDisplayEdges.map((edge) => edge.id));
+  const connectedNodeIds = new Set([selectedNode.id, ...connectedDisplayEdges.flatMap((edge) => [edge.from, edge.to]), ...comparisonNodeIds]);
+
   const relatedParticipants = useMemo(() => {
     const oneHopIds = new Set(map.edges.flatMap((edge) => edge.from === selectedNode.id ? [edge.to] : edge.to === selectedNode.id ? [edge.from] : []));
     let sourceNodes = selectedNode.participants.length > 0
@@ -137,22 +351,52 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     });
     return [...unique.values()].sort((left, right) => left.order - right.order);
   }, [relatedParticipants]);
-  const graphHeight = Math.max(...allNodes.map((node) => graphPoint(node).y + nodeHeight(node))) + 70;
 
   const selectNode = (id: string) => {
+    const chain = chainByNodeId.get(id);
+    if (chain && id !== chain.leaderId) setExpandedChainIds((current) => new Set(current).add(chain.id));
     const phase = phaseByNodeId.get(id);
     onNodeChange(id);
     if (phase) onPhaseChange(phase.id);
   };
+
+  const toggleChain = (group: ChainGroup) => {
+    setExpandedChainIds((current) => {
+      const next = new Set(current);
+      if (next.has(group.id)) next.delete(group.id);
+      else next.add(group.id);
+      return next;
+    });
+  };
+
+  const collapseSelectedChain = (group: ChainGroup) => {
+    setExpandedChainIds((current) => {
+      const next = new Set(current);
+      next.delete(group.id);
+      return next;
+    });
+    selectNode(group.leaderId);
+  };
+
+  const changeDensity = (nextDensity: ProblemDensityId) => {
+    setDensity(nextDensity);
+    setFocusDepth(0);
+    window.localStorage.setItem(DENSITY_STORAGE_KEY, nextDensity);
+  };
+
+  useEffect(() => {
+    const savedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY) as ProblemDensityId | null;
+    if (!savedDensity || !problemDensityOptions.some((option) => option.id === savedDensity)) return;
+    const frame = window.requestAnimationFrame(() => setDensity(savedDensity));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     if (selectedPhase.id === activePhaseId) return;
     const phase = map.phases.find((item) => item.id === activePhaseId);
     const target = phase?.nodes.find((node) => node.kind === "问题") || phase?.nodes[0];
     if (!target) return;
-    const frame = window.requestAnimationFrame(() => {
-      onNodeChange(target.id);
-    });
+    const frame = window.requestAnimationFrame(() => onNodeChange(target.id));
     return () => window.cancelAnimationFrame(frame);
   }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id]);
 
@@ -166,9 +410,9 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 第二卷结束</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 霍布斯</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
-        <div><span>图谱节点</span><b>{allNodes.length} 个</b></div>
+        <div><span>原子节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
       </aside>
     </header>
@@ -182,61 +426,72 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       <div className="problem-relation-legend">
         {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span key={relation} title={problemRelationNotes[relation]}><b>{relation}</b><small>{relationEnglish[relation]}</small></span>)}
       </div>
-      <p>箭头表示问题如何被提出、回应和再次生成；线条颜色表示连接证据。点击任一节点查看完整内容与下钻入口。</p>
+      <p>箭头表示问题如何被提出、回应和再次生成；压缩档位只改变呈现，不删除原子节点或稳定 ID。</p>
+    </section>
+
+    <section className="problem-density-panel" aria-label="图谱信息密度">
+      <header><div><p className="section-label">READING DENSITY</p><h3>选择问题图谱的组织尺度</h3></div><span>{focusDepth ? `局部 ${focusDepth} 跳 · ` : ""}{displayNodes.length}／{allNodes.length} 个节点</span></header>
+      <div className="problem-density-options" role="group" aria-label="信息密度档位">
+        {problemDensityOptions.map((option) => <button type="button" className={density === option.id ? "active" : ""} aria-pressed={density === option.id} onClick={() => changeDensity(option.id)} key={option.id}><b>{option.label}</b><small>{option.english}</small></button>)}
+      </div>
+      <div className="problem-density-description"><b>{densityOption.label}模式</b><p>{densityOption.description}</p><small>当前显示 {displayNodes.length}／{allNodes.length} 个节点{allNodes.length > displayNodes.length ? `，隐藏或折叠 ${allNodes.length - displayNodes.length} 个` : "，未隐藏节点"}。</small></div>
+      {density === "guide" && <div className="problem-family-legend">{problemFamilies.map((family) => <article key={family.id}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small><p>{family.description}</p></article>)}</div>}
     </section>
 
     <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
-          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>观察提出问题，答案又产生问题</h3></div>
-          <p className="problem-graph-fit-note">完整宽度呈现 · 页面仅纵向阅读</p>
+          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
+          <div className="problem-graph-actions" role="group" aria-label="局部聚焦范围">
+            <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
+            <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
+            {focusDepth ? <button type="button" onClick={() => setFocusDepth(0)}>返回全图</button> : <span>相关节点进入一屏</span>}
+          </div>
         </header>
 
         <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
-          <svg viewBox={`0 0 ${GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${map.title}：${allNodes.length} 个节点、${map.edges.length} 条关系`}>
+          <svg viewBox={`0 0 ${GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${map.title}：当前显示 ${displayNodes.length} 个节点、${displayEdges.length} 条可见路径`}>
             <defs>
               <marker id="problem-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
                 <path d="M0,0 L0,6 L7,3 z" fill="context-stroke" />
               </marker>
             </defs>
 
+            <g className="problem-graph-phases">
+              {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title}`} onClick={() => onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id); } }} key={band.stage.id}>
+                <rect className={index % 2 ? "phase-even" : "phase-odd"} x="0" y={band.top} width={GRAPH_WIDTH} height={band.height} />
+                <text x="14" y={band.top + 16}>{band.stage.title}<tspan x="14" dy="12">{band.stage.years}</tspan></text>
+              </g>)}
+            </g>
+
             <g className="problem-graph-edges">
-              {map.edges.map((edge) => {
+              {displayEdges.map((edge) => {
                 const connected = connectedEdgeIds.has(edge.id);
+                const edgeConnectionClass = edge.connectionKinds.length === 1 ? connectionClass[edge.connectionKinds[0]] : "mixed";
                 return <g className={connected ? "connected" : ""} key={edge.id}>
-                  <path
-                    className={`problem-graph-edge relation-${edge.relation} connection-${connectionClass[edge.connection]}`}
-                    d={edgePath(edge, nodesById)}
-                    markerEnd="url(#problem-arrow)"
-                    aria-hidden="true"
-                  />
+                  <path className={`problem-graph-edge relation-${edge.relation} connection-${edgeConnectionClass}${edge.folded ? " folded" : ""}`} d={edgePath(edge, nodesById, graphPoints, collapsedChainByLeaderId)} markerEnd="url(#problem-arrow)">
+                    <title>{edge.folded ? `折叠 ${edge.hiddenNodeCount} 个中间节点。` : ""}{edge.label} · {edge.connectionKinds.join("／")}</title>
+                  </path>
                 </g>;
               })}
             </g>
 
             <g className="problem-graph-nodes">
-              {allNodes.map((node, index) => {
-                const point = graphPoint(node);
+              {displayNodes.map((node) => {
+                const point = graphPoints.get(node.id);
+                if (!point) return null;
                 const selected = node.id === selectedNode.id;
                 const connected = connectedNodeIds.has(node.id);
+                const collapsedChain = collapsedChainByLeaderId.get(node.id);
                 const lines = splitTitle(node.title);
-                const height = nodeHeight(node);
-                return <g
-                  className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}`}
-                  id={`problem-node-${node.id}`}
-                  key={node.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${node.kind}${node.answerRole ? `，${node.answerRole}型答案` : ""}：${node.title}`}
-                  transform={`translate(${point.x}, ${point.y})`}
-                  onClick={() => selectNode(node.id)}
-                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectNode(node.id); } }}
-                >
+                const height = nodeHeight(node, collapsedChain);
+                const family = familyByAnchorNodeId.get(node.id);
+                return <g className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}${collapsedChain ? " folded-chain" : ""}${comparisonNodeIds.has(node.id) ? " comparison-peer" : ""}`} id={`problem-node-${node.id}`} key={node.id} role="button" tabIndex={0} aria-label={`${node.kind}${node.answerRole ? `，${node.answerRole}型答案` : ""}：${node.title}${collapsedChain ? `，包含 ${collapsedChain.nodeIds.length} 个连续节点` : ""}`} transform={`translate(${point.x}, ${point.y})`} onClick={() => { if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); } }}>
+                  {collapsedChain && <><rect className="problem-chain-shadow shadow-two" x="7" y="7" width={NODE_WIDTH} height={height} rx="7" /><rect className="problem-chain-shadow shadow-one" x="3.5" y="3.5" width={NODE_WIDTH} height={height} rx="7" /></>}
                   <rect width={NODE_WIDTH} height={height} rx="7" />
-                  <text className="problem-graph-node-meta" x="13" y="18">{String(index + 1).padStart(2, "0")} · {kindEnglish[node.kind]}{node.answerRole ? ` · ${node.answerRole}` : ""}</text>
-                  <text className="problem-graph-node-title" x="13" y="41">
-                    {lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : NODE_TITLE_LINE_HEIGHT} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}
-                  </text>
+                  <text className="problem-graph-node-meta" x="13" y="18">{String(allNodes.indexOf(node) + 1).padStart(2, "0")} · {family && density === "guide" ? family.label : kindEnglish[node.kind]}{node.answerRole && density !== "guide" ? ` · ${node.answerRole}` : ""}</text>
+                  <text className="problem-graph-node-title" x="13" y="41">{lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : NODE_TITLE_LINE_HEIGHT} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}</text>
+                  {collapsedChain && <text className="problem-chain-count" x="13" y={height - 9}>{collapsedChain.nodeIds.length} 个连续节点 · 点击展开</text>}
                   <circle cx={NODE_WIDTH - 14} cy="14" r="3.5" />
                 </g>;
               })}
@@ -246,6 +501,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
         <footer className="problem-graph-evidence">
           {(Object.keys(problemConnectionNotes) as ProblemConnectionKind[]).map((kind) => <span className={`connection-${connectionClass[kind]}`} title={problemConnectionNotes[kind]} key={kind}><i aria-hidden="true" />{kind}</span>)}
+          {displayEdges.some((edge) => edge.folded) && <span className="connection-folded"><i aria-hidden="true" />折叠路径</span>}
         </footer>
       </div>
 
@@ -263,6 +519,20 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         </div>
 
         <div className="problem-node-detail-links">
+          {selectedBoundaryNotes.length > 0 && <section className="problem-explanation-boundary"><span>解释边界</span>{selectedBoundaryNotes.map((boundary) => <article key={`${selectedNode.id}-${boundary.label}`}><b>{boundary.label}</b><p>{boundary.note}</p></article>)}</section>}
+          {selectedFamily && <section className="problem-family-context"><span>问题家族</span><b>{selectedFamily.label}</b><small>{selectedFamily.english}</small><p>{selectedFamily.description}</p></section>}
+          {selectedChain && <section className="problem-chain-detail"><span>连续论证链</span><p>这一链包含 {selectedChain.nodeIds.length} 个原子节点；折叠只改变显示，不改变节点 ID 与关系。</p><div>{selectedChain.nodeIds.map((nodeId, index) => {
+            const node = nodesById.get(nodeId);
+            return node ? <button type="button" className={node.id === selectedNode.id ? "active" : ""} onClick={() => selectNode(node.id)} key={node.id}><small>{String(index + 1).padStart(2, "0")} · {node.kind}</small><b>{node.title}</b></button> : null;
+          })}</div><button type="button" className="problem-chain-toggle" onClick={() => expandedChainIds.has(selectedChain.id) || selectedNode.id !== selectedChain.leaderId ? collapseSelectedChain(selectedChain) : toggleChain(selectedChain)}>{expandedChainIds.has(selectedChain.id) || selectedNode.id !== selectedChain.leaderId ? "收起为论证链" : "在图中展开全部步骤"}</button></section>}
+          {selectedComparisonFan && <section className="problem-comparison-fan"><span>并行答案扇面</span><b>{selectedComparisonFan.label}</b><p>{selectedComparisonFan.note}</p><div><button type="button" className={selectedNode.id === selectedComparisonFan.questionId ? "active" : ""} onClick={() => selectNode(selectedComparisonFan.questionId)}>共同问题</button>{selectedComparisonFan.answerIds.map((answerId) => {
+            const answer = nodesById.get(answerId);
+            return answer ? <button type="button" className={selectedNode.id === answerId ? "active" : ""} onClick={() => selectNode(answerId)} key={answerId}>{answer.title}</button> : null;
+          })}</div></section>}
+          {density === "research" && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
+            const adjacent = nodesById.get(adjacentId);
+            return <button type="button" onClick={() => selectNode(adjacentId)} key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{adjacent?.title}</b><em>{edge.label}</em></button>;
+          })}</div></section>}
           {selectedNode.observation && <section className="problem-observation-context">
             <span>观察范围</span>
             <div className="problem-observation-domain"><b>{selectedNode.observation.domain}</b><p>{selectedNode.observation.note}</p></div>
