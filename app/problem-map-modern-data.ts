@@ -1,5 +1,9 @@
 import type { ProblemEdge, ProblemMapSource, ProblemPhase } from "./problem-map-data";
+import { completionProblemEdges, completionProblemPhases, completionProblemSources } from "./problem-map-completion-data";
 import { enlightenmentProblemEdges, enlightenmentProblemPhases, enlightenmentProblemSources } from "./problem-map-enlightenment-data";
+import { humeProblemEdges, humeProblemPhases, humeProblemSources } from "./problem-map-hume-data";
+import { idealismWillProblemEdges, idealismWillProblemPhases, idealismWillProblemSources } from "./problem-map-idealism-will-data";
+import { romanticKantProblemEdges, romanticKantProblemPhases, romanticKantProblemSources } from "./problem-map-romantic-kant-data";
 
 export const modernProblemPhases: ProblemPhase[] = [
   {
@@ -2056,6 +2060,10 @@ export const modernProblemPhases: ProblemPhase[] = [
     ],
   },
   ...enlightenmentProblemPhases,
+  ...humeProblemPhases,
+  ...romanticKantProblemPhases,
+  ...idealismWillProblemPhases,
+  ...completionProblemPhases,
 ];
 
 export const modernProblemEdges: ProblemEdge[] = [
@@ -2250,10 +2258,14 @@ export const modernProblemEdges: ProblemEdge[] = [
   { id: "z185", from: "thinking-thing-before-body", to: "can-two-created-substances-fit-one-intelligible-nature", relation: "产生问题", label: "思考实体的独立性要求重审实体尺度", connection: "本站推演" },
   { id: "z186", from: "error-when-will-outruns-intellect", to: "is-mind-really-distinct-from-body", relation: "产生问题", label: "把判断归于意志与理解力要求说明心灵的存在地位", connection: "本站推演" },
   ...enlightenmentProblemEdges,
+  ...humeProblemEdges,
+  ...romanticKantProblemEdges,
+  ...idealismWillProblemEdges,
+  ...completionProblemEdges,
 ];
 
 export const modernProblemSources: ProblemMapSource[] = [
-  { label: "罗素《西方哲学史》第三卷第一至十六章", url: "https://thephilosopher.net/russell/wp-content/uploads/sites/148/2024/10/The-History-of-Western-Philosophy-Bertrand-Russell.pdf", note: "用于近代一般特征至贝克莱的原书叙事骨架；罗素的现代性评价、民族性概括、对理性主义和自由主义的总体叙事，以及对各体系成败的评价不作为学界共识。" },
+  { label: "罗素《西方哲学史》第三卷第一至三十一章", url: "https://thephilosopher.net/russell/wp-content/uploads/sites/148/2024/10/The-History-of-Western-Philosophy-Bertrand-Russell.pdf", note: "用于第三卷全部章节的原书叙事骨架；罗素对现代性、政治影响、实用主义和逻辑分析的总体评价不作为学界共识。" },
   { label: "SEP · Civic Humanism", url: "https://plato.stanford.edu/entries/humanism-civic/", note: "用于校正公民人文主义、共和国自由、公共行动与社会冲突之间的关系，并保留这一史学范畴的争议。" },
   { label: "SEP · Niccolò Machiavelli", url: "https://plato.stanford.edu/archives/fall2022/entries/machiavelli/", note: "用于校正实际效果、virtù、fortuna、权力、民众意见、共和国自由和制度化冲突，避免把《君主论》压成无条件赞美邪恶。" },
   { label: "Machiavelli · The Prince", url: "https://sourcebooks.web.fordham.edu/basis/machiavelli-prince.asp", note: "作为《君主论》文本入口，用于核对新君主、自己的武备、必要、德性表象与政治维持的论述。" },
@@ -2277,4 +2289,8 @@ export const modernProblemSources: ProblemMapSource[] = [
   { label: "SEP · Descartes’ Epistemology", url: "https://plato.stanford.edu/entries/descartes-epistemology/", note: "用于校正方法怀疑、我思的非三段论性质、清楚分明知觉、神圣保证与所谓笛卡尔循环的多种解释。" },
   { label: "Descartes · Meditations on First Philosophy", url: "https://en.wikisource.org/wiki/Meditations_on_First_Philosophy", note: "作为《第一哲学沉思集》公共领域文本入口，用于核对梦、欺骗者、我思、蜡块、错误、物质世界与心物实在区分的论证次序。" },
   ...enlightenmentProblemSources,
+  ...humeProblemSources,
+  ...romanticKantProblemSources,
+  ...idealismWillProblemSources,
+  ...completionProblemSources,
 ];

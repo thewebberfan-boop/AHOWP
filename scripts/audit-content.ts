@@ -166,6 +166,22 @@ if (!publishedProblemMap) {
   chapters.filter((chapter) => berkeleyChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷贝克莱阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const berkeleyPhilosopherIds = new Set(["berkeley"]);
   philosopherProfiles.filter((profile) => berkeleyPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷贝克莱阶段尚未连接人物 ${profile.nameZh}`));
+  const humeChapterIds = new Set(["b3-17"]);
+  chapters.filter((chapter) => humeChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷休谟阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const humePhilosopherIds = new Set(["hume"]);
+  philosopherProfiles.filter((profile) => humePhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷休谟阶段尚未连接人物 ${profile.nameZh}`));
+  const romanticKantChapterIds = new Set(["b3-18", "b3-19", "b3-20"]);
+  chapters.filter((chapter) => romanticKantChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷浪漫主义、卢梭与康德阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const romanticKantPhilosopherIds = new Set(["rousseau", "kant"]);
+  philosopherProfiles.filter((profile) => romanticKantPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷浪漫主义、卢梭与康德阶段尚未连接人物 ${profile.nameZh}`));
+  const idealismWillChapterIds = new Set(["b3-21", "b3-22", "b3-23", "b3-24", "b3-25"]);
+  chapters.filter((chapter) => idealismWillChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷十九世纪思潮至尼采阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const idealismWillPhilosopherIds = new Set(["hegel", "byron", "schopenhauer", "nietzsche"]);
+  philosopherProfiles.filter((profile) => idealismWillPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷十九世纪思潮至尼采阶段尚未连接人物 ${profile.nameZh}`));
+  const completionChapterIds = new Set(["b3-26", "b3-27", "b3-28", "b3-29", "b3-30", "b3-31"]);
+  chapters.filter((chapter) => completionChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷功利主义至逻辑分析阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const completionPhilosopherIds = new Set(["bentham", "mill", "marx", "bergson", "william-james", "dewey", "frege", "russell"]);
+  philosopherProfiles.filter((profile) => completionPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷功利主义至逻辑分析阶段尚未连接人物 ${profile.nameZh}`));
 
   duplicates(problemDensityOptions.map((option) => option.id)).forEach((id) => error(`问题图谱存在重复密度档位 ${id}`));
   if (problemDensityOptions.length !== 5) error(`问题图谱密度档位应为 5 档，实际为 ${problemDensityOptions.length} 档`);

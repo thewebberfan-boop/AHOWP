@@ -87,6 +87,17 @@ export const problemFamilies: ProblemFamily[] = [
       "monads-as-active-perspectival-unities",
       "primary-structures-secondary-powers-distinction",
       "ordinary-objects-as-stable-idea-combinations",
+      "necessary-connection-as-customary-transition",
+      "organic-living-nature-as-romantic-countermodel",
+      "space-time-a-priori-forms-of-intuition",
+      "causality-as-condition-of-objective-succession",
+      "reflective-judgment-purposiveness-without-proof",
+      "objective-idealism-reason-immanent-in-world",
+      "will-as-nonpersonal-striving-across-nature",
+      "pessimism-from-endless-willing",
+      "production-relations-structure-recurrent-harms",
+      "duration-as-qualitative-interpenetration",
+      "creative-evolution-marks-novelty-not-scientific-replacement",
     ],
   },
   {
@@ -128,6 +139,26 @@ export const problemFamilies: ProblemFamily[] = [
       "substance-as-unknown-support-and-real-essence",
       "material-substratum-adds-no-experiential-content",
       "direct-idea-world-with-notions-of-spirit",
+      "relations-of-ideas-and-matters-of-fact",
+      "uniformity-defense-circular-or-nondemonstrative",
+      "custom-naturally-sustains-calibrated-expectation",
+      "mitigated-scepticism-limits-and-corrects-inquiry",
+      "can-objective-experience-have-necessity-beyond-habit",
+      "romantic-critique-synthesizes-reason-and-sensibility",
+      "copernican-turn-objects-conform-to-cognition",
+      "categories-and-apperception-unify-experience",
+      "knowledge-limited-to-phenomena-not-private-illusion",
+      "ideas-regulative-not-constitutive-knowledge",
+      "can-subject-object-nature-freedom-unify-historically",
+      "dialectic-is-immanent-not-fixed-triad",
+      "historical-direction-is-diagnostic-not-guarantee",
+      "genealogy-links-origin-function-affect-effect",
+      "perspectivism-compares-situated-interpretations",
+      "truth-grows-through-verification-and-reality-constraint",
+      "warranted-assertibility-through-disciplined-inquiry",
+      "frege-quantification-function-argument-logic",
+      "descriptions-as-quantified-incomplete-symbols",
+      "analysis-works-with-relative-simplicity",
     ],
   },
   {
@@ -164,6 +195,23 @@ export const problemFamilies: ProblemFamily[] = [
       "personhood-through-conscious-appropriation",
       "ideas-passive-spirits-active-god-orders-sense",
       "can-spirit-cause-and-self-survive-strict-experience-test",
+      "self-as-bundle-and-succession-of-perceptions",
+      "association-explains-identity-fiction-not-full-unity",
+      "liberty-as-action-according-to-will",
+      "bildung-creative-individuality-within-relations",
+      "amour-propre-can-be-inflamed-or-egalitarian",
+      "negative-education-protects-developmental-agency",
+      "autonomy-as-rational-self-legislation",
+      "two-standpoints-natural-causality-practical-freedom",
+      "mutual-recognition-constitutes-social-selfhood",
+      "asymmetric-recognition-undermines-itself",
+      "desire-reveals-will-before-rational-purpose",
+      "affirmation-revalues-suffering-without-worshipping-it",
+      "will-to-power-as-overcoming-and-organization-contested",
+      "higher-pleasures-and-competent-judges",
+      "free-act-expresses-whole-developing-self",
+      "radical-empiricism-includes-experienced-relations",
+      "experience-as-organism-environment-transaction",
     ],
   },
   {
@@ -200,6 +248,24 @@ export const problemFamilies: ProblemFamily[] = [
       "natural-law-rights-precede-government",
       "fiduciary-government-and-separated-powers",
       "toleration-follows-limited-civil-ends",
+      "stable-character-links-action-and-attribution",
+      "social-pact-creates-equal-citizen-sovereign",
+      "general-will-aims-common-interest-not-sum",
+      "laws-from-all-apply-to-all-under-equality",
+      "civil-freedom-as-nondomination-with-authoritarian-risk",
+      "categorical-imperative-universal-law",
+      "humanity-as-end-and-kingdom-of-ends",
+      "institutions-mediate-capabilities-recognition-right",
+      "ethical-life-mediates-family-civil-society-state",
+      "actuality-is-critical-standard-not-fact-worship",
+      "responsible-rebellion-links-courage-solidarity-limits",
+      "compassion-crosses-principium-individuationis",
+      "revaluation-tests-creative-flourishing-with-political-risk",
+      "rights-and-rules-secure-long-run-utility",
+      "harm-principle-protects-experiments-in-living",
+      "alienation-separates-product-activity-capacity-others",
+      "democracy-as-associated-life-and-public-inquiry",
+      "public-inquiry-needs-institutions-and-counterpower",
     ],
   },
   {
@@ -239,6 +305,13 @@ export const problemFamilies: ProblemFamily[] = [
       "best-compossible-world-as-choice-reason",
       "evil-permitted-not-good-in-itself",
       "divine-perception-and-natural-signs-preserve-order",
+      "proportion-belief-to-total-evidence",
+      "ideas-regulative-not-constitutive-knowledge",
+      "freedom-practical-postulate-not-theoretical-object",
+      "death-of-god-opens-nihilism-crisis",
+      "overcoming-nihilism-requires-revaluation-not-substitute-idol",
+      "private-experience-permits-commitment-not-universal-proof",
+      "how-combine-clarity-history-experience-freedom-public-correction",
     ],
   },
 ];
@@ -278,6 +351,21 @@ export const problemPhaseHistoryStageIds: Record<string, string> = {
   "locke-experience-ideas-knowledge-identity": "early-modern",
   "locke-rights-property-trust-influence": "early-modern",
   "berkeley-ideas-spirits-immaterialism": "early-modern",
+  "hume-impressions-causation-self-scepticism": "early-modern",
+  "romanticism-reason-nature-individuality": "revolution-idealism",
+  "rousseau-inequality-education-general-will": "revolution-idealism",
+  "kant-experience-autonomy-judgment": "revolution-idealism",
+  "nineteenth-century-history-system-reaction": "revolution-idealism",
+  "hegel-dialectic-recognition-ethical-life-history": "revolution-idealism",
+  "byron-romantic-rebellion-individuality": "revolution-idealism",
+  "schopenhauer-representation-will-suffering-release": "revolution-idealism",
+  "nietzsche-genealogy-nihilism-revaluation": "industrial-modern",
+  "utilitarianism-welfare-liberty-reform": "industrial-modern",
+  "marx-production-alienation-capital-practice": "industrial-modern",
+  "bergson-duration-memory-intuition-creation": "industrial-modern",
+  "james-pragmatism-truth-belief-pluralism": "industrial-modern",
+  "dewey-inquiry-education-democracy": "industrial-modern",
+  "logical-analysis-logic-language-structure": "industrial-modern",
 };
 
 export type ProblemBoundaryNote = {
@@ -434,6 +522,182 @@ export const problemBoundaryNotes: Record<string, ProblemBoundaryNote[]> = {
     label: "论证边界",
     note: "由观念被动、感觉非自愿和秩序复杂到主动精神及上帝的推理需要额外前提；图谱保留其体系功能，不把它写成经验来源原则无争议的直接结论。",
   }],
+  "simple-ideas-copy-impressions-source-test": [{
+    label: "方法边界",
+    note: "复制原则主要审查简单观念的经验来源；休谟本人随即承认‘缺失蓝色阴影’这一罕见反例，因此不能把它机械化为毫无例外的意义判决程序。",
+  }],
+  "necessary-connection-as-customary-transition": [{
+    label: "解释边界",
+    note: "习惯是重复经验引起的非自愿心理倾向，不是懒惰、随意联想或拒绝科学训练。休谟是否进一步否认客观因果力量，仍有怀疑主义与因果实在论等竞争解释。",
+  }],
+  "self-as-bundle-and-succession-of-perceptions": [{
+    label: "理论边界",
+    note: "‘知觉束’不是已无代价解决人格同一。休谟在《人性论》附录中明确承认自己的说明仍有困难；图谱区分同一信念的心理生成与主体统一的完整理论。",
+  }],
+  "proportion-belief-to-total-evidence": [{
+    label: "证据边界",
+    note: "休谟的奇迹论证比较见证错误与事件违反稳定经验的相对证据，不是以定义宣布所有异常事件逻辑不可能；其概率框架和具体历史判断仍可被批评。",
+  }],
+  "mitigated-scepticism-limits-and-corrects-inquiry": [{
+    label: "常见误读",
+    note: "缓和怀疑不是停止生活、科学或一切断言，而是承认自然信念不可避免，同时让判断按证据强弱、反例和人类理解力范围保持克制。",
+  }],
+  "romantic-critique-synthesizes-reason-and-sensibility": [{
+    label: "时代边界",
+    note: "浪漫主义不是成员持同一学说的单一反理性阵营；许多路线继承自主批判，同时扩展感性、想象、历史意识和审美判断的地位。",
+  }],
+  "organic-living-nature-as-romantic-countermodel": [{
+    label: "方法边界",
+    note: "有机自然是对机械还原的反模型，不会自动取代物理因果、实验和测量；从生命组织推广到宇宙目的或人格化自然还需要额外论证。",
+  }],
+  "conjectural-genealogy-of-property-law-inequality": [{
+    label: "历史边界",
+    note: "卢梭的自然状态与不平等生成是批判现存制度的猜想性历史，不是有档案可逐阶段验证的史前编年，也不要求现实回到孤立自然状态。",
+  }],
+  "amour-propre-can-be-inflamed-or-egalitarian": [{
+    label: "概念边界",
+    note: "amour-propre 不只是虚荣：它会被地位竞争煽动，也可能在平等制度与教育中转成相互尊重的要求；不能与自我保存的 amour de soi 混为一谈。",
+  }],
+  "general-will-aims-common-interest-not-sum": [{
+    label: "制度边界",
+    note: "公意指向共同利益，不等于私人意见的简单总和、一次多数票或领袖自称代表整体；它还依赖法律由全体制定并普遍适用、相对平等和公民判断等条件。",
+  }],
+  "civil-freedom-as-nondomination-with-authoritarian-risk": [{
+    label: "权利边界",
+    note: "‘迫使自由’只有在公民同等参与共同法律且强制阻止私人支配时才可能成立；现实中的代表垄断、异议压制与不平等会使它迅速滑向威权正当化。",
+  }],
+  "categories-and-apperception-unify-experience": [{
+    label: "主体边界",
+    note: "先验统觉说明表象必须能够属于同一判断主体，不是对灵魂实体、永恒人格或可脱离身体自我的理论证明。",
+  }],
+  "knowledge-limited-to-phenomena-not-private-illusion": [{
+    label: "常见误读",
+    note: "康德限制知识于现象，不等于个人心灵任意创造或幻想世界；现象世界在共同的时空与范畴条件下具有经验实在性，可被公共检验与纠错。",
+  }],
+  "two-standpoints-natural-causality-practical-freedom": [{
+    label: "论证边界",
+    note: "自然因果与实践自由的两种立场旨在避免矛盾，并不等于理论上观察或证明了超经验自由怎样产生经验效果。",
+  }],
+  "historical-direction-is-diagnostic-not-guarantee": [{
+    label: "历史边界",
+    note: "把历史按自由意识和制度形式比较，不表示年代较晚、军事胜利或国家成功天然更合理；倒退、并行可能和不可补偿损失必须保留。",
+  }],
+  "post-kantian-programs-share-pressure-not-destiny": [{
+    label: "谱系边界",
+    note: "费希特、谢林、早期浪漫派与黑格尔共享后康德问题，却没有共同命定的黑格尔式终点；图谱连接的是压力与回应，不是单线师承。",
+  }],
+  "dialectic-is-immanent-not-fixed-triad": [{
+    label: "常见误读",
+    note: "黑格尔辩证法不能机械化成到处套用的‘正题—反题—合题’口诀；推进必须说明一种规定如何因自身承诺而失败，以及新规定保存了什么。",
+  }],
+  "asymmetric-recognition-undermines-itself": [{
+    label: "文本边界",
+    note: "主人—奴隶段落首先是《精神现象学》中的自我意识图式，不等于对某一具体奴隶制度、全部劳动史或革命必然性的完整经验叙述。",
+  }],
+  "actuality-is-critical-standard-not-fact-worship": [{
+    label: "政治边界",
+    note: "‘现实的即合理的’不应读成凡存在者皆正当；但区分 Wirklichkeit 与偶然存在也不能抹去黑格尔具体国家论中的保守安排和权力风险。",
+  }],
+  "totality-must-remain-answerable-to-unreconciled-lives": [{
+    label: "重构边界",
+    note: "让整体持续回应未调和生命带有后世批判理论的修复方向，不等于黑格尔文本已经完整接受这一限制，也不替罗素的整体主义批评背书。",
+  }],
+  "byronic-figure-exposes-conformity-without-system": [{
+    label: "人物边界",
+    note: "拜伦在哲学史中的功能是文化人格、文学问题和政治情感，不是拥有与黑格尔同类的封闭体系；作品角色、叙述者、作者生平与后世‘拜伦式英雄’必须分开。",
+  }],
+  "charisma-mobilizes-but-cannot-legitimate-rule": [{
+    label: "政治边界",
+    note: "诗人名望与英雄魅力能够动员声援，却不自动产生代表权、统治正当性或对当地行动者的解释优先权。",
+  }],
+  "world-double-aspect-representation-and-will": [{
+    label: "论证边界",
+    note: "从身体的内外双重经验到‘意志是物自身’，再推广到全部自然，包含有争议的形而上学类推；不能把它当作康德结论或现代物理学发现。",
+  }],
+  "pessimism-is-metaphysical-evaluation-not-measurement": [{
+    label: "价值边界",
+    note: "叔本华的悲观主义不是统计快乐与痛苦后得到的中性测量；从欲求结构到生命不值得肯定仍依赖可争论的价值前提。",
+  }],
+  "asian-thought-selectively-reconstructed-in-european-system": [{
+    label: "跨传统边界",
+    note: "叔本华经十九世纪欧洲译介选择性吸收印度思想，不能直接称作‘西方佛教’或用其意志本体替代佛教无我、业与具体修行传统。",
+  }],
+  "death-of-god-opens-nihilism-crisis": [{
+    label: "常见误读",
+    note: "‘上帝死了’主要诊断最高价值的文化根据失效及其延迟后果，不是关于神发生生物学死亡的断言，也不表示所有宗教实践在同一时刻消失。",
+  }],
+  "genealogy-links-origin-function-affect-effect": [{
+    label: "方法边界",
+    note: "谱系不应由一个价值的偶然或不体面起源直接推出其现在为假；它还必须追踪功能转移、情感训练和现实效果，并接受具体历史证据校正。",
+  }],
+  "ressentiment-creates-reactive-good-evil": [{
+    label: "政治边界",
+    note: "ressentiment 类型学不能把所有受压者诉求、平等原则或关怀伦理一律病理化，也不能因贵族价值具有主动性就替暴力和支配免责。",
+  }],
+  "perspectivism-compares-situated-interpretations": [{
+    label: "认识边界",
+    note: "视角主义反对无位置的上帝视角，不等于所有解释同样正确；证据阻力、解释范围、容纳更多视角和自我校正仍构成比较条件。",
+  }],
+  "will-to-power-as-overcoming-and-organization-contested": [{
+    label: "概念边界",
+    note: "权力意志不只等于政治统治欲，可指驱力克服阻力与组织能力；其究竟是心理学、价值论还是形而上学主张仍有竞争解释。",
+  }],
+  "eternal-recurrence-as-affirmation-test-not-proven-cosmology": [{
+    label: "解释边界",
+    note: "永恒轮回可作为生命肯定测试，但尼采是否主张并证明了字面宇宙循环仍有争议；图谱不把它写成现代宇宙学事实。",
+  }],
+  "nietzsche-not-nazi-but-political-dangers-remain": [{
+    label: "接受史边界",
+    note: "尼采反民族主义、反反犹主义，且遭妹妹和纳粹选择性挪用，因此不能直接等同纳粹；其贵族主义、反平等和残酷表达仍属于文本自身，不能全部推给误读。",
+  }],
+  "felicific-calculus-as-revisable-comparison": [{
+    label: "方法边界",
+    note: "边沁的快乐维度可迫使改革者公开比较后果，但不是能把所有体验无误换算为单一数字的心理仪器；不确定性、分配与遗漏利益必须另行处理。",
+  }],
+  "harm-principle-protects-experiments-in-living": [{
+    label: "自由边界",
+    note: "伤害原则不能由‘我不喜欢’直接触发，也不表示自涉与涉他行动总能机械分开；依赖、操纵、公共风险和累积后果仍需具体制度判断。",
+  }],
+  "historical-materialism-constrains-without-mechanical-determinism": [{
+    label: "常见误读",
+    note: "历史唯物主义强调生产与物质生活条件，不等于经济变量单向决定法律、政治和文化；人的组织、观念、冲突与偶然仍参与历史结果。",
+  }],
+  "marx-legacy-needs-text-institution-outcome-separation": [{
+    label: "接受史边界",
+    note: "后继威权政权不能直接充当马克思每项论证的必然推论，也不能与其思想完全切断；应分别检验文本承诺、制度欠说明、组织选择和具体历史后果。",
+  }],
+  "intuition-enters-process-analysis-still-needed": [{
+    label: "方法边界",
+    note: "柏格森的直觉不是无证据灵感，而是改变注意方式以进入过程；它仍需分析、表达和公共校正，也不能替代实验科学。",
+  }],
+  "creative-evolution-marks-novelty-not-scientific-replacement": [{
+    label: "科学边界",
+    note: "生命冲力和创造进化强调不可预成的新颖性，不能写成已获现代生物学证实的机制，更不能用来取消自然选择与实验研究。",
+  }],
+  "truth-grows-through-verification-and-reality-constraint": [{
+    label: "常见误读",
+    note: "詹姆斯没有主张‘任何对我有用的信念都是真的’；验证、对象阻力、既有知识协调和后续纠错共同限制可依赖的真观念。",
+  }],
+  "will-to-believe-bounded-live-forced-momentous-options": [{
+    label: "适用边界",
+    note: "信仰意志只针对真实可活、无法回避、意义重大且证据暂不能决定的选项，不为任意事实愿望、公共谣言或拒绝反证提供许可。",
+  }],
+  "education-guides-experience-toward-growth": [{
+    label: "教育边界",
+    note: "杜威的‘做中学’不是取消教师、课程和知识结构；活动必须由环境设计、学科资源和反思引导，才能增加继续探究的能力。",
+  }],
+  "democracy-as-associated-life-and-public-inquiry": [{
+    label: "制度边界",
+    note: "把民主理解为联合生活并不降低选举、权利和制衡的重要性；开放沟通本身也会受资源不平等、专家垄断和媒体权力扭曲。",
+  }],
+  "frege-quantification-function-argument-logic": [{
+    label: "史学边界",
+    note: "弗雷格对现代量化逻辑影响巨大，但其原始记号与今日谓词逻辑并不相同，现代逻辑的形成也包括布尔、德摩根、皮尔士等人的并行贡献。",
+  }],
+  "analysis-works-with-relative-simplicity": [{
+    label: "方法边界",
+    note: "逻辑分析不必保证发现绝对简单的世界原子；相对简单性足以支持特定重构，但形式清晰不能单独裁决经验事实、历史因果或规范价值。",
+  }],
 };
 
 export type ProblemComparisonFan = {
@@ -485,5 +749,11 @@ export const problemComparisonFans: ProblemComparisonFan[] = [
     label: "四种人工秩序构造接口",
     note: "身体运动、语言定义、自然状态压力测试和授权人工人格分别处理行动者、推理、风险与共同权力；四者是体系层次，不是从机械论一步推出绝对君主。",
     answerIds: ["sensation-imagination-passions-as-bodily-motion", "names-definitions-reasoning-as-reckoning", "competition-diffidence-glory-create-war-disposition", "mutual-covenant-authorizes-artificial-person"],
+  },
+  {
+    questionId: "how-can-subject-loosen-service-to-will",
+    label: "三种松脱意志的实践路线",
+    note: "审美静观、同情行动和禁欲否定分别提供暂时注意转换、伦理去利己与更彻底退出欲望循环；它们强度不同，也承担不同代价。",
+    answerIds: ["aesthetic-contemplation-suspends-personal-striving", "compassion-crosses-principium-individuationis", "ascetic-negation-reduces-will-to-life"],
   },
 ];

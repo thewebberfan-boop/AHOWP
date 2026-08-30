@@ -34,13 +34,17 @@ test("server-renders the learning entrance", async () => {
 });
 
 test("keeps the complete philosopher, school, and problem graphs in the project", async () => {
-  const [page, styles, problemMap, problemData, modernProblemData, enlightenmentProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, styles, problemMap, problemData, modernProblemData, enlightenmentProblemData, humeProblemData, romanticKantProblemData, idealismWillProblemData, completionProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("app/problem-map.tsx", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-modern-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-enlightenment-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-hume-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-romantic-kant-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-idealism-will-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-completion-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-view-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
@@ -116,12 +120,12 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemData, /public-disagreement-observation/);
   assert.match(problemData, /eventId: "athenian-democracy"/);
   assert.match(problemData, /type ProblemRelationKind = "提出问题" \| "回应问题" \| "产生问题"/);
-  assert.match(problemData, /从多样与变化到权利、观念与感知世界/);
+  assert.match(problemData, /从多样与变化到实践、经验与逻辑分析/);
   assert.match(problemData, /历史回应/);
   assert.match(problemData, /本站推演/);
   assert.match(problemData, /philosopherId: "plato"/);
   assert.match(problemData, /"b1-18"/);
-  assert.match(problemMap, /泰勒斯 → 贝克莱/);
+  assert.match(problemMap, /泰勒斯 → 罗素/);
   assert.match(problemData, /reason-or-divine-aid/);
   assert.match(problemData, /can-salvation-community-survive-empire/);
   assert.match(problemData, /who-reforms-preserving-church/);
@@ -165,8 +169,37 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(enlightenmentProblemData, /locke-rights-property-trust-influence/);
   assert.match(enlightenmentProblemData, /berkeley-ideas-spirits-immaterialism/);
   assert.match(enlightenmentProblemData, /can-spirit-cause-and-self-survive-strict-experience-test/);
+  assert.match(humeProblemData, /hume-impressions-causation-self-scepticism/);
+  assert.match(humeProblemData, /necessary-connection-as-customary-transition/);
+  assert.match(humeProblemData, /self-as-bundle-and-succession-of-perceptions/);
+  assert.match(humeProblemData, /mitigated-scepticism-limits-and-corrects-inquiry/);
+  assert.match(humeProblemData, /can-objective-experience-have-necessity-beyond-habit/);
+  assert.match(romanticKantProblemData, /romanticism-reason-nature-individuality/);
+  assert.match(romanticKantProblemData, /rousseau-inequality-education-general-will/);
+  assert.match(romanticKantProblemData, /kant-experience-autonomy-judgment/);
+  assert.match(romanticKantProblemData, /general-will-aims-common-interest-not-sum/);
+  assert.match(romanticKantProblemData, /causality-as-condition-of-objective-succession/);
+  assert.match(romanticKantProblemData, /autonomy-as-rational-self-legislation/);
+  assert.match(romanticKantProblemData, /can-subject-object-nature-freedom-unify-historically/);
+  assert.match(idealismWillProblemData, /nineteenth-century-history-system-reaction/);
+  assert.match(idealismWillProblemData, /hegel-dialectic-recognition-ethical-life-history/);
+  assert.match(idealismWillProblemData, /byron-romantic-rebellion-individuality/);
+  assert.match(idealismWillProblemData, /schopenhauer-representation-will-suffering-release/);
+  assert.match(idealismWillProblemData, /nietzsche-genealogy-nihilism-revaluation/);
+  assert.match(idealismWillProblemData, /dialectic-is-immanent-not-fixed-triad/);
+  assert.match(idealismWillProblemData, /world-double-aspect-representation-and-will/);
+  assert.match(idealismWillProblemData, /genealogy-links-origin-function-affect-effect/);
+  assert.match(idealismWillProblemData, /can-created-values-be-judged-by-shared-consequences/);
+  assert.match(completionProblemData, /utilitarianism-welfare-liberty-reform/);
+  assert.match(completionProblemData, /marx-production-alienation-capital-practice/);
+  assert.match(completionProblemData, /bergson-duration-memory-intuition-creation/);
+  assert.match(completionProblemData, /james-pragmatism-truth-belief-pluralism/);
+  assert.match(completionProblemData, /dewey-inquiry-education-democracy/);
+  assert.match(completionProblemData, /logical-analysis-logic-language-structure/);
+  assert.match(completionProblemData, /how-combine-clarity-history-experience-freedom-public-correction/);
   assert.match(problemViewData, /how-should-christian-society-be-reformed/);
-  assert.match(spec, /556 个节点和 659 条边/);
+  assert.match(problemViewData, /how-can-subject-loosen-service-to-will/);
+  assert.match(spec, /826 个节点和 947 条边/);
   assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);
