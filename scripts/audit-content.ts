@@ -150,6 +150,22 @@ if (!publishedProblemMap) {
   chapters.filter((chapter) => hobbesChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷霍布斯阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
   const hobbesPhilosopherIds = new Set(["hobbes"]);
   philosopherProfiles.filter((profile) => hobbesPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷霍布斯阶段尚未连接人物 ${profile.nameZh}`));
+  const descartesChapterIds = new Set(["b3-09"]);
+  chapters.filter((chapter) => descartesChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷笛卡尔阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const descartesPhilosopherIds = new Set(["descartes"]);
+  philosopherProfiles.filter((profile) => descartesPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷笛卡尔阶段尚未连接人物 ${profile.nameZh}`));
+  const laterRationalistChapterIds = new Set(["b3-10", "b3-11"]);
+  chapters.filter((chapter) => laterRationalistChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷后续理性主义阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const laterRationalistPhilosopherIds = new Set(["spinoza", "leibniz"]);
+  philosopherProfiles.filter((profile) => laterRationalistPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷后续理性主义阶段尚未连接人物 ${profile.nameZh}`));
+  const lockeChapterIds = new Set(["b3-12", "b3-13", "b3-14", "b3-15"]);
+  chapters.filter((chapter) => lockeChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷洛克与自由主义阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const lockePhilosopherIds = new Set(["locke"]);
+  philosopherProfiles.filter((profile) => lockePhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷洛克与自由主义阶段尚未连接人物 ${profile.nameZh}`));
+  const berkeleyChapterIds = new Set(["b3-16"]);
+  chapters.filter((chapter) => berkeleyChapterIds.has(chapter.id) && !coveredChapters.has(chapter.id)).forEach((chapter) => error(`第三卷贝克莱阶段尚未覆盖章节 ${chapter.id} ${chapter.title}`));
+  const berkeleyPhilosopherIds = new Set(["berkeley"]);
+  philosopherProfiles.filter((profile) => berkeleyPhilosopherIds.has(profile.id) && !participatingPhilosophers.has(profile.id)).forEach((profile) => error(`第三卷贝克莱阶段尚未连接人物 ${profile.nameZh}`));
 
   duplicates(problemDensityOptions.map((option) => option.id)).forEach((id) => error(`问题图谱存在重复密度档位 ${id}`));
   if (problemDensityOptions.length !== 5) error(`问题图谱密度档位应为 5 档，实际为 ${problemDensityOptions.length} 档`);

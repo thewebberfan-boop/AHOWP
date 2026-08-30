@@ -32,8 +32,10 @@ const NODE_COMPACT_HEIGHT = 82;
 const NODE_TITLE_LINE_HEIGHT = 19;
 const GRAPH_TOP = 58;
 const GRAPH_LEFT = 48;
+const GRAPH_RIGHT = 48;
+const MAX_GRAPH_LANE = 4.7;
 const ROW_GAP = 132;
-const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT * 2 - NODE_WIDTH) / 4;
+const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT - NODE_WIDTH) / MAX_GRAPH_LANE;
 const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
@@ -314,7 +316,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       return phase && problemPhaseHistoryStageIds[phase.id] === stage.id;
     });
     if (!stageNodes.length) return null;
-    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - 30;
+    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - 52;
     const bottom = Math.max(...stageNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id)))) + 28;
     return { stage, top, height: bottom - top };
   }).filter((band): band is NonNullable<typeof band> => Boolean(band)), [collapsedChainByLeaderId, displayNodes, graphPoints, phaseByNodeId]);
@@ -384,6 +386,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     window.localStorage.setItem(DENSITY_STORAGE_KEY, nextDensity);
   };
 
+  const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
+
   useEffect(() => {
     const savedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY) as ProblemDensityId | null;
     if (!savedDensity || !problemDensityOptions.some((option) => option.id === savedDensity)) return;
@@ -410,7 +414,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <blockquote>{map.thesis}</blockquote>
       </div>
       <aside className="problem-map-facts">
-        <div><span>当前范围</span><b>泰勒斯 → 霍布斯</b></div>
+        <div><span>当前范围</span><b>泰勒斯 → 贝克莱</b></div>
         <div><span>节点语法</span><b>观察 · 问题 · 答案</b></div>
         <div><span>原子节点</span><b>{allNodes.length} 个</b></div>
         <div><span>关系连线</span><b>{map.edges.length} 条</b></div>
@@ -419,34 +423,36 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
     <aside className="problem-map-boundary"><span>阅读边界</span><p>{map.scopeNote}</p></aside>
 
-    <section className="problem-graph-intro" aria-label="图谱语法">
-      <div className="problem-node-legend">
-        {(Object.keys(kindEnglish) as ProblemNodeKind[]).map((kind) => <span className={`kind-${kind}`} key={kind}><i aria-hidden="true" />{kind}<small>{kindEnglish[kind]}</small></span>)}
+    <section className="problem-map-controls" aria-label="图谱图例与组织尺度">
+      <div className="problem-control-legends">
+        <div className="problem-control-legend" aria-label="节点类型">
+          <span className="problem-control-label">节点</span>
+          {(Object.keys(kindEnglish) as ProblemNodeKind[]).map((kind) => <span className={`problem-control-token kind-${kind}`} data-tooltip={`${kindEnglish[kind]}：${kind === "观察" ? "记录使问题出现的经验、实践或历史条件。" : kind === "问题" ? "明确尚待回答的解释压力。" : "对问题提出的区分、反驳、修复或综合。"}`} key={kind}><i aria-hidden="true" />{kind}</span>)}
+        </div>
+        <div className="problem-control-legend" aria-label="关系类型">
+          <span className="problem-control-label">箭头</span>
+          {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span className="problem-control-token relation" data-tooltip={`${relationEnglish[relation]}：${problemRelationNotes[relation]}`} key={relation}><i aria-hidden="true" />{relation}</span>)}
+        </div>
       </div>
-      <div className="problem-relation-legend">
-        {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span key={relation} title={problemRelationNotes[relation]}><b>{relation}</b><small>{relationEnglish[relation]}</small></span>)}
+      <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
+        <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>
+        <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
+        <div aria-hidden="true">{problemDensityOptions.map((option) => <span className={option.id === density ? "active" : ""} key={option.id}>{option.label}</span>)}</div>
       </div>
-      <p>箭头表示问题如何被提出、回应和再次生成；压缩档位只改变呈现，不删除原子节点或稳定 ID。</p>
+      <div className="problem-focus-controls" role="group" aria-label="局部聚焦范围" data-tooltip="只显示当前节点前后的一跳或两跳关系；可随时返回完整图谱。">
+        <span>局部</span>
+        <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
+        <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
+        {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
+      </div>
     </section>
 
-    <section className="problem-density-panel" aria-label="图谱信息密度">
-      <header><div><p className="section-label">READING DENSITY</p><h3>选择问题图谱的组织尺度</h3></div><span>{focusDepth ? `局部 ${focusDepth} 跳 · ` : ""}{displayNodes.length}／{allNodes.length} 个节点</span></header>
-      <div className="problem-density-options" role="group" aria-label="信息密度档位">
-        {problemDensityOptions.map((option) => <button type="button" className={density === option.id ? "active" : ""} aria-pressed={density === option.id} onClick={() => changeDensity(option.id)} key={option.id}><b>{option.label}</b><small>{option.english}</small></button>)}
-      </div>
-      <div className="problem-density-description"><b>{densityOption.label}模式</b><p>{densityOption.description}</p><small>当前显示 {displayNodes.length}／{allNodes.length} 个节点{allNodes.length > displayNodes.length ? `，隐藏或折叠 ${allNodes.length - displayNodes.length} 个` : "，未隐藏节点"}。</small></div>
-      {density === "guide" && <div className="problem-family-legend">{problemFamilies.map((family) => <article key={family.id}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small><p>{family.description}</p></article>)}</div>}
-    </section>
+    {density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
     <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
           <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
-          <div className="problem-graph-actions" role="group" aria-label="局部聚焦范围">
-            <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
-            <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
-            {focusDepth ? <button type="button" onClick={() => setFocusDepth(0)}>返回全图</button> : <span>相关节点进入一屏</span>}
-          </div>
         </header>
 
         <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
@@ -460,7 +466,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
             <g className="problem-graph-phases">
               {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title}`} onClick={() => onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id); } }} key={band.stage.id}>
                 <rect className={index % 2 ? "phase-even" : "phase-odd"} x="0" y={band.top} width={GRAPH_WIDTH} height={band.height} />
-                <text x="14" y={band.top + 16}>{band.stage.title}<tspan x="14" dy="12">{band.stage.years}</tspan></text>
+                <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
+                <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
               </g>)}
             </g>
 
@@ -557,11 +564,5 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       </aside>
     </section>
 
-    <section className="problem-map-sources">
-      <header><p className="section-label">SOURCES & RECONSTRUCTION</p><h3>原书骨架、现代校正与本站推演分开保存</h3></header>
-      <div>{map.sources.map((source) => source.url
-        ? <a href={source.url} target="_blank" rel="noreferrer" key={source.label}><b>{source.label}</b><p>{source.note}</p><span>打开来源 ↗</span></a>
-        : <article key={source.label}><b>{source.label}</b><p>{source.note}</p><span>项目内原书</span></article>)}</div>
-    </section>
   </article>;
 }

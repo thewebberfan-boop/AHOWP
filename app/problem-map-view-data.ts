@@ -80,6 +80,13 @@ export const problemFamilies: ProblemFamily[] = [
       "causes-and-works-connect-light-fruit-and-power",
       "sensation-imagination-passions-as-bodily-motion",
       "mechanism-constrains-but-does-not-deduce-authority",
+      "intellect-judges-extension-beyond-sense-image",
+      "matter-as-extension-mechanical-order",
+      "one-substance-god-or-nature",
+      "attributes-and-modes-articulate-one-nature",
+      "monads-as-active-perspectival-unities",
+      "primary-structures-secondary-powers-distinction",
+      "ordinary-objects-as-stable-idea-combinations",
     ],
   },
   {
@@ -112,6 +119,15 @@ export const problemFamilies: ProblemFamily[] = [
       "first-vintage-remains-provisional-not-algorithmic",
       "names-definitions-reasoning-as-reckoning",
       "made-commonwealth-supports-conditional-civil-science",
+      "methodic-doubt-suspends-uncertain-beliefs",
+      "cogito-performed-certainty",
+      "clear-distinct-perception-provisional-rule",
+      "truths-of-reason-fact-and-possible-worlds",
+      "sensation-and-reflection-supply-idea-materials",
+      "knowledge-as-agreement-probability-for-practice",
+      "substance-as-unknown-support-and-real-essence",
+      "material-substratum-adds-no-experiential-content",
+      "direct-idea-world-with-notions-of-spirit",
     ],
   },
   {
@@ -138,6 +154,16 @@ export const problemFamilies: ProblemFamily[] = [
       "law-reveals-incapacity-grace-creates-will",
       "sensation-imagination-passions-as-bodily-motion",
       "self-preservation-and-protection-bound-obedience",
+      "thinking-thing-before-body",
+      "thought-extension-real-distinction",
+      "mind-body-union-lived-not-mechanically-resolved",
+      "can-two-created-substances-fit-one-intelligible-nature",
+      "mind-body-parallel-expression",
+      "conatus-and-adequate-understanding-increase-agency",
+      "apperception-builds-conscious-continuity",
+      "personhood-through-conscious-appropriation",
+      "ideas-passive-spirits-active-god-orders-sense",
+      "can-spirit-cause-and-self-survive-strict-experience-test",
     ],
   },
   {
@@ -168,6 +194,12 @@ export const problemFamilies: ProblemFamily[] = [
       "competition-diffidence-glory-create-war-disposition",
       "state-of-nature-tests-absence-of-common-power",
       "mutual-covenant-authorizes-artificial-person",
+      "freedom-of-philosophizing-supports-peace",
+      "civil-ends-limit-coercive-authority",
+      "rights-protect-agency-but-remain-historically-partial",
+      "natural-law-rights-precede-government",
+      "fiduciary-government-and-separated-powers",
+      "toleration-follows-limited-civil-ends",
     ],
   },
   {
@@ -202,6 +234,11 @@ export const problemFamilies: ProblemFamily[] = [
       "division-of-labor-and-salomons-house",
       "sovereign-unifies-law-force-representation",
       "self-preservation-and-protection-bound-obedience",
+      "nondeceiving-god-secures-attended-clear-perceptions",
+      "one-substance-god-or-nature",
+      "best-compossible-world-as-choice-reason",
+      "evil-permitted-not-good-in-itself",
+      "divine-perception-and-natural-signs-preserve-order",
     ],
   },
 ];
@@ -234,6 +271,13 @@ export const problemPhaseHistoryStageIds: Record<string, string> = {
   "mathematized-nature-models-observation": "renaissance-science",
   "bacon-idols-induction-collaborative-discovery": "renaissance-science",
   "hobbes-motion-language-covenant-sovereignty": "early-modern",
+  "descartes-doubt-cogito-mind-body": "early-modern",
+  "spinoza-one-substance-affects-freedom": "early-modern",
+  "leibniz-monads-reasons-possible-worlds": "early-modern",
+  "liberalism-conscience-commerce-limited-power": "early-modern",
+  "locke-experience-ideas-knowledge-identity": "early-modern",
+  "locke-rights-property-trust-influence": "early-modern",
+  "berkeley-ideas-spirits-immaterialism": "early-modern",
 };
 
 export type ProblemBoundaryNote = {
@@ -325,6 +369,70 @@ export const problemBoundaryNotes: Record<string, ProblemBoundaryNote[]> = {
   "self-preservation-and-protection-bound-obedience": [{
     label: "权利边界",
     note: "授权不表示主权者在事实或道德上天然正确。霍布斯保留臣民抵抗直接生命威胁的自由，并使政治义务随保护能力消失而终止；这不是完整的一般革命权。",
+  }],
+  "methodic-doubt-suspends-uncertain-beliefs": [{
+    label: "方法边界",
+    note: "方法怀疑是为重建知识而暂时撤回同意，不是断言外部世界永久不存在，也不等同古代怀疑主义的持续悬置。",
+  }],
+  "cogito-performed-certainty": [{
+    label: "推导边界",
+    note: "我思首先依靠否认行为仍在执行思考的第一人称把握，不宜压成一个依赖预设大前提的普通三段论；它也只直接保证思考当下的存在。",
+  }],
+  "nondeceiving-god-secures-attended-clear-perceptions": [{
+    label: "论证边界",
+    note: "神圣非欺骗保证的范围与所谓“笛卡尔循环”长期有竞争解释；图谱保留这一步在体系中的功能，不把其有效性写成现代研究共识。",
+  }],
+  "thought-extension-real-distinction": [{
+    label: "概念边界",
+    note: "从思维与广延的清楚概念到两者实在区分，需要额外的存在论与神学前提；认识次序上先把握心灵，并不自动证明它能离身存在。",
+  }],
+  "mind-body-union-lived-not-mechanically-resolved": [{
+    label: "解释边界",
+    note: "笛卡尔明确说人不是像船长住在船中那样外在连接身体，并诉诸心身联合经验与生理机制；这些回应仍未给出公认的跨实体互动模型。",
+  }],
+  "one-substance-god-or-nature": [{
+    label: "神学边界",
+    note: "“上帝或自然”不是把自然整体拟人成一个会计划、奖惩和破例的人格神；斯宾诺莎以唯一无限实体重写了传统创造者—受造物区分。",
+  }],
+  "conatus-and-adequate-understanding-increase-agency": [{
+    label: "自由边界",
+    note: "理解必然性不等于消极接受一切现状。充分观念、主动情感、身体能力和共同制度会改变一个人由自身本性行动的程度。",
+  }],
+  "truths-of-reason-fact-and-possible-worlds": [{
+    label: "模态边界",
+    note: "莱布尼茨的可能世界是上帝理智中的完整可相容秩序，不是同时运行、只因观察者位置不同而都称为“现实”的平行宇宙。",
+  }],
+  "best-compossible-world-as-choice-reason": [{
+    label: "价值边界",
+    note: "“最佳可能世界”不表示每个局部事件都好，也不取消受苦者的实践要求；它是关于完整世界比较的神义论主张，论证有效性长期受争议。",
+  }],
+  "rights-protect-agency-but-remain-historically-partial": [{
+    label: "时代边界",
+    note: "早期自由主义提供反专断的权利与同意语言，却没有自动包含今日完整的性别、宗教、种族和经济平等；其殖民及财产语境必须同时保留。",
+  }],
+  "sensation-and-reflection-supply-idea-materials": [{
+    label: "概念边界",
+    note: "洛克反对的是预装的天赋命题和观念内容，不是把心灵写成没有比较、组合、抽象、语言和反省能力的被动空盒。",
+  }],
+  "primary-structures-secondary-powers-distinction": [{
+    label: "科学边界",
+    note: "第一／第二性质区分与洛克接受的微粒机械论相连，不是仅凭内省完成的永恒分类；贝克莱正会质疑第一性质能否脱离感知。",
+  }],
+  "personhood-through-conscious-appropriation": [{
+    label: "解释边界",
+    note: "洛克的人格同一以意识和法责为中心，但不宜简化成一次明确记忆就是同一性的充分必要条件；意识、记忆、实体和归责之间仍有多种解释。",
+  }],
+  "labor-appropriation-proviso-and-money": [{
+    label: "历史边界",
+    note: "劳动取得论必须与不浪费但书、给他人留下足够资源、货币积累以及洛克参与的殖民政治和奴役经济一并审视。",
+  }],
+  "ordinary-objects-as-stable-idea-combinations": [{
+    label: "常见误读",
+    note: "贝克莱否认的是感性对象背后必需一个不可感知的物质基质，并不否认石头、树木、身体、疼痛或公共物理世界的经验真实性。",
+  }],
+  "ideas-passive-spirits-active-god-orders-sense": [{
+    label: "论证边界",
+    note: "由观念被动、感觉非自愿和秩序复杂到主动精神及上帝的推理需要额外前提；图谱保留其体系功能，不把它写成经验来源原则无争议的直接结论。",
   }],
 };
 

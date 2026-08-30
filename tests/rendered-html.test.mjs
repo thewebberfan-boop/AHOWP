@@ -34,12 +34,13 @@ test("server-renders the learning entrance", async () => {
 });
 
 test("keeps the complete philosopher, school, and problem graphs in the project", async () => {
-  const [page, styles, problemMap, problemData, modernProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, styles, problemMap, problemData, modernProblemData, enlightenmentProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("app/problem-map.tsx", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-modern-data.ts", projectRoot), "utf8"),
+    readFile(new URL("app/problem-map-enlightenment-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-view-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/history-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/russell-structure-data.ts", projectRoot), "utf8"),
@@ -92,7 +93,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(styles, /app-mode-problems \.sidebar/);
   assert.match(problemMap, /function ProblemMapView/);
   assert.match(problemMap, /为什么进入图谱/);
-  assert.match(problemMap, /选择问题图谱的组织尺度/);
+  assert.match(problemMap, /图谱图例与组织尺度/);
   assert.match(problemMap, /局部聚焦 · 前后/);
   assert.match(problemMap, /连续论证链/);
   assert.match(problemMap, /并行答案扇面/);
@@ -115,12 +116,12 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemData, /public-disagreement-observation/);
   assert.match(problemData, /eventId: "athenian-democracy"/);
   assert.match(problemData, /type ProblemRelationKind = "提出问题" \| "回应问题" \| "产生问题"/);
-  assert.match(problemData, /从多样与变化到人工人格与主权/);
+  assert.match(problemData, /从多样与变化到权利、观念与感知世界/);
   assert.match(problemData, /历史回应/);
   assert.match(problemData, /本站推演/);
   assert.match(problemData, /philosopherId: "plato"/);
   assert.match(problemData, /"b1-18"/);
-  assert.match(problemMap, /泰勒斯 → 霍布斯/);
+  assert.match(problemMap, /泰勒斯 → 贝克莱/);
   assert.match(problemData, /reason-or-divine-aid/);
   assert.match(problemData, /can-salvation-community-survive-empire/);
   assert.match(problemData, /who-reforms-preserving-church/);
@@ -154,8 +155,18 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(modernProblemData, /mutual-covenant-authorizes-artificial-person/);
   assert.match(modernProblemData, /self-preservation-and-protection-bound-obedience/);
   assert.match(modernProblemData, /what-can-thought-know-when-sense-and-words-mislead/);
+  assert.match(modernProblemData, /descartes-doubt-cogito-mind-body/);
+  assert.match(modernProblemData, /cogito-performed-certainty/);
+  assert.match(modernProblemData, /mind-body-union-lived-not-mechanically-resolved/);
+  assert.match(modernProblemData, /can-two-created-substances-fit-one-intelligible-nature/);
+  assert.match(enlightenmentProblemData, /spinoza-one-substance-affects-freedom/);
+  assert.match(enlightenmentProblemData, /leibniz-monads-reasons-possible-worlds/);
+  assert.match(enlightenmentProblemData, /locke-experience-ideas-knowledge-identity/);
+  assert.match(enlightenmentProblemData, /locke-rights-property-trust-influence/);
+  assert.match(enlightenmentProblemData, /berkeley-ideas-spirits-immaterialism/);
+  assert.match(enlightenmentProblemData, /can-spirit-cause-and-self-survive-strict-experience-test/);
   assert.match(problemViewData, /how-should-christian-society-be-reformed/);
-  assert.match(spec, /452 个节点和 544 条边/);
+  assert.match(spec, /556 个节点和 659 条边/);
   assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);
