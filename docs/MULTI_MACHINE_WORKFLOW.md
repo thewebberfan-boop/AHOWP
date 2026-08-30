@@ -45,6 +45,40 @@ ln -sfn "$runtime_root/dist" dist
 
 不要把 `node_modules`、`.next`、`.vinext`、`dist` 或 `.wrangler` 复制回 OneDrive；它们是机器相关的依赖或生成物。
 
+### 启动前自检与修复
+
+在运行 `npm run dev`、构建或让 Codex 执行验证前，先检查 Node.js 与本地链接是否真的可用：
+
+```bash
+node --version
+npm --version
+readlink node_modules
+readlink dist
+```
+
+项目要求 Node.js `>=22.13.0`，当前推荐 `.nvmrc` 中的版本。若终端提示 `npm: command not found`，通常是 nvm 尚未载入当前 shell；在项目根目录运行：
+
+```bash
+nvm install
+nvm use
+node --version
+npm --version
+```
+
+若 `readlink node_modules` 或 `readlink dist` 的结果不是本机 `AHOWP-local-runtime` 下的对应路径，或链接目标已经不存在，不要沿用旧链接。即使 `test -d node_modules` 成功，也可能只是一个指向旧项目目录的失效配置。按下面的完整重建步骤恢复依赖与两个链接，然后再运行开发或构建命令：
+
+```bash
+runtime_root="/Users/simon/Library/Application Support/AHOWP-local-runtime"
+mkdir -p "$runtime_root"
+cp package.json package-lock.json "$runtime_root/"
+npm ci --prefix "$runtime_root" --no-audit --no-fund
+mkdir -p "$runtime_root/dist"
+ln -sfn "$runtime_root/node_modules" node_modules
+ln -sfn "$runtime_root/dist" dist
+```
+
+这一步只在新电脑、依赖变更，或上述自检失败时需要执行；正常日常启动无需重复安装。先完成自检能避免 Vite 将临时配置写到旧的 `node_modules` 目录而报权限错误，也避免 Codex 因未加载 Node.js 环境而无法运行 `npm`。
+
 ## 每次从另一台电脑接手
 
 先确保上一台电脑已经提交并推送。然后在接手电脑执行：

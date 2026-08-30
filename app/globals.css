@@ -1021,6 +1021,13 @@ button { cursor: pointer; }
 .problem-focus-controls button:hover, .problem-focus-controls button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
 .problem-focus-controls button.active { border-color: var(--green); background: var(--green); color: white; }
 .problem-focus-controls button.reset { color: var(--red); }
+.problem-facet-controls, .problem-compression-controls { display: flex; flex-wrap: wrap; gap: 5px; align-content: center; align-items: center; padding: 8px 12px; border-left: 1px solid var(--line); }
+.problem-facet-controls > span, .problem-compression-controls > span { margin-right: 2px; color: var(--muted); font-size: 8px; letter-spacing: .06em; white-space: nowrap; }
+.problem-facet-controls button, .problem-compression-controls button { min-width: 34px; height: 28px; padding: 0 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 9px; }
+.problem-facet-controls button:hover:not(:disabled), .problem-facet-controls button:focus-visible:not(:disabled), .problem-compression-controls button:hover, .problem-compression-controls button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.problem-facet-controls button.active, .problem-compression-controls button.active { border-color: var(--green); background: var(--green); color: white; }
+.problem-facet-controls button:disabled { cursor: not-allowed; opacity: .34; }
+.problem-compression-controls { flex: 1 1 270px; }
 [data-tooltip]::after { position: absolute; z-index: 12; bottom: calc(100% + 9px); left: 50%; width: max-content; max-width: min(300px, 78vw); padding: 8px 10px; border: 1px solid var(--ink); background: #fffdf7; box-shadow: 3px 3px 0 rgba(49, 75, 61, .13); color: var(--ink); content: attr(data-tooltip); font: 10px/1.5 var(--serif); opacity: 0; pointer-events: none; transform: translate(-50%, 3px); transition: opacity .14s ease, transform .14s ease; white-space: normal; }
 [data-tooltip]:hover::after, [data-tooltip]:focus-within::after { opacity: 1; transform: translate(-50%, 0); }
 .problem-family-legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 14px; border: 1px solid var(--line); }
@@ -1082,6 +1089,34 @@ button { cursor: pointer; }
 .problem-graph-evidence i { width: 20px; border-top: 2px solid currentColor; }
 .problem-graph-evidence .connection-folded { color: #706478; }
 .problem-graph-evidence .connection-folded i { border-top-style: dashed; }
+
+.self-summary-groups rect { stroke: rgba(49, 75, 61, .13); stroke-width: 1; }
+.self-summary-groups .summary-group-odd { fill: rgba(250, 248, 242, .68); }
+.self-summary-groups .summary-group-even { fill: rgba(218, 226, 216, .42); }
+.self-summary-groups .summary-group-label { fill: var(--muted); font: 500 9px Arial, sans-serif; letter-spacing: .06em; }
+.self-summary-edges path { fill: none; stroke: var(--green); stroke-width: 2; opacity: .58; }
+.self-summary-node { cursor: pointer; opacity: .88; }
+.self-summary-node rect { fill: #f7f2e8; stroke: var(--green); stroke-width: 1.6; filter: drop-shadow(4px 4px 0 rgba(49, 75, 61, .1)); }
+.self-summary-node:hover, .self-summary-node:focus-visible, .self-summary-node.selected { opacity: 1; outline: none; }
+.self-summary-node:hover rect, .self-summary-node:focus-visible rect, .self-summary-node.selected rect { stroke: var(--red); stroke-width: 3; filter: drop-shadow(5px 5px 0 rgba(145, 52, 42, .14)); }
+.self-summary-meta { fill: var(--green); font: 7px Arial, sans-serif; letter-spacing: .07em; }
+.self-summary-title { fill: var(--ink); font: 500 17px var(--serif); }
+.self-summary-node circle { fill: var(--red); }
+.self-summary-evidence > span:first-child { color: var(--green); }
+.self-summary-detail { border-top-color: var(--green); }
+.self-summary-expand p, .self-summary-members > p, .self-summary-coverage p { margin: 0 0 10px; color: #4e514c; font: 10px/1.58 var(--serif); }
+.self-summary-expand button { width: 100%; padding: 9px 10px; border: 1px solid var(--green); background: var(--green); color: white; font: 500 10px/1.3 var(--serif); }
+.self-summary-expand button:hover, .self-summary-expand button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.self-summary-phases > div { display: grid; gap: 5px; }
+.self-summary-phases article { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 7px; align-items: baseline; padding: 7px 8px; border: 1px solid var(--line); }
+.self-summary-phases article small { color: var(--red); font-size: 7px; }
+.self-summary-phases article b { font: 500 9px/1.4 var(--serif); }
+.self-summary-members > div { display: grid; gap: 5px; }
+.self-summary-members button { position: relative; display: grid; gap: 3px; width: 100%; padding: 8px 24px 8px 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; }
+.self-summary-members button:hover, .self-summary-members button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
+.self-summary-members button small { color: var(--muted); font-size: 7px; }
+.self-summary-members button b { font: 500 10px/1.4 var(--serif); }
+.self-summary-members button i { position: absolute; top: 50%; right: 8px; color: var(--green); font-style: normal; transform: translateY(-50%); }
 
 .problem-node-detail { position: fixed; top: 194px; bottom: 46px; left: 14px; z-index: 8; width: 292px; overflow: auto; border: 1px solid var(--ink); border-top: 4px solid #7a6757; background: var(--paper-light); box-shadow: 4px 4px 0 rgba(49, 75, 61, .08); }
 .problem-detail-sidebar .results-label { padding-right: 4px; padding-left: 4px; }
@@ -1147,6 +1182,8 @@ button { cursor: pointer; }
 @media (max-width: 1180px) {
   .problem-map-controls { flex-wrap: wrap; }
   .problem-focus-controls { border-top: 1px solid var(--line); border-left: 0; }
+  .problem-facet-controls { flex: 1 1 430px; }
+  .problem-compression-controls { border-top: 1px solid var(--line); border-left: 0; }
   .problem-graph-workspace { grid-template-columns: 1fr; }
   .problem-node-detail-logic { grid-template-columns: 1fr 1fr; }
 }
@@ -1641,6 +1678,7 @@ span.place-token {
   .problem-map-controls { display: grid; grid-template-columns: 1fr; }
   .problem-control-legends { min-width: 0; border-right: 0; border-bottom: 1px solid var(--line); }
   .problem-control-legend { min-width: 0; }
+  .problem-facet-controls, .problem-compression-controls { border-top: 0; border-left: 0; border-bottom: 1px solid var(--line); }
   .problem-density-slider { min-width: 0; border-top: 0; }
   .problem-focus-controls { border-top: 1px solid var(--line); }
   .problem-family-legend { overflow-x: auto; grid-template-columns: repeat(5, minmax(155px, 1fr)); }

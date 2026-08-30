@@ -7,6 +7,7 @@ import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
 import { problemMaps } from "../app/problem-map-data";
 import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
+import { collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfLandmark50NodeIds, selfSummaryTree } from "../app/problem-map-self-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -196,6 +197,30 @@ if (!publishedProblemMap) {
     duplicates(family.anchorNodeIds).forEach((id) => error(`问题家族“${family.label}”重复引用节点 ${id}`));
     family.anchorNodeIds.filter((id) => !nodeById.has(id)).forEach((id) => error(`问题家族“${family.label}”引用不存在的节点 ${id}`));
   });
+  duplicates(problemFacetOptions.map((option) => option.id)).forEach((id) => error(`问题图谱存在重复主题标签 ${id}`));
+  if (problemFacetOptions.map((option) => option.id).join(",") !== "method,nature,self,society,ultimate") error("问题图谱主题标签必须按方法、自然、自我、社会、终极排列");
+  if (!problemFacetOptions.find((option) => option.id === "self")?.available) error("自我主题试验尚未启用");
+  duplicates(problemCompressionLevels.map((option) => option.id)).forEach((id) => error(`自我主题存在重复压缩层级 ${id}`));
+  if (problemCompressionLevels.map((option) => option.id).join(",") !== "5,10,20,50,all") error("自我主题压缩层级必须为 5、10、20、50、全部");
+  duplicates([...selfFacetNodeIds]).forEach((id) => error(`自我主题重复引用原子节点 ${id}`));
+  selfFacetNodeIds.filter((id) => !nodeById.has(id)).forEach((id) => error(`自我主题引用不存在的原子节点 ${id}`));
+  duplicates([...selfLandmark50NodeIds]).forEach((id) => error(`自我主题50节点层重复引用 ${id}`));
+  if (selfLandmark50NodeIds.length !== 50) error(`自我主题50节点层应有50个节点，实际为 ${selfLandmark50NodeIds.length}`);
+  selfLandmark50NodeIds.filter((id) => !selfFacetNodeIds.includes(id)).forEach((id) => error(`自我主题50节点层引用未标记为自我相关的节点 ${id}`));
+  const summaryLevels = (["5", "10", "20"] as const).map((level) => ({ level, units: flattenSelfSummaryLevel(level) }));
+  summaryLevels.forEach(({ level, units }) => {
+    if (units.length !== Number(level)) error(`自我主题${level}节点层实际包含 ${units.length} 个总结节点`);
+  });
+  const allSummaryUnits = summaryLevels.flatMap(({ units }) => units);
+  duplicates(allSummaryUnits.map((unit) => unit.id)).forEach((id) => error(`自我主题总结节点 ID 重复 ${id}`));
+  const problemPhaseIds = new Set(publishedProblemMap.phases.map((phase) => phase.id));
+  allSummaryUnits.forEach((unit) => {
+    if (!unit.title || !unit.period || !unit.question || !unit.thesis || !unit.transition) error(`自我总结节点 ${unit.id} 内容不完整`);
+    collectSelfSummaryPhaseIds(unit).filter((id) => !problemPhaseIds.has(id)).forEach((id) => error(`自我总结节点 ${unit.id} 引用不存在的问题阶段 ${id}`));
+  });
+  const phaseIdBySelfNodeId = new Map(publishedProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase.id])));
+  const rootCoveredPhaseIds = new Set(selfSummaryTree.flatMap(collectSelfSummaryPhaseIds));
+  selfFacetNodeIds.filter((id) => !rootCoveredPhaseIds.has(phaseIdBySelfNodeId.get(id) || "")).forEach((id) => error(`自我主题原子节点 ${id} 未被5节点总结层覆盖`));
   const historyStageIds = new Set(historyStages.map((stage) => stage.id));
   publishedProblemMap.phases.forEach((phase) => {
     const stageId = problemPhaseHistoryStageIds[phase.id];

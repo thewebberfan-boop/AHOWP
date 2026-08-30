@@ -25,6 +25,15 @@ import {
   type ProblemDensityId,
   type ProblemFamily,
 } from "./problem-map-view-data";
+import { SelfSummaryGraph } from "./problem-map-self";
+import {
+  problemCompressionLevels,
+  problemFacetOptions,
+  selfFacetNodeIds,
+  selfLandmark50NodeIds,
+  type ProblemCompressionLevel,
+  type ProblemFacetId,
+} from "./problem-map-self-data";
 
 const GRAPH_WIDTH = 1280;
 const NODE_WIDTH = 220;
@@ -34,9 +43,12 @@ const GRAPH_TOP = 58;
 const GRAPH_LEFT = 48;
 const GRAPH_RIGHT = 48;
 const MAX_GRAPH_LANE = 4.7;
-const ROW_GAP = 132;
+const ROW_GAP = 32;
+const NODE_GAP = 20;
 const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT - NODE_WIDTH) / MAX_GRAPH_LANE;
 const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
+const FACET_STORAGE_KEY = "ahowp-problem-map-facets";
+const SELF_COMPRESSION_STORAGE_KEY = "ahowp-problem-map-self-compression";
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
   观察: "OBSERVATION",
@@ -150,12 +162,13 @@ function buildChainGroups(nodes: ProblemNode[], edges: ProblemEdge[], phaseIdByN
   return groups;
 }
 
-function buildDisplayEdges(edges: ProblemEdge[], visibleNodeIds: Set<string>) {
+function buildDisplayEdges(edges: ProblemEdge[], visibleNodeIds: Set<string>, allowedNodeIds?: Set<string>) {
   const outgoing = new Map<string, ProblemEdge[]>();
   edges.forEach((edge) => outgoing.set(edge.from, [...(outgoing.get(edge.from) || []), edge]));
   const displayEdges: DisplayEdge[] = [];
 
   const follow = (sourceId: string, edge: ProblemEdge, path: ProblemEdge[], visitedNodeIds: Set<string>) => {
+    if (allowedNodeIds && !allowedNodeIds.has(edge.to)) return;
     if (visitedNodeIds.has(edge.to)) return;
     if (visibleNodeIds.has(edge.to)) {
       const connectionKinds = [...new Set(path.map((item) => item.connection))];
@@ -182,30 +195,42 @@ function buildDisplayEdges(edges: ProblemEdge[], visibleNodeIds: Set<string>) {
   return displayEdges;
 }
 
-function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId) {
+function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId, chainByLeaderId: Map<string, ChainGroup>) {
   const points = new Map<string, GraphPoint>();
   const nodesByOriginalRow = new Map<number, ProblemNode[]>();
   nodes.forEach((node) => nodesByOriginalRow.set(node.graph.row, [...(nodesByOriginalRow.get(node.graph.row) || []), node]));
-  let rowCursor = 0;
+  let verticalCursor = GRAPH_TOP;
+  let layoutRow = 0;
 
   [...nodesByOriginalRow.entries()].sort(([left], [right]) => left - right).forEach(([, rowNodes]) => {
-    const occupiedLanesBySubrow: Set<number>[] = [];
+    const subrows: ProblemNode[][] = [];
+    const rightEdgesBySubrow: number[] = [];
     rowNodes.sort((left, right) => left.graph.lane - right.graph.lane).forEach((node) => {
       const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
-      let subrow = occupiedLanesBySubrow.findIndex((occupied) => !occupied.has(lane));
+      const x = GRAPH_LEFT + lane * LANE_GAP;
+      let subrow = rightEdgesBySubrow.findIndex((rightEdge) => rightEdge + NODE_GAP <= x);
       if (subrow < 0) {
-        subrow = occupiedLanesBySubrow.length;
-        occupiedLanesBySubrow.push(new Set());
+        subrow = subrows.length;
+        subrows.push([]);
+        rightEdgesBySubrow.push(0);
       }
-      occupiedLanesBySubrow[subrow].add(lane);
-      points.set(node.id, {
-        x: GRAPH_LEFT + lane * LANE_GAP,
-        y: GRAPH_TOP + (rowCursor + subrow) * ROW_GAP,
-        row: rowCursor + subrow,
-        lane,
-      });
+      subrows[subrow].push(node);
+      rightEdgesBySubrow[subrow] = x + NODE_WIDTH;
     });
-    rowCursor += Math.max(1, occupiedLanesBySubrow.length);
+
+    subrows.forEach((subrowNodes) => {
+      subrowNodes.forEach((node) => {
+        const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
+        points.set(node.id, {
+          x: GRAPH_LEFT + lane * LANE_GAP,
+          y: verticalCursor,
+          row: layoutRow,
+          lane,
+        });
+      });
+      verticalCursor += Math.max(...subrowNodes.map((node) => nodeHeight(node, chainByLeaderId.get(node.id)))) + ROW_GAP;
+      layoutRow += 1;
+    });
   });
   return points;
 }
@@ -239,6 +264,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const [density, setDensity] = useState<ProblemDensityId>("standard");
   const [focusDepth, setFocusDepth] = useState<0 | 1 | 2>(0);
   const [expandedChainIds, setExpandedChainIds] = useState<Set<string>>(() => new Set());
+  const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>([]);
+  const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>("5");
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
@@ -246,7 +273,14 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const { incoming: incomingByNodeId, outgoing: outgoingByNodeId } = useMemo(() => buildDegreeMaps(allNodes, map.edges), [allNodes, map.edges]);
   const chainGroups = useMemo(() => buildChainGroups(allNodes, map.edges, phaseIdByNodeId), [allNodes, map.edges, phaseIdByNodeId]);
   const chainByNodeId = useMemo(() => new Map(chainGroups.flatMap((group) => group.nodeIds.map((nodeId) => [nodeId, group]))), [chainGroups]);
-  const selectedNode = nodesById.get(activeNodeId) || allNodes[0];
+  const selfMode = selectedFacetIds.includes("self");
+  const selfSummaryLevel: "5" | "10" | "20" | null = selfMode && (compressionLevel === "5" || compressionLevel === "10" || compressionLevel === "20") ? compressionLevel : null;
+  const selfAtomicNodeIdSet = useMemo(() => new Set<string>(selfFacetNodeIds), []);
+  const selfVisibleAtomicNodeIdSet = useMemo(() => new Set<string>(compressionLevel === "50" ? selfLandmark50NodeIds : selfFacetNodeIds), [compressionLevel]);
+  const requestedNode = nodesById.get(activeNodeId);
+  const selectedNode = selfMode && (!requestedNode || !selfVisibleAtomicNodeIdSet.has(requestedNode.id))
+    ? allNodes.find((node) => selfVisibleAtomicNodeIdSet.has(node.id)) || allNodes[0]
+    : requestedNode || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
   const selectedChain = chainByNodeId.get(selectedNode.id);
   const incomingEdges = incomingByNodeId.get(selectedNode.id) || [];
@@ -254,7 +288,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const densityOption = problemDensityOptions.find((option) => option.id === density) || problemDensityOptions[2];
 
   const focusNodeIds = useMemo(() => {
-    if (!focusDepth) return null;
+    if (!focusDepth || selfMode) return null;
     const visible = new Set([selectedNode.id]);
     let frontier = new Set([selectedNode.id]);
     for (let depth = 0; depth < focusDepth; depth += 1) {
@@ -269,9 +303,10 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       frontier = next;
     }
     return visible;
-  }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id]);
+  }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode]);
 
   const visibleNodeIds = useMemo(() => {
+    if (selfMode) return selfVisibleAtomicNodeIdSet;
     if (focusNodeIds) return focusNodeIds;
     if (density === "complete" || density === "research") return new Set(allNodes.map((node) => node.id));
     if (density === "guide") {
@@ -296,19 +331,20 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       group.nodeIds.slice(1).forEach((nodeId) => visible.delete(nodeId));
     });
     return visible;
-  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id]);
+  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode, selfVisibleAtomicNodeIdSet]);
 
   const displayNodes = useMemo(() => allNodes.filter((node) => visibleNodeIds.has(node.id)), [allNodes, visibleNodeIds]);
-  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds), [map.edges, visibleNodeIds]);
-  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, density), [density, displayNodes]);
+  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds, selfMode ? selfAtomicNodeIdSet : undefined), [map.edges, selfAtomicNodeIdSet, selfMode, visibleNodeIds]);
   const collapsedChainByLeaderId = useMemo(() => {
     const result = new Map<string, ChainGroup>();
-    if (density !== "standard" || focusDepth) return result;
+    if (selfMode || density !== "standard" || focusDepth) return result;
     chainGroups.forEach((group) => {
       if (!expandedChainIds.has(group.id) && visibleNodeIds.has(group.leaderId) && !visibleNodeIds.has(group.nodeIds[1])) result.set(group.leaderId, group);
     });
     return result;
-  }, [chainGroups, density, expandedChainIds, focusDepth, visibleNodeIds]);
+  }, [chainGroups, density, expandedChainIds, focusDepth, selfMode, visibleNodeIds]);
+  const layoutDensity = selfMode ? "complete" : density;
+  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId), [collapsedChainByLeaderId, displayNodes, layoutDensity]);
   const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id))), 180) + 70;
   const historyBands = useMemo(() => historyStages.map((stage) => {
     const stageNodes = displayNodes.filter((node) => {
@@ -386,6 +422,26 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     window.localStorage.setItem(DENSITY_STORAGE_KEY, nextDensity);
   };
 
+  const toggleFacet = (facetId: ProblemFacetId) => {
+    setSelectedFacetIds((current) => {
+      const next = current.includes(facetId) ? current.filter((id) => id !== facetId) : [...current, facetId];
+      window.localStorage.setItem(FACET_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+    setFocusDepth(0);
+  };
+
+  const clearFacets = () => {
+    setSelectedFacetIds([]);
+    setFocusDepth(0);
+    window.localStorage.setItem(FACET_STORAGE_KEY, "[]");
+  };
+
+  const changeCompression = (nextLevel: ProblemCompressionLevel) => {
+    setCompressionLevel(nextLevel);
+    window.localStorage.setItem(SELF_COMPRESSION_STORAGE_KEY, nextLevel);
+  };
+
   const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
 
   useEffect(() => {
@@ -396,13 +452,31 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   }, []);
 
   useEffect(() => {
+    const savedFacets = window.localStorage.getItem(FACET_STORAGE_KEY);
+    const savedCompression = window.localStorage.getItem(SELF_COMPRESSION_STORAGE_KEY) as ProblemCompressionLevel | null;
+    const frame = window.requestAnimationFrame(() => {
+      if (savedFacets) {
+        try {
+          const parsed = JSON.parse(savedFacets) as ProblemFacetId[];
+          setSelectedFacetIds(parsed.filter((id) => problemFacetOptions.some((option) => option.id === id && option.available)));
+        } catch {
+          window.localStorage.removeItem(FACET_STORAGE_KEY);
+        }
+      }
+      if (savedCompression && problemCompressionLevels.some((option) => option.id === savedCompression)) setCompressionLevel(savedCompression);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (selfMode) return;
     if (selectedPhase.id === activePhaseId) return;
     const phase = map.phases.find((item) => item.id === activePhaseId);
     const target = phase?.nodes.find((node) => node.kind === "问题") || phase?.nodes[0];
     if (!target) return;
     const frame = window.requestAnimationFrame(() => onNodeChange(target.id));
     return () => window.cancelAnimationFrame(frame);
-  }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id]);
+  }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id, selfMode]);
 
   return <article className="problem-map-page page-wrap">
     <header className="problem-map-hero">
@@ -434,25 +508,35 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span className="problem-control-token relation" data-tooltip={`${relationEnglish[relation]}：${problemRelationNotes[relation]}`} key={relation}><i aria-hidden="true" />{relation}</span>)}
         </div>
       </div>
-      <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
-        <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>
-        <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
-        <div aria-hidden="true">{problemDensityOptions.map((option) => <span className={option.id === density ? "active" : ""} key={option.id}>{option.label}</span>)}</div>
+      <div className="problem-facet-controls" role="group" aria-label="主题筛选，可多选">
+        <span>主题</span>
+        <button type="button" className={selectedFacetIds.length === 0 ? "active" : ""} aria-pressed={selectedFacetIds.length === 0} onClick={clearFacets}>全图</button>
+        {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题将在自我试验完成后构建`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
       </div>
-      <div className="problem-focus-controls" role="group" aria-label="局部聚焦范围" data-tooltip="只显示当前节点前后的一跳或两跳关系；可随时返回完整图谱。">
-        <span>局部</span>
-        <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
-        <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
-        {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
-      </div>
+      {selfMode ? <div className="problem-compression-controls" role="group" aria-label="自我主题总结层级">
+        <span>每类节点</span>
+        {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
+      </div> : <>
+        <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
+          <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>
+          <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
+          <div aria-hidden="true">{problemDensityOptions.map((option) => <span className={option.id === density ? "active" : ""} key={option.id}>{option.label}</span>)}</div>
+        </div>
+        <div className="problem-focus-controls" role="group" aria-label="局部聚焦范围" data-tooltip="只显示当前节点前后的一跳或两跳关系；可随时返回完整图谱。">
+          <span>局部</span>
+          <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
+          <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
+          {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
+        </div>
+      </>}
     </section>
 
-    {density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
+    {!selfMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
-    <section className="problem-graph-workspace" id="problem-graph">
+    {selfSummaryLevel ? <SelfSummaryGraph level={selfSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} onLevelChange={changeCompression} onAtomicNode={(nodeId) => { changeCompression("all"); selectNode(nodeId); }} /> : <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
-          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
+          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{selfMode ? `自我主线 · ${compressionLevel === "50" ? "50 个原子地标" : `${displayNodes.length} 个相关原子节点`}` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
         </header>
 
         <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
@@ -562,7 +646,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           })}</div></section>
         </div>
       </aside>
-    </section>
+    </section>}
 
   </article>;
 }
