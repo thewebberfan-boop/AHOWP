@@ -255,7 +255,7 @@ if (!publishedProblemMap) {
       });
     });
   });
-  duplicates(topicSummaryIds).forEach((id) => error(`四主题总结 ID 重复 ${id}`));
+  duplicates(topicSummaryIds).forEach((id) => error(`五主题总结 ID 重复 ${id}`));
   const historyStageIds = new Set(historyStages.map((stage) => stage.id));
   publishedProblemMap.phases.forEach((phase) => {
     const stageId = problemPhaseHistoryStageIds[phase.id];

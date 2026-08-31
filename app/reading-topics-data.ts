@@ -1,12 +1,13 @@
 import { collectSelfSummaryNodeIds, normalizeSelfCompressionLevel, problemFacetOptions, selfSummaryTree, type SelfSummaryLevel, type SelfSummaryUnit } from "./problem-map-self-data";
+import { methodSummaryTree } from "./method-reading-data";
 import { natureSummaryTree } from "./nature-reading-data";
 import { societySummaryTree } from "./society-reading-data";
 import { ultimateSummaryTree } from "./ultimate-reading-data";
 
-export const readingTopicIds = ["nature", "self", "society", "ultimate"] as const;
+export const readingTopicIds = ["method", "nature", "self", "society", "ultimate"] as const;
 export type ReadingTopicId = typeof readingTopicIds[number];
 export const readingTrees: Record<ReadingTopicId, SelfSummaryUnit[]> = {
-  nature: natureSummaryTree, self: selfSummaryTree, society: societySummaryTree, ultimate: ultimateSummaryTree,
+  method: methodSummaryTree, nature: natureSummaryTree, self: selfSummaryTree, society: societySummaryTree, ultimate: ultimateSummaryTree,
 };
 export const collectSummaryNodeIds = collectSelfSummaryNodeIds;
 export const topicLabel = (id: ReadingTopicId) => problemFacetOptions.find((topic) => topic.id === id)!.label;

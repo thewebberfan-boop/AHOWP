@@ -7,6 +7,33 @@ const reading = (from: string, to: string, label: string): ProblemEdge => ({
 const compare = (from: string, to: string, label: string): ProblemEdge => ({ ...reading(from, to, label), connection: "同题并列" });
 
 export const topicReadingEdges: ProblemEdge[] = [
+  // 方法主题：这些边组织阅读次序，不把方法相邻误写成直接师承。
+  reading("demonstration-classification", "how-can-revelation-enter-reason", "原因证明进入经文传统时，必须补充解释对象与语境的规则"),
+  reading("logos-layered-exegesis-text", "can-reason-judge-authority", "多层释义开放理性是否也能校正较弱权威解释的问题"),
+  compare("true-reason-true-authority-agree", "can-disagreement-become-teachable-method", "从理性与权威应一致，转向学校怎样公开处理现实分歧"),
+  reading("question-objection-distinction-method", "what-translation-preserves-transforms", "争论程序面对跨语言材料时，还须核对翻译改变了什么"),
+  reading("demonstration-dialectic-rhetoric-audiences", "how-can-dispute-become-stable-curriculum", "区分论证受众之后，进一步把反对与答辩固定为课程"),
+  reading("repeatable-question-disputation-curriculum", "can-learning-community-govern-conflict", "可重复课程需要相应的共同体程序治理争论"),
+  reading("corporate-privileges-faculty-jurisdictions", "do-common-predicates-require-common-natures", "制度化争论继续落实到共同词项究竟承诺何种对象"),
+  compare("parsimony-bounded-by-reason-experience-scripture", "how-can-inherited-text-authority-be-corrected", "简约约束实体承诺，校勘则检验继承文本；两者都是有限纠错而非万能原则"),
+  reading("ad-fontes-philology-corrects-inheritance", "when-should-residual-overturn-beautiful-model", "文本异本能迫使解释修改，观测残差同样要求模型说明失败"),
+  reading("plural-methods-form-public-correction-network", "how-can-ideal-experiment-test-real-motion", "多种证据交叉以后，仍需说明理想操作如何检验实际运动"),
+  compare("idealization-controlled-operation-mathematical-law", "how-can-reason-escape-verbal-absurdity", "数学操作的清晰与语言定义的清晰承担不同检验任务"),
+  reading("made-commonwealth-supports-conditional-civil-science", "does-any-judgment-survive-hyperbolic-doubt", "构造对象的条件证明之外，笛卡尔追问是否有不可怀疑的认识起点"),
+  reading("clear-distinct-perception-provisional-rule", "why-error-if-nondeceiving-god", "暂定真理规则必须解释有限判断为何仍频繁出错"),
+  reading("error-when-will-outruns-intellect", "how-do-simple-ideas-form-complex-general-thought", "限制过早断言以后，经验主义改问心灵怎样加工观念材料"),
+  reading("knowledge-as-agreement-probability-for-practice", "what-judgments-survive-experience-source-test", "知识与概率的分层继续接受印象来源审查"),
+  reading("relations-of-ideas-and-matters-of-fact", "what-unifies-person-without-self-impression", "区分知识类型后，自我概念也必须交代经验来源"),
+  compare("association-explains-identity-fiction-not-full-unity", "how-manifold-becomes-one-objective-experience", "休谟的联想说明与康德的统觉条件分别回应经验统一，不可互相替换"),
+  reading("knowledge-limited-to-phenomena-not-private-illusion", "is-dialectic-fixed-thesis-antithesis-synthesis", "批判哲学的界限之后，检验辩证法能否把界限写成历史转化"),
+  reading("objective-idealism-reason-immanent-in-world", "does-world-history-redeem-suffering-and-exclusion", "客观可理解性必须接受历史苦难与排除的反向检验"),
+  compare("totality-must-remain-answerable-to-unreconciled-lives", "do-ideas-or-material-practices-drive-history", "整体不能抹去具体生命，进一步比较观念发展与物质实践的解释负担"),
+  reading("class-agency-requires-organization-and-learning", "what-can-genealogy-show-about-value", "历史行动需要共同解释，价值谱系则追问解释本身的形成与效果"),
+  reading("perspectivism-compares-situated-interpretations", "can-revaluation-avoid-arbitrary-cruelty", "比较视角仍须说明评价怎样避免任意授权"),
+  compare("revaluation-tests-creative-flourishing-with-political-risk", "does-practical-difference-exhaust-meaning", "价值后果的检验与实用意义检验相邻，却不采用同一规范尺度"),
+  reading("inquiry-transforms-problematic-situation", "is-truth-whatever-is-currently-useful", "探究解决疑难情境后，仍须区分获得效果与取得真值"),
+  reading("truth-grows-through-verification-and-reality-constraint", "can-traditional-subject-predicate-logic-express-relations", "经验验证之外，复杂命题还需要更精确的逻辑形式"),
+
   reading("four-causes-teleology", "how-can-authority-correct-inherited-error", "提出原因框架之后，转问继承的解释如何发现并校正错误；这是阅读次序，不是直接影响证据"),
   compare("experience-certifies-theoretical-conclusions", "does-computational-fit-establish-cosmic-truth", "比较经验认证与模型拟合：二者分别能支持什么结论？"),
   compare("sensation-imagination-passions-as-bodily-motion", "how-can-ideal-experiment-test-real-motion", "机械论谈到身体运动时，对照数学实验怎样检验运动规律；不把认识论方案当成实验结论"),

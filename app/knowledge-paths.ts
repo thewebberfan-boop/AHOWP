@@ -3,7 +3,6 @@ import { collectSelfSummaryNodeIds, type SelfSummaryUnit, type ProblemCompressio
 import { flattenTopicLevel, nodeReadingTopics, readingTopicIds, resolveTopicUnit, topicLabel, type ReadingTopicId } from "./reading-topics-data";
 import { problemPhaseHistoryStageIds } from "./problem-map-view-data";
 import { schoolProfiles } from "./school-data";
-import { selfCrossTopicNodes } from "./self-reading-data";
 
 export type ReadingTarget = { topicId?: ReadingTopicId; unitId: string; nodeId: string; level: ProblemCompressionLevel };
 export type KnowledgeContext = { kind: "philosopher" | "school" | "history"; id: string };
@@ -11,7 +10,7 @@ export const knowledgeNodeById = new Map(ancientDifferenceProblemMap.phases.flat
 export const knowledgePhaseByNodeId = new Map(ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase])));
 
 export function selfNodeTopics(nodeId: string) {
-  return [...nodeReadingTopics(nodeId).map(topicLabel), ...(selfCrossTopicNodes.method.includes(nodeId) ? ["方法"] : [])];
+  return nodeReadingTopics(nodeId).map(topicLabel);
 }
 
 export function knowledgeUnitsFor(context: KnowledgeContext, topicIds: readonly ReadingTopicId[] = readingTopicIds) {

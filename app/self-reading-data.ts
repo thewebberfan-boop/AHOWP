@@ -173,8 +173,8 @@ export const selfReadingEdges: ProblemEdge[] = [
 ];
 
 // Seed interfaces from the self pilot, retained for auditing that migration.
-// Live nature/self/society/ultimate labels now come from exact tree memberships.
-// Method has no independent tree yet; only its reviewed interface badges are shown.
+// Live topic labels now come from exact tree memberships. These seed interfaces
+// remain only for auditing the self pilot's original migration.
 export const selfCrossTopicNodes: Record<"nature" | "society" | "ultimate" | "method", string[]> = {
   nature: ids(`sensation-imagination-passions-as-bodily-motion thought-extension-real-distinction
     mind-body-parallel-expression what-can-freedom-mean-in-necessary-nature

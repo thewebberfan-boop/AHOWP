@@ -29,7 +29,7 @@ export type SelfSummaryUnit = {
 };
 
 export const problemFacetOptions: ProblemFacetOption[] = [
-  { id: "method", label: "方法", english: "METHOD", question: "我们怎样观察、推理、证明与表达？", available: false },
+  { id: "method", label: "方法", english: "METHOD", question: "我们怎样观察、推理、证明、解释与纠错？", available: true },
   { id: "nature", label: "自然", english: "NATURE", question: "自然怎样构成、变化并形成可解释的秩序？", available: true },
   { id: "self", label: "自我", english: "SELF", question: "心灵、感受、人格与自由怎样成立？", available: true },
   { id: "society", label: "社会", english: "SOCIETY", question: "行为、规范、权力与共同生活怎样组织？", available: true },

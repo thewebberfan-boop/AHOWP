@@ -11,12 +11,16 @@ import {
 import { ancientDifferenceProblemMap } from "./problem-map-data";
 import { buildSelfSummaryConnections, selfNodeTopics } from "./knowledge-paths";
 import { flattenTopicLevel, readingTrees, resolveTopicUnit, topicForUnit, topicLabel, type ReadingTopicId } from "./reading-topics-data";
+import { historyStages } from "./history-data";
+import { problemPhaseHistoryStageIds } from "./problem-map-view-data";
 
 const SUMMARY_GRAPH_WIDTH = 1280;
-const SUMMARY_NODE_WIDTH = 420;
+const SUMMARY_SINGLE_NODE_WIDTH = 420;
 const SUMMARY_NODE_HEIGHT = 108;
-const SUMMARY_NODE_X = (SUMMARY_GRAPH_WIDTH - SUMMARY_NODE_WIDTH) / 2;
-const SUMMARY_TOP = 62;
+const SUMMARY_SIDE = 48;
+const SUMMARY_TIMELINE_WIDTH = 72;
+const SUMMARY_LANE_GAP = 24;
+const SUMMARY_TOP = 82;
 const SUMMARY_ROW_GAP = 48;
 
 function splitSummaryTitle(title: string, limit = 22) {
@@ -67,20 +71,40 @@ export function SelfSummaryGraph({
   const topicsLabel = topicIds.map(topicLabel).join(" / ");
   const nextLevel = nextSelfSummaryLevel(level);
   const expandLabel = nextLevel === "all" ? "进入具体论证节点" : nextLevel === "10" ? "展开对应主线" : "展开对应论证组";
+  const isMultiTopic = topicIds.length > 1;
+  const unitsByTopic = topicIds.map((topicId) => flattenTopicLevel(topicId, level));
+  const laneAreaLeft = isMultiTopic ? SUMMARY_SIDE + SUMMARY_TIMELINE_WIDTH : 0;
+  const laneAreaWidth = isMultiTopic ? SUMMARY_GRAPH_WIDTH - laneAreaLeft - SUMMARY_SIDE : SUMMARY_GRAPH_WIDTH;
+  const laneWidth = isMultiTopic ? (laneAreaWidth - SUMMARY_LANE_GAP * (topicIds.length - 1)) / topicIds.length : SUMMARY_SINGLE_NODE_WIDTH;
+  const nodeX = (topicIndex: number) => isMultiTopic
+    ? laneAreaLeft + topicIndex * (laneWidth + SUMMARY_LANE_GAP)
+    : (SUMMARY_GRAPH_WIDTH - SUMMARY_SINGLE_NODE_WIDTH) / 2;
   const measurements = units.map((unit) => {
-    const titleLines = splitSummaryTitle(unit.title);
-    const overviewLines = unit.overview ? splitSummaryTitle(unit.overview, 28) : [];
+    const titleLimit = Math.max(12, Math.floor((laneWidth - 32) / 17));
+    const overviewLimit = Math.max(16, Math.floor((laneWidth - 32) / 13));
+    const titleLines = splitSummaryTitle(unit.title, titleLimit);
+    const overviewLines = unit.overview ? splitSummaryTitle(unit.overview, overviewLimit) : [];
     const overviewY = 50 + (titleLines.length - 1) * 22 + 25;
     const lastTextY = overviewLines.length ? overviewY + (overviewLines.length - 1) * 18 : overviewY - 25;
     const height = Math.max(SUMMARY_NODE_HEIGHT, lastTextY + 34);
     return { height, titleLines, overviewLines, overviewY };
   });
-  const layouts = measurements.map((measurement, index) => ({
-    ...measurement,
-    y: SUMMARY_TOP + measurements.slice(0, index).reduce((height, item) => height + item.height + SUMMARY_ROW_GAP, 0),
-  }));
-  const unitY = (index: number) => layouts[index].y;
-  const graphHeight = Math.max(360, unitY(units.length - 1) + layouts[units.length - 1].height + 70);
+  const measurementByUnitId = new Map(units.map((unit, index) => [unit.id, measurements[index]]));
+  const rowCount = Math.max(...unitsByTopic.map((topicUnits) => topicUnits.length));
+  const rowHeights = Array.from({ length: rowCount }, (_, rowIndex) => Math.max(...unitsByTopic.map((topicUnits) => {
+    const unit = topicUnits[rowIndex];
+    return unit ? measurementByUnitId.get(unit.id)!.height : 0;
+  })));
+  const rowY = (rowIndex: number) => SUMMARY_TOP + rowHeights.slice(0, rowIndex).reduce((height, item) => height + item + SUMMARY_ROW_GAP, 0);
+  const layouts = new Map(unitsByTopic.flatMap((topicUnits, topicIndex) => topicUnits.map((unit, rowIndex) => [unit.id, {
+    ...measurementByUnitId.get(unit.id)!,
+    x: nodeX(topicIndex),
+    y: rowY(rowIndex),
+    width: laneWidth,
+    rowIndex,
+    topicIndex,
+  }] as const)));
+  const graphHeight = Math.max(360, rowY(rowCount - 1) + rowHeights[rowCount - 1] + 70);
 
   const unitMemberNodes = (unit: SelfSummaryUnit) => {
     const ids = new Set(collectSelfSummaryNodeIds(unit));
@@ -92,20 +116,23 @@ export function SelfSummaryGraph({
   const selectedPhases = selectedPhaseIds.map((id) => phaseIndex.get(id)).filter((phase): phase is ProblemPhase => Boolean(phase));
   const selectedParticipantNames = [...new Set(selectedMemberNodes.flatMap((node) => node.participants.map((participant) => participant.name)))];
   const selectedChapterIds = [...new Set(selectedMemberNodes.flatMap((node) => node.chapterIds))];
-  const groupRanges = topicIds.flatMap((id) => readingTrees[id]).map((root) => {
-    const memberIds = new Set(level === "5"
-      ? [root.id]
-      : level === "10"
-        ? (root.children || []).map((unit) => unit.id)
-        : (root.children || []).flatMap((unit) => (unit.children || []).map((child) => child.id)));
-    const indexes = units.map((unit, index) => memberIds.has(unit.id) ? index : -1).filter((index) => index >= 0);
-    const first = Math.min(...indexes);
-    const last = Math.max(...indexes);
-    return {
-      root,
-      top: unitY(first) - 38,
-      height: unitY(last) + layouts[last].height + 24 - (unitY(first) - 38),
-    };
+  const rowsPerGroup = level === "5" ? 1 : level === "10" ? 2 : 4;
+  const groupRanges = Array.from({ length: 5 }, (_, groupIndex) => {
+    const first = groupIndex * rowsPerGroup;
+    const last = first + rowsPerGroup - 1;
+    const roots = topicIds.map((topicId) => readingTrees[topicId][groupIndex]);
+    const historyStageIds = new Set(roots.flatMap(collectSelfSummaryNodeIds).map((nodeId) => {
+      const phase = phaseByNodeId.get(nodeId);
+      return phase ? problemPhaseHistoryStageIds[phase.id] : undefined;
+    }).filter((id): id is string => Boolean(id)));
+    const stages = historyStages.filter((stage) => historyStageIds.has(stage.id));
+    const firstStage = stages[0];
+    const lastStage = stages.at(-1);
+    const historyLabel = !firstStage ? "历史阶段待核对"
+      : firstStage.id === lastStage?.id ? `${firstStage.title} · ${firstStage.years}`
+        : `${firstStage.title}（${firstStage.years}）→ ${lastStage?.title}（${lastStage?.years}）`;
+    const top = rowY(first) - 38;
+    return { id: roots.map((root) => root.id).join("-"), historyLabel, stages, top, height: rowY(last) + rowHeights[last] + 24 - top };
   });
 
   return <section className="problem-graph-workspace self-summary-workspace" id="problem-graph">
@@ -127,39 +154,61 @@ export function SelfSummaryGraph({
           </defs>
 
           <g className="self-summary-groups">
-            {groupRanges.map(({ root, top, height }, index) => <g key={root.id}>
+            {groupRanges.map(({ id, historyLabel, stages, top, height }, index) => <g key={id}>
               <rect className={index % 2 ? "summary-group-even" : "summary-group-odd"} x="0" y={top} width={SUMMARY_GRAPH_WIDTH} height={height} />
-              <text className="summary-group-label" x="48" y={top + 24}>{String(index + 1).padStart(2, "0")} · {topicLabel(topicForUnit(root.id)!)} · {root.title}</text>
+              <text className="summary-group-label" x="48" y={top + 24}>{String(index + 1).padStart(2, "0")} · {historyLabel}<title>{stages.map((stage) => `${stage.title} · ${stage.years}`).join(" → ")}</title></text>
             </g>)}
           </g>
 
+          {isMultiTopic && <g className="self-summary-lanes" aria-hidden="true">
+            <text className="summary-time-label" x={SUMMARY_SIDE} y="28">时间序列</text>
+            <path className="summary-time-axis" d={`M ${SUMMARY_SIDE + 18} 42 L ${SUMMARY_SIDE + 18} ${graphHeight - 36}`} markerEnd="url(#self-summary-arrow)" />
+            {rowHeights.map((height, rowIndex) => <g key={`time-${rowIndex}`}>
+              <circle cx={SUMMARY_SIDE + 18} cy={rowY(rowIndex) + height / 2} r="4" />
+              <text className="summary-time-index" x={SUMMARY_SIDE + 18} y={rowY(rowIndex) + height / 2 + 3}>{String(rowIndex + 1).padStart(2, "0")}</text>
+            </g>)}
+            {topicIds.map((topicId, topicIndex) => <g key={topicId}>
+              <rect x={nodeX(topicIndex)} y="14" width={laneWidth} height="36" rx="4" />
+              <text className="summary-lane-label" x={nodeX(topicIndex) + laneWidth / 2} y="37">{topicLabel(topicId)}</text>
+            </g>)}
+          </g>}
+
           <g className="self-summary-edges">
-            {connections.filter((link) => (level === "5" && topicIds.length === 1) || link.from === selectedUnit.id || link.to === selectedUnit.id).map((link, linkIndex) => {
-              const index = units.findIndex((unit) => unit.id === link.from);
-              const nextIndex = units.findIndex((unit) => unit.id === link.to);
-              const startY = unitY(index) + layouts[index].height / 2;
-              const endY = unitY(nextIndex) + layouts[nextIndex].height / 2;
-              const x = SUMMARY_NODE_X + SUMMARY_NODE_WIDTH;
-              const bend = x + 55 + (linkIndex % 5) * 24;
-              return <path key={`${link.from}-${link.to}`} d={`M ${x} ${startY} C ${bend} ${startY}, ${bend} ${endY}, ${x} ${endY}`} strokeDasharray={link.edges.length ? undefined : "5 4"} markerEnd={link.edges.length ? "url(#self-summary-arrow)" : undefined}><title>{link.edges.map((edge) => `${edge.connection}：${edge.label}`).join("；") + (link.sharedNodeIds.length ? `；共享 ${link.sharedNodeIds.length} 个原子节点` : "")}</title></path>;
+            {connections.filter((link) => {
+              const crossTopic = topicForUnit(link.from) !== topicForUnit(link.to);
+              return crossTopic || (level === "5" && topicIds.length === 1) || link.from === selectedUnit.id || link.to === selectedUnit.id;
+            }).map((link, linkIndex) => {
+              const source = layouts.get(link.from)!;
+              const target = layouts.get(link.to)!;
+              const crossTopic = source.topicIndex !== target.topicIndex;
+              const connected = link.from === selectedUnit.id || link.to === selectedUnit.id;
+              const forward = target.x > source.x;
+              const startX = crossTopic ? source.x + (forward ? source.width : 0) : source.x + source.width;
+              const endX = crossTopic ? target.x + (forward ? 0 : target.width) : target.x + target.width;
+              const startY = source.y + source.height / 2;
+              const endY = target.y + target.height / 2;
+              const bendX = crossTopic ? (startX + endX) / 2 : startX + 55 + (linkIndex % 5) * 24;
+              const evidence = link.edges.map((edge) => `${edge.connection}：${edge.label}`).join("；");
+              const shared = link.sharedNodeIds.length ? `共享 ${link.sharedNodeIds.length} 个原子节点` : "";
+              return <path className={`${crossTopic ? "cross-topic" : "within-topic"}${connected ? " connected" : ""}`} key={`${link.from}-${link.to}`} d={`M ${startX} ${startY} C ${bendX} ${startY}, ${bendX} ${endY}, ${endX} ${endY}`} strokeDasharray={link.edges.length ? undefined : "5 4"} markerEnd={link.edges.length ? "url(#self-summary-arrow)" : undefined}><title>{[crossTopic ? "跨主题" : "", evidence, shared].filter(Boolean).join(" · ")}</title></path>;
             })}
           </g>
 
           <g className="self-summary-nodes">
-            {units.map((unit, index) => {
+            {units.map((unit) => {
               const selected = unit.id === selectedUnit?.id;
               const memberCount = unitMemberNodes(unit).length;
-              const { height, titleLines, overviewLines, overviewY } = layouts[index];
-              return <g className={`self-summary-node${selected ? " selected" : ""}`} id={`self-summary-${unit.id}`} key={unit.id} role="button" tabIndex={0} aria-pressed={selected} aria-describedby="self-summary-navigation-help" aria-label={`总结节点：${unit.title}，覆盖 ${memberCount} 个相关原子节点。${expandLabel}`} transform={`translate(${SUMMARY_NODE_X}, ${unitY(index)})`} onClick={() => onUnitSelect(unit.id)} onDoubleClick={() => onDrillDown(unit)} onKeyDown={(event) => {
+              const { x, y, width, height, titleLines, overviewLines, overviewY } = layouts.get(unit.id)!;
+              return <g className={`self-summary-node${selected ? " selected" : ""}`} id={`self-summary-${unit.id}`} key={unit.id} role="button" tabIndex={0} aria-pressed={selected} aria-describedby="self-summary-navigation-help" aria-label={`总结节点：${unit.title}，覆盖 ${memberCount} 个相关原子节点。${expandLabel}`} transform={`translate(${x}, ${y})`} onClick={() => onUnitSelect(unit.id)} onDoubleClick={() => onDrillDown(unit)} onKeyDown={(event) => {
                 if (event.key === "Enter") { event.preventDefault(); if (!event.repeat) onDrillDown(unit); }
                 if (event.key === " ") { event.preventDefault(); onUnitSelect(unit.id); }
               }}>
-                <rect width={SUMMARY_NODE_WIDTH} height={height} rx="8" />
+                <rect width={width} height={height} rx="8" />
                 <text className="self-summary-meta" x="16" y="21">{topicLabel(topicForUnit(unit.id)!)} · {unit.period} · {memberCount} 个节点</text>
                 <text className="self-summary-title" x="16" y="50">{titleLines.map((line, lineIndex) => <tspan x="16" dy={lineIndex === 0 ? 0 : 22} key={`${unit.id}-${lineIndex}`}>{line}</tspan>)}</text>
                 {overviewLines.length > 0 && <text className="self-summary-overview" x="16" y={overviewY}>{overviewLines.map((line, lineIndex) => <tspan x="16" dy={lineIndex === 0 ? 0 : 18} key={`${unit.id}-overview-${lineIndex}`}>{line}</tspan>)}</text>}
                 <text className="self-summary-hint" x="16" y={height - 12}>双击展开 · 本站学习重构</text>
-                <circle cx={SUMMARY_NODE_WIDTH - 17} cy="17" r="4" />
+                <circle cx={width - 17} cy="17" r="4" />
               </g>;
             })}
           </g>
@@ -168,7 +217,7 @@ export function SelfSummaryGraph({
 
       <footer className="problem-graph-evidence self-summary-evidence">
         <span><i aria-hidden="true" />总结节点</span>
-        <span className="connection-folded"><i aria-hidden="true" />箭头可追溯至节点关系；虚线为共享节点。{(level !== "5" || topicIds.length > 1) && "只画当前卡片的连接。"}同题比较不代表直接影响</span>
+        <span className="connection-folded"><i aria-hidden="true" />箭头可追溯至节点关系；虚线为共享节点。{isMultiTopic ? "跨主题关系持续显示，同主题关系随当前卡片突出。" : level !== "5" ? "只画当前卡片的连接。" : ""}同题比较不代表直接影响</span>
       </footer>
     </div>
 

@@ -11,7 +11,7 @@ import { topicReadingEdges } from "../app/topic-reading-edges";
 import { ProblemMapView } from "../app/problem-map";
 import { SelfSummaryGraph } from "../app/problem-map-self";
 
-test("all four reading paths retain the same canonical knowledge at every resolution", () => {
+test("all five reading paths retain the same canonical knowledge at every resolution", () => {
   for (const topic of readingTopicIds) for (const level of ["5", "10", "20"] as const) {
     const units = flattenTopicLevel(topic, level);
     assert.equal(units.length, Number(level));
@@ -48,7 +48,7 @@ test("curated networks can be traversed, with explicit editorial evidence rather
 });
 
 test("cross-topic comparisons reuse stable nodes and coarse connections have actual witnesses", () => {
-  const union = selectedTopicNodeIds(["nature", "self", "society", "ultimate"]);
+  const union = selectedTopicNodeIds([...readingTopicIds]);
   assert.ok(union.size < readingTopicIds.reduce((sum, topic) => sum + topicNodeIds[topic].length, 0));
   assert.deepEqual(nodeReadingTopics("experience-as-organism-environment-transaction"), ["nature", "self", "society"]);
   assert.deepEqual(nodeReadingTopics("one-substance-god-or-nature"), ["nature", "self", "ultimate"]);
@@ -100,8 +100,8 @@ test("topic preferences are isolated and legacy or malformed values recover safe
   assert.equal(restoreTopicView("ultimate", read).level, "5");
 });
 
-test("nature, society and ultimate expose the same arguments through person, school and period", () => {
-  for (const [topic, id] of [["nature", "four-causes-teleology"], ["society", "fiduciary-government-and-separated-powers"], ["ultimate", "five-ways-from-effects"]] as const) {
+test("method, nature, society and ultimate expose the same arguments through person, school and period", () => {
+  for (const [topic, id] of [["method", "cogito-performed-certainty"], ["nature", "four-causes-teleology"], ["society", "fiduciary-government-and-separated-powers"], ["ultimate", "five-ways-from-effects"]] as const) {
     const node = knowledgeNodeById.get(id)!;
     const people = node.participants.flatMap((person) => person.philosopherId ? [person.philosopherId] : []);
     const school = schoolProfiles.find((item) => item.philosophers.some((person) => people.includes(person.id)) && node.chapterIds.some((chapter) => item.chapterIds.includes(chapter)))!;
@@ -130,6 +130,11 @@ test("rendered launches use the requested topic, and multi-topic summaries keep 
   const html = renderToStaticMarkup(<SelfSummaryGraph topicIds={["nature", "self", "society"]} level="5" allNodes={[...knowledgeNodeById.values()]} phaseByNodeId={knowledgePhaseByNodeId} selectedUnitId="society-5-security-rights" onUnitSelect={noop} onDrillDown={noop} onAtomicNode={noop} />);
   assert.equal((html.match(/role="button"/g) || []).length, 15);
   assert.equal((html.match(/class="self-summary-node selected"/g) || []).length, 1);
+  assert.match(html, /class="self-summary-lanes"/);
+  assert.match(html, />时间序列</);
+  assert.match(html, /城邦与自然的发现/);
+  assert.doesNotMatch(html, /共同时间段|共同时段/);
+  assert.match(html, /class="cross-topic/);
   assert.match(html, /虚线为共享节点/);
-  assert.match(html, /只画当前卡片的连接/);
+  assert.match(html, /跨主题关系持续显示/);
 });

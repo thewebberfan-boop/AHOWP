@@ -637,7 +637,31 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     <aside className="problem-map-boundary"><span>阅读边界</span><p>{map.scopeNote}</p></aside>
 
     <section className="problem-map-controls" aria-label="图谱图例与组织尺度">
-      <div className="problem-control-legends">
+      <div className={`problem-control-main ${topicMode ? "topic-mode" : "full-mode"}`}>
+        <div className="problem-facet-controls" role="group" aria-label="主题筛选，可多选">
+          <span><small>01</small>阅读主题</span>
+          <button type="button" className={selectedFacetIds.length === 0 ? "active" : ""} aria-pressed={selectedFacetIds.length === 0} onClick={clearFacets}>全图</button>
+          {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题尚未整理独立分层路径`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
+        </div>
+        {topicMode ? <div className="problem-compression-controls" role="group" aria-label={`${topicsLabel}主题总结层级`}>
+          <span><small>02</small>{selectedTopics.length > 1 ? "并列层级" : "阅读层级"}</span>
+          {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
+          <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }}><span aria-hidden="true">←</span></button>
+        </div> : <>
+          <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
+            <label htmlFor="problem-density"><span><small>02</small>组织尺度</span><b>{densityOption.label}</b></label>
+            <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
+            <div aria-hidden="true">{problemDensityOptions.map((option) => <span className={option.id === density ? "active" : ""} key={option.id}>{option.label}</span>)}</div>
+          </div>
+          <div className="problem-focus-controls" role="group" aria-label="局部聚焦范围" data-tooltip="只显示当前节点前后的一跳或两跳关系；可随时返回完整图谱。">
+            <span><small>03</small>局部聚焦</span>
+            <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
+            <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
+            {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
+          </div>
+        </>}
+      </div>
+      <div className="problem-control-reference" aria-label="图谱图例">
         <div className="problem-control-legend" aria-label="节点类型">
           <span className="problem-control-label">节点</span>
           {(Object.keys(kindEnglish) as ProblemNodeKind[]).map((kind) => <span className={`problem-control-token kind-${kind}`} data-tooltip={`${kindEnglish[kind]}：${kind === "观察" ? "记录使问题出现的经验、实践或历史条件。" : kind === "问题" ? "明确尚待回答的解释压力。" : "对问题提出的区分、反驳、修复或综合。"}`} key={kind}><i aria-hidden="true" />{kind}</span>)}
@@ -647,29 +671,6 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span className="problem-control-token relation" data-tooltip={`${relationEnglish[relation]}：${problemRelationNotes[relation]}`} key={relation}><i aria-hidden="true" />{relation}</span>)}
         </div>
       </div>
-      <div className="problem-facet-controls" role="group" aria-label="主题筛选，可多选">
-        <span>主题</span>
-        <button type="button" className={selectedFacetIds.length === 0 ? "active" : ""} aria-pressed={selectedFacetIds.length === 0} onClick={clearFacets}>全图</button>
-        {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题尚未整理独立分层路径`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
-      </div>
-      {topicMode ? <div className="problem-compression-controls" role="group" aria-label={`${topicsLabel}主题总结层级`}>
-        <span>{selectedTopics.length > 1 ? "每主题层级" : "阅读层级"}</span>
-        {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
-        <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }}><span aria-hidden="true">←</span></button>
-      </div> : <>
-        <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
-          <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>
-          <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
-          <div aria-hidden="true">{problemDensityOptions.map((option) => <span className={option.id === density ? "active" : ""} key={option.id}>{option.label}</span>)}</div>
-        </div>
-        <div className="problem-focus-controls" role="group" aria-label="局部聚焦范围" data-tooltip="只显示当前节点前后的一跳或两跳关系；可随时返回完整图谱。">
-          <span>局部</span>
-          <button type="button" className={focusDepth === 1 ? "active" : ""} aria-pressed={focusDepth === 1} onClick={() => setFocusDepth(focusDepth === 1 ? 0 : 1)}>一跳</button>
-          <button type="button" className={focusDepth === 2 ? "active" : ""} aria-pressed={focusDepth === 2} onClick={() => setFocusDepth(focusDepth === 2 ? 0 : 2)}>两跳</button>
-          {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
-        </div>
-      </>}
-      {selectedTopics.length > 1 && <p className="problem-graph-fit-note">并看 {selectedTopics.length} 个主题：每个主题保留自己的 5／10／20 分级，卡片上标出主题；双击仍沿当前卡片下钻。全部节点取并集，共有论证只显示一次。</p>}
     </section>
 
     {!topicMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
