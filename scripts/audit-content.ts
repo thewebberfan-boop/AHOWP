@@ -7,7 +7,7 @@ import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
 import { problemMaps } from "../app/problem-map-data";
 import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
-import { collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfLandmark50NodeIds, selfSummaryTree } from "../app/problem-map-self-data";
+import { collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfSummaryTree } from "../app/problem-map-self-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -201,12 +201,9 @@ if (!publishedProblemMap) {
   if (problemFacetOptions.map((option) => option.id).join(",") !== "method,nature,self,society,ultimate") error("问题图谱主题标签必须按方法、自然、自我、社会、终极排列");
   if (!problemFacetOptions.find((option) => option.id === "self")?.available) error("自我主题试验尚未启用");
   duplicates(problemCompressionLevels.map((option) => option.id)).forEach((id) => error(`自我主题存在重复压缩层级 ${id}`));
-  if (problemCompressionLevels.map((option) => option.id).join(",") !== "5,10,20,50,all") error("自我主题压缩层级必须为 5、10、20、50、全部");
+  if (problemCompressionLevels.map((option) => option.id).join(",") !== "5,10,20,all") error("自我主题压缩层级必须为 5、10、20、全部");
   duplicates([...selfFacetNodeIds]).forEach((id) => error(`自我主题重复引用原子节点 ${id}`));
   selfFacetNodeIds.filter((id) => !nodeById.has(id)).forEach((id) => error(`自我主题引用不存在的原子节点 ${id}`));
-  duplicates([...selfLandmark50NodeIds]).forEach((id) => error(`自我主题50节点层重复引用 ${id}`));
-  if (selfLandmark50NodeIds.length !== 50) error(`自我主题50节点层应有50个节点，实际为 ${selfLandmark50NodeIds.length}`);
-  selfLandmark50NodeIds.filter((id) => !selfFacetNodeIds.includes(id)).forEach((id) => error(`自我主题50节点层引用未标记为自我相关的节点 ${id}`));
   const summaryLevels = (["5", "10", "20"] as const).map((level) => ({ level, units: flattenSelfSummaryLevel(level) }));
   summaryLevels.forEach(({ level, units }) => {
     if (units.length !== Number(level)) error(`自我主题${level}节点层实际包含 ${units.length} 个总结节点`);
@@ -219,6 +216,11 @@ if (!publishedProblemMap) {
     collectSelfSummaryPhaseIds(unit).filter((id) => !problemPhaseIds.has(id)).forEach((id) => error(`自我总结节点 ${unit.id} 引用不存在的问题阶段 ${id}`));
   });
   const phaseIdBySelfNodeId = new Map(publishedProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase.id])));
+  flattenSelfSummaryLevel("20").forEach((unit) => {
+    if (!unit.entryNodeId || !selfFacetNodeIds.some((id) => id === unit.entryNodeId)) error(`自我总结节点 ${unit.id} 缺少有效的原子下钻入口`);
+    else if (!collectSelfSummaryPhaseIds(unit).includes(phaseIdBySelfNodeId.get(unit.entryNodeId) || "")) error(`自我总结节点 ${unit.id} 的下钻入口不在本卡覆盖阶段内`);
+  });
+  selfSummaryTree.filter((unit) => !unit.overview).forEach((unit) => error(`自我五卡总览 ${unit.id} 缺少简明回答`));
   const rootCoveredPhaseIds = new Set(selfSummaryTree.flatMap(collectSelfSummaryPhaseIds));
   selfFacetNodeIds.filter((id) => !rootCoveredPhaseIds.has(phaseIdBySelfNodeId.get(id) || "")).forEach((id) => error(`自我主题原子节点 ${id} 未被5节点总结层覆盖`));
   const historyStageIds = new Set(historyStages.map((stage) => stage.id));

@@ -1095,12 +1095,17 @@ button { cursor: pointer; }
 .self-summary-groups .summary-group-even { fill: rgba(218, 226, 216, .42); }
 .self-summary-groups .summary-group-label { fill: var(--muted); font: 500 9px Arial, sans-serif; letter-spacing: .06em; }
 .self-summary-edges path { fill: none; stroke: var(--green); stroke-width: 2; opacity: .58; }
-.self-summary-node { cursor: pointer; opacity: .88; }
+.self-summary-node { cursor: pointer; opacity: .88; touch-action: manipulation; user-select: none; }
 .self-summary-node rect { fill: #f7f2e8; stroke: var(--green); stroke-width: 1.6; filter: drop-shadow(4px 4px 0 rgba(49, 75, 61, .1)); }
 .self-summary-node:hover, .self-summary-node:focus-visible, .self-summary-node.selected { opacity: 1; outline: none; }
 .self-summary-node:hover rect, .self-summary-node:focus-visible rect, .self-summary-node.selected rect { stroke: var(--red); stroke-width: 3; filter: drop-shadow(5px 5px 0 rgba(145, 52, 42, .14)); }
 .self-summary-meta { fill: var(--green); font: 7px Arial, sans-serif; letter-spacing: .07em; }
 .self-summary-title { fill: var(--ink); font: 500 17px var(--serif); }
+.self-summary-overview { fill: #4e514c; font: 13px var(--serif); }
+.self-summary-hint { fill: var(--green); font: 9px var(--serif); }
+.self-summary-actions { display: grid; gap: 6px; }
+.self-summary-actions button { min-height: 36px; padding: 7px 10px; border: 1px solid var(--green); background: var(--green); color: white; font: 500 11px/1.4 var(--serif); }
+.self-summary-actions button:hover, .self-summary-actions button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 .self-summary-node circle { fill: var(--red); }
 .self-summary-evidence > span:first-child { color: var(--green); }
 .self-summary-detail { border-top-color: var(--green); }

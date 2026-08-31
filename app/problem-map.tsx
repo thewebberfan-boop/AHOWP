@@ -30,7 +30,10 @@ import {
   problemCompressionLevels,
   problemFacetOptions,
   selfFacetNodeIds,
-  selfLandmark50NodeIds,
+  nextSelfSummaryLevel,
+  normalizeSelfCompressionLevel,
+  resolveSelfSummaryUnit,
+  selfSummaryEntryNodeId,
   type ProblemCompressionLevel,
   type ProblemFacetId,
 } from "./problem-map-self-data";
@@ -49,6 +52,11 @@ const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT - NODE_WIDTH) / MAX_GRA
 const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
 const FACET_STORAGE_KEY = "ahowp-problem-map-facets";
 const SELF_COMPRESSION_STORAGE_KEY = "ahowp-problem-map-self-compression";
+const SELF_SUMMARY_STORAGE_KEY = "ahowp-problem-map-self-summary";
+
+function saveSelfPreference(key: string, value: string) {
+  try { window.localStorage.setItem(key, value); } catch { /* Reading still works when storage is unavailable. */ }
+}
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
   观察: "OBSERVATION",
@@ -266,6 +274,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const [expandedChainIds, setExpandedChainIds] = useState<Set<string>>(() => new Set());
   const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>([]);
   const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>("5");
+  const [summaryUnitId, setSummaryUnitId] = useState(resolveSelfSummaryUnit("5").id);
+  const [pendingSelfTargetId, setPendingSelfTargetId] = useState<string | null>(null);
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
@@ -276,10 +286,9 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const selfMode = selectedFacetIds.includes("self");
   const selfSummaryLevel: "5" | "10" | "20" | null = selfMode && (compressionLevel === "5" || compressionLevel === "10" || compressionLevel === "20") ? compressionLevel : null;
   const selfAtomicNodeIdSet = useMemo(() => new Set<string>(selfFacetNodeIds), []);
-  const selfVisibleAtomicNodeIdSet = useMemo(() => new Set<string>(compressionLevel === "50" ? selfLandmark50NodeIds : selfFacetNodeIds), [compressionLevel]);
   const requestedNode = nodesById.get(activeNodeId);
-  const selectedNode = selfMode && (!requestedNode || !selfVisibleAtomicNodeIdSet.has(requestedNode.id))
-    ? allNodes.find((node) => selfVisibleAtomicNodeIdSet.has(node.id)) || allNodes[0]
+  const selectedNode = selfMode && (!requestedNode || !selfAtomicNodeIdSet.has(requestedNode.id))
+    ? allNodes.find((node) => selfAtomicNodeIdSet.has(node.id)) || allNodes[0]
     : requestedNode || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
   const selectedChain = chainByNodeId.get(selectedNode.id);
@@ -306,7 +315,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode]);
 
   const visibleNodeIds = useMemo(() => {
-    if (selfMode) return selfVisibleAtomicNodeIdSet;
+    if (selfMode) return selfAtomicNodeIdSet;
     if (focusNodeIds) return focusNodeIds;
     if (density === "complete" || density === "research") return new Set(allNodes.map((node) => node.id));
     if (density === "guide") {
@@ -331,7 +340,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       group.nodeIds.slice(1).forEach((nodeId) => visible.delete(nodeId));
     });
     return visible;
-  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode, selfVisibleAtomicNodeIdSet]);
+  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode, selfAtomicNodeIdSet]);
 
   const displayNodes = useMemo(() => allNodes.filter((node) => visibleNodeIds.has(node.id)), [allNodes, visibleNodeIds]);
   const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds, selfMode ? selfAtomicNodeIdSet : undefined), [map.edges, selfAtomicNodeIdSet, selfMode, visibleNodeIds]);
@@ -423,6 +432,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   };
 
   const toggleFacet = (facetId: ProblemFacetId) => {
+    setPendingSelfTargetId(null);
     setSelectedFacetIds((current) => {
       const next = current.includes(facetId) ? current.filter((id) => id !== facetId) : [...current, facetId];
       window.localStorage.setItem(FACET_STORAGE_KEY, JSON.stringify(next));
@@ -432,14 +442,37 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   };
 
   const clearFacets = () => {
+    setPendingSelfTargetId(null);
     setSelectedFacetIds([]);
     setFocusDepth(0);
     window.localStorage.setItem(FACET_STORAGE_KEY, "[]");
   };
 
-  const changeCompression = (nextLevel: ProblemCompressionLevel) => {
+  const selectSummaryUnit = (id: string) => {
+    setSummaryUnitId(id);
+    saveSelfPreference(SELF_SUMMARY_STORAGE_KEY, id);
+  };
+
+  const openSelfAtomicNode = (nodeId: string) => {
+    if (!selfAtomicNodeIdSet.has(nodeId)) return;
+    setCompressionLevel("all");
+    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, "all");
+    selectNode(nodeId);
+    setPendingSelfTargetId(`problem-node-${nodeId}`);
+  };
+
+  const changeCompression = (nextLevel: ProblemCompressionLevel, fromUnitId = summaryUnitId) => {
+    if (nextLevel === "all") {
+      const unit = selfSummaryLevel ? resolveSelfSummaryUnit(selfSummaryLevel, fromUnitId) : null;
+      if (unit) selectSummaryUnit(unit.id);
+      openSelfAtomicNode((unit && selfSummaryEntryNodeId(unit)) || selectedNode.id);
+      return;
+    }
+    const unit = resolveSelfSummaryUnit(nextLevel, selfSummaryLevel ? fromUnitId : undefined, selectedPhase.id);
+    selectSummaryUnit(unit.id);
     setCompressionLevel(nextLevel);
-    window.localStorage.setItem(SELF_COMPRESSION_STORAGE_KEY, nextLevel);
+    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, nextLevel);
+    setPendingSelfTargetId(`self-summary-${unit.id}`);
   };
 
   const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
@@ -453,7 +486,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
   useEffect(() => {
     const savedFacets = window.localStorage.getItem(FACET_STORAGE_KEY);
-    const savedCompression = window.localStorage.getItem(SELF_COMPRESSION_STORAGE_KEY) as ProblemCompressionLevel | null;
+    const savedCompression = window.localStorage.getItem(SELF_COMPRESSION_STORAGE_KEY);
+    const savedSummary = window.localStorage.getItem(SELF_SUMMARY_STORAGE_KEY);
     const frame = window.requestAnimationFrame(() => {
       if (savedFacets) {
         try {
@@ -463,10 +497,28 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           window.localStorage.removeItem(FACET_STORAGE_KEY);
         }
       }
-      if (savedCompression && problemCompressionLevels.some((option) => option.id === savedCompression)) setCompressionLevel(savedCompression);
+      setCompressionLevel(normalizeSelfCompressionLevel(savedCompression));
+      if (savedSummary) setSummaryUnitId(savedSummary);
+      if (savedCompression === "50") saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, "all");
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    if (!selfMode || !pendingSelfTargetId) return;
+    // Wait for the new SVG and its layout before locating a child or atomic node.
+    let frame = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(() => {
+        const target = document.getElementById(pendingSelfTargetId);
+        if (target) {
+          target.focus({ preventScroll: true });
+          target.scrollIntoView({ behavior: "instant", block: "center", inline: "nearest" });
+        }
+        setPendingSelfTargetId(null);
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pendingSelfTargetId, selfMode, selfSummaryLevel]);
 
   useEffect(() => {
     if (selfMode) return;
@@ -514,7 +566,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题将在自我试验完成后构建`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
       </div>
       {selfMode ? <div className="problem-compression-controls" role="group" aria-label="自我主题总结层级">
-        <span>每类节点</span>
+        <span>阅读层级</span>
         {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
       </div> : <>
         <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
@@ -533,10 +585,11 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
     {!selfMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
-    {selfSummaryLevel ? <SelfSummaryGraph level={selfSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} onLevelChange={changeCompression} onAtomicNode={(nodeId) => { changeCompression("all"); selectNode(nodeId); }} /> : <section className="problem-graph-workspace" id="problem-graph">
+    {selfSummaryLevel ? <SelfSummaryGraph level={selfSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} selectedUnitId={summaryUnitId} onUnitSelect={selectSummaryUnit} onDrillDown={(unit) => changeCompression(nextSelfSummaryLevel(selfSummaryLevel), unit.id)} onAtomicNode={openSelfAtomicNode} /> : <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
-          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{selfMode ? `自我主线 · ${compressionLevel === "50" ? "50 个原子地标" : `${displayNodes.length} 个相关原子节点`}` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
+          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{selfMode ? `自我主线 · ${displayNodes.length} 个相关原子节点` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
+          {selfMode && <p className="problem-graph-fit-note">已到最细一层；单击节点查看解释与原书入口。</p>}
         </header>
 
         <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
