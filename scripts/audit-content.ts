@@ -7,7 +7,8 @@ import { terminology } from "../app/terminology-data";
 import { geographyByAlias } from "../app/geography-data";
 import { problemMaps } from "../app/problem-map-data";
 import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
-import { collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfSummaryTree } from "../app/problem-map-self-data";
+import { collectSelfSummaryNodeIds, collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfSummaryTree } from "../app/problem-map-self-data";
+import { selfCrossTopicNodes } from "../app/self-reading-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -45,6 +46,7 @@ problemMaps.forEach((map) => {
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
   duplicates(map.edges.map((edge) => edge.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复连线 ID：${id}`));
+  duplicates(map.edges.map((edge) => `${edge.from}:${edge.to}`)).forEach((id) => error(`问题图谱存在重复端点关系：${id}`));
   duplicates(map.sources.map((source) => source.label)).forEach((label) => error(`问题图谱“${map.title}”存在重复来源标签：${label}`));
   map.phases.forEach((phase) => {
     if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
@@ -214,6 +216,10 @@ if (!publishedProblemMap) {
   allSummaryUnits.forEach((unit) => {
     if (!unit.title || !unit.period || !unit.question || !unit.thesis || !unit.transition) error(`自我总结节点 ${unit.id} 内容不完整`);
     collectSelfSummaryPhaseIds(unit).filter((id) => !problemPhaseIds.has(id)).forEach((id) => error(`自我总结节点 ${unit.id} 引用不存在的问题阶段 ${id}`));
+    const members = collectSelfSummaryNodeIds(unit);
+    if (!members.length) error(`自我总结节点 ${unit.id} 缺少明确论证归属`);
+    members.filter((id) => !nodeById.has(id)).forEach((id) => error(`自我总结节点 ${unit.id} 引用了不存在的原子节点 ${id}`));
+    if (unit.entryNodeId && !members.includes(unit.entryNodeId)) error(`自我总结节点 ${unit.id} 的入口不属于本卡的具体论证`);
   });
   const phaseIdBySelfNodeId = new Map(publishedProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase.id])));
   flattenSelfSummaryLevel("20").forEach((unit) => {
@@ -221,8 +227,13 @@ if (!publishedProblemMap) {
     else if (!collectSelfSummaryPhaseIds(unit).includes(phaseIdBySelfNodeId.get(unit.entryNodeId) || "")) error(`自我总结节点 ${unit.id} 的下钻入口不在本卡覆盖阶段内`);
   });
   selfSummaryTree.filter((unit) => !unit.overview).forEach((unit) => error(`自我五卡总览 ${unit.id} 缺少简明回答`));
-  const rootCoveredPhaseIds = new Set(selfSummaryTree.flatMap(collectSelfSummaryPhaseIds));
-  selfFacetNodeIds.filter((id) => !rootCoveredPhaseIds.has(phaseIdBySelfNodeId.get(id) || "")).forEach((id) => error(`自我主题原子节点 ${id} 未被5节点总结层覆盖`));
+  summaryLevels.forEach(({ level, units }) => {
+    const covered = new Set(units.flatMap(collectSelfSummaryNodeIds));
+    if (covered.size !== selfFacetNodeIds.length || selfFacetNodeIds.some((id) => !covered.has(id))) error(`自我 ${level} 层没有覆盖同一批知识`);
+  });
+  Object.entries(selfCrossTopicNodes).forEach(([topic, ids]) => {
+    ids.filter((id) => !selfFacetNodeIds.includes(id)).forEach((id) => error(`跨主题接口 ${topic} 引用的 ${id} 不在自我论证网络中`));
+  });
   const historyStageIds = new Set(historyStages.map((stage) => stage.id));
   publishedProblemMap.phases.forEach((phase) => {
     const stageId = problemPhaseHistoryStageIds[phase.id];

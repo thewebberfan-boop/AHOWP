@@ -26,6 +26,7 @@ import {
   type ProblemFamily,
 } from "./problem-map-view-data";
 import { SelfSummaryGraph } from "./problem-map-self";
+import { selfNodeTopics } from "./knowledge-paths";
 import {
   problemCompressionLevels,
   problemFacetOptions,
@@ -55,8 +56,15 @@ const FACET_STORAGE_KEY = "ahowp-problem-map-facets";
 const SELF_COMPRESSION_STORAGE_KEY = "ahowp-problem-map-self-compression";
 const SELF_SUMMARY_STORAGE_KEY = "ahowp-problem-map-self-summary";
 
-function saveSelfPreference(key: string, value: string) {
-  try { window.localStorage.setItem(key, value); } catch { /* Reading still works when storage is unavailable. */ }
+function saveSelfPreference(key: string, value: string | null) {
+  try {
+    if (value === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, value);
+  } catch { /* Reading still works when storage is unavailable. */ }
+}
+
+function readProblemPreference(key: string) {
+  try { return window.localStorage.getItem(key); } catch { return null; }
 }
 
 const kindEnglish: Record<ProblemNodeKind, string> = {
@@ -258,7 +266,11 @@ function edgePath(edge: DisplayEdge, nodesById: Map<string, ProblemNode>, points
   return `M ${startX} ${startY} C ${startX} ${startY + bend}, ${endX} ${endY - bend}, ${endX} ${endY}`;
 }
 
-export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish }: {
+export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish, initialReadingTarget, onReadingTargetConsumed, originLabel, onBack }: {
+  initialReadingTarget?: import("./knowledge-paths").ReadingTarget | null;
+  onReadingTargetConsumed?: () => void;
+  originLabel?: string;
+  onBack?: () => void;
   activePhaseId: string;
   activeNodeId: string;
   onPhaseChange: (id: string) => void;
@@ -270,13 +282,14 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   showEnglish: boolean;
 }) {
   const map = ancientDifferenceProblemMap;
+  const [launch] = useState(initialReadingTarget);
   const [density, setDensity] = useState<ProblemDensityId>("standard");
   const [focusDepth, setFocusDepth] = useState<0 | 1 | 2>(0);
   const [expandedChainIds, setExpandedChainIds] = useState<Set<string>>(() => new Set());
-  const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>([]);
-  const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>("5");
-  const [summaryUnitId, setSummaryUnitId] = useState(resolveSelfSummaryUnit("5").id);
-  const [pendingSelfTargetId, setPendingSelfTargetId] = useState<string | null>(null);
+  const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>(launch ? ["self"] : []);
+  const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>(launch?.level || "5");
+  const [summaryUnitId, setSummaryUnitId] = useState(launch?.unitId || resolveSelfSummaryUnit("5").id);
+  const [pendingSelfTargetId, setPendingSelfTargetId] = useState<string | null>(launch ? launch.level === "all" ? `problem-node-${launch.nodeId}` : `self-summary-${resolveSelfSummaryUnit(launch.level, launch.unitId).id}` : null);
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
@@ -403,6 +416,13 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   }, [relatedParticipants]);
 
   const selectNode = (id: string) => {
+    if (selfMode && !selfAtomicNodeIdSet.has(id)) {
+      // Following an evidence link may leave the curated topic. Show the actual
+      // destination and its neighborhood instead of silently selecting the first self node.
+      setSelectedFacetIds([]);
+      saveSelfPreference(FACET_STORAGE_KEY, "[]");
+      setFocusDepth(1);
+    }
     const chain = chainByNodeId.get(id);
     if (chain && id !== chain.leaderId) setExpandedChainIds((current) => new Set(current).add(chain.id));
     const phase = phaseByNodeId.get(id);
@@ -431,14 +451,14 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const changeDensity = (nextDensity: ProblemDensityId) => {
     setDensity(nextDensity);
     setFocusDepth(0);
-    window.localStorage.setItem(DENSITY_STORAGE_KEY, nextDensity);
+    saveSelfPreference(DENSITY_STORAGE_KEY, nextDensity);
   };
 
   const toggleFacet = (facetId: ProblemFacetId) => {
     setPendingSelfTargetId(null);
     setSelectedFacetIds((current) => {
       const next = current.includes(facetId) ? current.filter((id) => id !== facetId) : [...current, facetId];
-      window.localStorage.setItem(FACET_STORAGE_KEY, JSON.stringify(next));
+      saveSelfPreference(FACET_STORAGE_KEY, JSON.stringify(next));
       return next;
     });
     setFocusDepth(0);
@@ -448,7 +468,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     setPendingSelfTargetId(null);
     setSelectedFacetIds([]);
     setFocusDepth(0);
-    window.localStorage.setItem(FACET_STORAGE_KEY, "[]");
+    saveSelfPreference(FACET_STORAGE_KEY, "[]");
   };
 
   const selectSummaryUnit = (id: string) => {
@@ -465,7 +485,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   };
 
   const showSelfSummary = (level: SelfSummaryLevel, fromUnitId?: string) => {
-    const unit = resolveSelfSummaryUnit(level, fromUnitId, selectedPhase.id);
+    const unit = resolveSelfSummaryUnit(level, fromUnitId, selectedPhase.id, selectedNode.id);
     selectSummaryUnit(unit.id);
     setCompressionLevel(level);
     saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, level);
@@ -485,23 +505,30 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
 
   useEffect(() => {
-    const savedDensity = window.localStorage.getItem(DENSITY_STORAGE_KEY) as ProblemDensityId | null;
+    const savedDensity = readProblemPreference(DENSITY_STORAGE_KEY) as ProblemDensityId | null;
     if (!savedDensity || !problemDensityOptions.some((option) => option.id === savedDensity)) return;
     const frame = window.requestAnimationFrame(() => setDensity(savedDensity));
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
-    const savedFacets = window.localStorage.getItem(FACET_STORAGE_KEY);
-    const savedCompression = window.localStorage.getItem(SELF_COMPRESSION_STORAGE_KEY);
-    const savedSummary = window.localStorage.getItem(SELF_SUMMARY_STORAGE_KEY);
+    if (launch) {
+      saveSelfPreference(FACET_STORAGE_KEY, JSON.stringify(["self"]));
+      saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, launch.level);
+      saveSelfPreference(SELF_SUMMARY_STORAGE_KEY, launch.unitId);
+      onReadingTargetConsumed?.();
+      return;
+    }
+    const savedFacets = readProblemPreference(FACET_STORAGE_KEY);
+    const savedCompression = readProblemPreference(SELF_COMPRESSION_STORAGE_KEY);
+    const savedSummary = readProblemPreference(SELF_SUMMARY_STORAGE_KEY);
     const frame = window.requestAnimationFrame(() => {
       if (savedFacets) {
         try {
           const parsed = JSON.parse(savedFacets) as ProblemFacetId[];
           setSelectedFacetIds(parsed.filter((id) => problemFacetOptions.some((option) => option.id === id && option.available)));
         } catch {
-          window.localStorage.removeItem(FACET_STORAGE_KEY);
+          saveSelfPreference(FACET_STORAGE_KEY, null);
         }
       }
       setCompressionLevel(normalizeSelfCompressionLevel(savedCompression));
@@ -509,7 +536,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       if (savedCompression === "50") saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, "all");
     });
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [launch, onReadingTargetConsumed]);
 
   useEffect(() => {
     if (!selfMode || !pendingSelfTargetId) return;
@@ -538,6 +565,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id, selfMode]);
 
   return <article className="problem-map-page page-wrap">
+    {onBack && <button className="context-back" onClick={onBack}><span>←</span><small>返回刚才的阅读位置</small><b>{originLabel}</b></button>}
     <header className="problem-map-hero">
       <div className="problem-map-mark"><span>?</span><small>PROBLEM<br />GENEALOGY</small></div>
       <div className="problem-map-title">
@@ -622,7 +650,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
                 const edgeConnectionClass = edge.connectionKinds.length === 1 ? connectionClass[edge.connectionKinds[0]] : "mixed";
                 return <g className={connected ? "connected" : ""} key={edge.id}>
                   <path className={`problem-graph-edge relation-${edge.relation} connection-${edgeConnectionClass}${edge.folded ? " folded" : ""}`} d={edgePath(edge, nodesById, graphPoints, collapsedChainByLeaderId)} markerEnd="url(#problem-arrow)">
-                    <title>{edge.folded ? `折叠 ${edge.hiddenNodeCount} 个中间节点。` : ""}{edge.label} · {edge.connectionKinds.join("／")}</title>
+                    <title>{`${edge.folded ? `折叠 ${edge.hiddenNodeCount} 个中间节点。` : ""}${edge.label} · ${edge.connectionKinds.join("／")}`}</title>
                   </path>
                 </g>;
               })}
@@ -662,6 +690,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           <div><span>{selectedNode.kind}</span>{selectedNode.answerRole && <em>{selectedNode.answerRole}型答案</em>}</div>
           <small>{kindEnglish[selectedNode.kind]} · {incomingEdges.length} 条进入 / {outgoingEdges.length} 条发出</small>
           <h3>{selectedNode.title}</h3>
+          {selfMode && <small>相接维度 · {selfNodeTopics(selectedNode.id).join(" / ")}</small>}
           <p>{selectedNode.summary}</p>
         </header>
 
@@ -671,6 +700,11 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         </div>
 
         <div className="problem-node-detail-links">
+          {selfMode && <section className="problem-history-links"><span>在历史中定位</span><button type="button" onClick={() => onHistory({
+            stageId: problemPhaseHistoryStageIds[selectedPhase.id],
+            label: selectedPhase.title,
+            note: "这是论证所在的历史阶段，不把历史背景当作观点的充分原因。",
+          }, selectedNode.id)}><b>{historyStages.find((stage) => stage.id === problemPhaseHistoryStageIds[selectedPhase.id])?.title}</b><em>{selectedPhase.title}</em></button></section>}
           {selectedBoundaryNotes.length > 0 && <section className="problem-explanation-boundary"><span>解释边界</span>{selectedBoundaryNotes.map((boundary) => <article key={`${selectedNode.id}-${boundary.label}`}><b>{boundary.label}</b><p>{boundary.note}</p></article>)}</section>}
           {selectedFamily && <section className="problem-family-context"><span>问题家族</span><b>{selectedFamily.label}</b><small>{selectedFamily.english}</small><p>{selectedFamily.description}</p></section>}
           {selectedChain && <section className="problem-chain-detail"><span>连续论证链</span><p>这一链包含 {selectedChain.nodeIds.length} 个原子节点；折叠只改变显示，不改变节点 ID 与关系。</p><div>{selectedChain.nodeIds.map((nodeId, index) => {
@@ -681,7 +715,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
             const answer = nodesById.get(answerId);
             return answer ? <button type="button" className={selectedNode.id === answerId ? "active" : ""} onClick={() => selectNode(answerId)} key={answerId}>{answer.title}</button> : null;
           })}</div></section>}
-          {density === "research" && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
+          {(selfMode || density === "research") && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
             const adjacent = nodesById.get(adjacentId);
             return <button type="button" onClick={() => selectNode(adjacentId)} key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{adjacent?.title}</b><em>{edge.label}</em></button>;
           })}</div></section>}

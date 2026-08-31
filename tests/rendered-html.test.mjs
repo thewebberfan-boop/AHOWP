@@ -114,7 +114,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemMap, /关联历史概览/);
   assert.match(page, /activeNodeId=\{problemNodeId\}/);
   assert.match(page, /problemHistoryOrigin/);
-  assert.match(page, /返回问题图谱中的观察/);
+  assert.match(page, /返回问题图谱中的节点/);
   assert.match(problemData, /type ProblemNodeKind = "观察" \| "问题" \| "答案"/);
   assert.match(problemData, /type ProblemObservationDomain/);
   assert.match(problemData, /public-disagreement-observation/);
@@ -199,7 +199,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(completionProblemData, /how-combine-clarity-history-experience-freedom-public-correction/);
   assert.match(problemViewData, /how-should-christian-society-be-reformed/);
   assert.match(problemViewData, /how-can-subject-loosen-service-to-will/);
-  assert.match(spec, /826 个节点和 947 条边/);
+  assert.match(spec, /826 个节点和 975 条边/);
   assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);

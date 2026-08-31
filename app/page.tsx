@@ -11,12 +11,18 @@ import { russellStructureStageIdsByHistoryStage, russellStructureStages } from "
 import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
 import { ProblemMapView } from "./problem-map";
+import { KnowledgeConnections, KnowledgeNavigationContext } from "./knowledge-connections";
+import { knowledgePhaseByNodeId, type ReadingTarget } from "./knowledge-paths";
 import { ancientDifferenceProblemMap, type ProblemHistoryLink } from "./problem-map-data";
 import { findSchoolProfilesByPhilosopher, schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
 
 type Mode = "schools" | "philosophers" | "problems" | "history" | "methods" | "chapters" | "review";
-type ChapterOrigin = {
+type ProblemViewOrigin = {
+  problemPreferences?: Record<string, string | null>;
+  problemGraphScroll?: { top: number; left: number };
+};
+type ChapterOrigin = ProblemViewOrigin & {
   mode: Exclude<Mode, "chapters">;
   schoolId: string;
   philosopherId: string;
@@ -24,6 +30,7 @@ type ChapterOrigin = {
   responseId: string;
   methodId: string;
   problemPhaseId: string;
+  problemNodeId?: string;
   reviewIndex: number;
   label: string;
   scrollY: number;
@@ -35,14 +42,15 @@ type SchoolOrigin =
 type PhilosopherOrigin =
   | ({ source: "school"; schoolId: string } & Pick<HistoryOrigin, "scrollY" | "label">)
   | ({ source: "history" } & HistoryOrigin);
-type ProblemHistoryOrigin = {
+type ProblemHistoryOrigin = ProblemViewOrigin & {
   problemPhaseId: string;
   problemNodeId: string;
   scrollY: number;
   label: string;
 };
-type InlineEntityOrigin = {
-  target: "school" | "philosopher";
+type InlineEntityOrigin = ProblemViewOrigin & {
+  target: "school" | "philosopher" | "problem";
+  problemHistoryOrigin?: ProblemHistoryOrigin | null;
   mode: Mode;
   schoolId: string;
   showSchoolGraph: boolean;
@@ -127,6 +135,30 @@ const learningModes: Mode[] = ["schools", "philosophers", "problems", "history",
 const defaultProblemPhaseId = ancientDifferenceProblemMap.phases[0].id;
 const problemMapNodes = ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes);
 const defaultProblemNodeId = problemMapNodes[0].id;
+const problemPreferenceKeys = ["ahowp-problem-map-facets", "ahowp-problem-map-self-compression", "ahowp-problem-map-self-summary", "ahowp-problem-map-density"];
+
+function captureProblemPreferences() {
+  try { return Object.fromEntries(problemPreferenceKeys.map((key) => [key, localStorage.getItem(key)])); }
+  catch { return undefined; }
+}
+
+function captureProblemViewOrigin(): ProblemViewOrigin {
+  const graph = document.querySelector(".problem-graph-scroll");
+  return {
+    problemPreferences: captureProblemPreferences(),
+    problemGraphScroll: { top: graph?.scrollTop || 0, left: graph?.scrollLeft || 0 },
+  };
+}
+
+function restoreProblemPreferences(preferences?: Record<string, string | null>) {
+  if (!preferences) return;
+  try {
+    for (const key of problemPreferenceKeys) {
+      if (preferences[key] == null) localStorage.removeItem(key);
+      else localStorage.setItem(key, preferences[key]);
+    }
+  } catch { /* The in-memory navigation remains usable when storage is blocked. */ }
+}
 
 function validProblemPhaseId(value: unknown) {
   return typeof value === "string" && ancientDifferenceProblemMap.phases.some((phase) => phase.id === value) ? value : defaultProblemPhaseId;
@@ -248,6 +280,19 @@ export default function Home() {
   const [schoolOrigin, setSchoolOrigin] = useState<SchoolOrigin | null>(null);
   const [philosopherOrigin, setPhilosopherOrigin] = useState<PhilosopherOrigin | null>(null);
   const [inlineEntityOrigin, setInlineEntityOrigin] = useState<InlineEntityOrigin | null>(null);
+  const [readingTarget, setReadingTarget] = useState<ReadingTarget | null>(null);
+  const consumeReadingTarget = useCallback(() => setReadingTarget(null), []);
+  const [pendingGraphScroll, setPendingGraphScroll] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!pendingGraphScroll) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        document.querySelector(".problem-graph-scroll")?.scrollTo(pendingGraphScroll);
+        setPendingGraphScroll(null);
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pendingGraphScroll]);
   const [problemHistoryOrigin, setProblemHistoryOrigin] = useState<ProblemHistoryOrigin | null>(null);
   const [pendingHistoryScroll, setPendingHistoryScroll] = useState<number | null>(null);
   const [pendingSchoolScroll, setPendingSchoolScroll] = useState<number | null>(null);
@@ -597,7 +642,7 @@ export default function Home() {
     const phase = ancientDifferenceProblemMap.phases.find((item) => item.nodes.some((candidate) => candidate.id === node.id)) || ancientDifferenceProblemMap.phases[0];
     setProblemNodeId(node.id);
     setProblemPhaseId(phase.id);
-    setProblemHistoryOrigin({ problemPhaseId: phase.id, problemNodeId: node.id, scrollY: window.scrollY, label: `问题图谱 · ${node.title}` });
+    setProblemHistoryOrigin({ ...captureProblemViewOrigin(), problemPhaseId: phase.id, problemNodeId: node.id, scrollY: window.scrollY, label: `问题图谱 · ${node.title}` });
     setStageId(stage.id);
     setResponseId(response);
     setPendingHistoryScroll(null);
@@ -609,6 +654,8 @@ export default function Home() {
 
   const returnFromProblemHistory = () => {
     if (!problemHistoryOrigin) return;
+    restoreProblemPreferences(problemHistoryOrigin.problemPreferences);
+    setPendingGraphScroll(problemHistoryOrigin.problemGraphScroll || null);
     setProblemPhaseId(problemHistoryOrigin.problemPhaseId);
     setProblemNodeId(problemHistoryOrigin.problemNodeId);
     setPendingModeScroll(problemHistoryOrigin.scrollY);
@@ -692,7 +739,7 @@ export default function Home() {
     setPhilosopherOrigin(null);
   };
 
-  const openInlineEntity = (entity: NonNullable<TermEntry["entity"]>) => {
+  const openInlineEntity = (entity: NonNullable<TermEntry["entity"]> | { kind: "problem"; id: string; target: ReadingTarget }) => {
     if (entity.kind === "school" && mode === "schools" && !showSchoolGraph && schoolId === entity.id) return;
     if (entity.kind === "philosopher" && mode === "philosophers" && !showPhilosopherGraph && philosopherId === entity.id) return;
     const sourceLabel = mode === "history"
@@ -710,6 +757,8 @@ export default function Home() {
               : `关系复习 · ${reviewStage.title}`;
     setInlineEntityOrigin({
       target: entity.kind,
+      ...(mode === "problems" ? captureProblemViewOrigin() : {}),
+      problemHistoryOrigin,
       mode,
       schoolId,
       showSchoolGraph,
@@ -726,16 +775,27 @@ export default function Home() {
       schoolOrigin,
       philosopherOrigin,
       previousInlineEntityOrigin: inlineEntityOrigin,
-      label: `${sourceLabel} · 正文提及的${entity.kind === "school" ? "流派" : "哲学家"}`,
+      label: entity.kind === "problem" ? sourceLabel : `${sourceLabel} · 正文提及的${entity.kind === "school" ? "流派" : "哲学家"}`,
       scrollY: window.scrollY,
     });
-    if (entity.kind === "school") openSchool(entity.id, false, true);
+    if (entity.kind === "problem") {
+      setReadingTarget(entity.target);
+      setProblemNodeId(entity.target.nodeId);
+      setProblemPhaseId(knowledgePhaseByNodeId.get(entity.target.nodeId)?.id || defaultProblemPhaseId);
+      setMode("problems");
+      setQuery("");
+      setCopied(false);
+    } else if (entity.kind === "school") openSchool(entity.id, false, true);
     else openPhilosopher(entity.id, true);
   };
 
   const returnFromInlineEntity = () => {
     if (!inlineEntityOrigin) return;
     const origin = inlineEntityOrigin;
+    if (origin.mode === "problems") {
+      restoreProblemPreferences(origin.problemPreferences);
+      setPendingGraphScroll(origin.problemGraphScroll || null);
+    }
     setSchoolId(origin.schoolId);
     setShowSchoolGraph(origin.showSchoolGraph);
     setPhilosopherId(origin.philosopherId);
@@ -750,6 +810,7 @@ export default function Home() {
     setChapterOrigin(origin.chapterOrigin);
     setSchoolOrigin(origin.schoolOrigin);
     setPhilosopherOrigin(origin.philosopherOrigin);
+    setProblemHistoryOrigin(origin.problemHistoryOrigin || null);
     setMode(origin.mode);
     if (origin.mode === "history") setPendingHistoryScroll(origin.scrollY);
     if (origin.mode === "schools") setPendingSchoolScroll(origin.scrollY);
@@ -774,7 +835,7 @@ export default function Home() {
         : mode === "methods"
           ? `方法图谱 · ${selectedMethod.title}`
           : `关系复习 · ${reviewStage.title}`;
-      setChapterOrigin({ mode, schoolId, philosopherId, stageId, responseId, methodId, problemPhaseId, reviewIndex, label, scrollY: window.scrollY });
+      setChapterOrigin({ ...(mode === "problems" ? captureProblemViewOrigin() : {}), mode, schoolId, philosopherId, stageId, responseId, methodId, problemPhaseId, problemNodeId, reviewIndex, label, scrollY: window.scrollY });
     }
     setChapterId(id);
     setMode("chapters");
@@ -794,6 +855,11 @@ export default function Home() {
     setResponseId(chapterOrigin.responseId);
     setMethodId(chapterOrigin.methodId);
     setProblemPhaseId(chapterOrigin.problemPhaseId);
+    if (chapterOrigin.problemNodeId) setProblemNodeId(validProblemNodeId(chapterOrigin.problemNodeId));
+    if (chapterOrigin.mode === "problems") {
+      restoreProblemPreferences(chapterOrigin.problemPreferences);
+      setPendingGraphScroll(chapterOrigin.problemGraphScroll || null);
+    }
     setReviewIndex(chapterOrigin.reviewIndex);
     setMode(chapterOrigin.mode);
     if (chapterOrigin.mode === "history") setPendingHistoryScroll(chapterOrigin.scrollY);
@@ -961,6 +1027,7 @@ export default function Home() {
   }
 
   return (
+    <KnowledgeNavigationContext.Provider value={(target) => openInlineEntity({ kind: "problem", id: target.nodeId, target })}>
     <EntityNavigationContext.Provider value={openInlineEntity}>
     <PlaceInteractionContext.Provider value={setActivePlace}>
     <main className={`app-shell app-mode-${mode}${showMobileSearch ? " mobile-search-open" : ""}`}>
@@ -986,7 +1053,7 @@ export default function Home() {
         {showMobileSearch ? <MobileSearchPanel query={query} results={searchResults} onQueryChange={setQuery} onResult={openSearchResult} onClose={() => { setQuery(""); setMobileSearchOpen(false); }} /> : mobileRailItems.length > 0 && <MobileObjectRail label={mode === "history" ? "历史阶段" : mode === "schools" ? "哲学流派" : "哲学家"} activeKey={sidebarFocusKey || mobileRailItems[0].key} items={mobileRailItems} />}
         {mode === "schools" && (showSchoolGraph ? <SchoolGraphView initialSchoolId={selectedSchool.id} onSchool={openSchool} /> : <SchoolView profile={selectedSchool} onSchool={(id) => openSchool(id, false, true)} onPhilosopher={openPhilosopherFromSchool} onChapter={openChapter} originLabel={schoolInlineOrigin?.label || schoolOrigin?.label} onBack={schoolInlineOrigin ? returnFromInlineEntity : schoolOrigin ? returnFromSchool : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
         {mode === "philosophers" && (showPhilosopherGraph ? <PhilosopherGraphView initialPhilosopherId={selectedPhilosopher.id} onPhilosopher={openPhilosopher} /> : <PhilosopherView profile={selectedPhilosopher} onSchool={openSchoolFromPhilosopher} onChapter={openChapter} originLabel={philosopherInlineOrigin?.label || philosopherOrigin?.label} onBack={philosopherInlineOrigin ? returnFromInlineEntity : philosopherOrigin ? returnFromPhilosopher : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />)}
-        {mode === "problems" && <ProblemMapView activePhaseId={problemPhaseId} activeNodeId={problemNodeId} onPhaseChange={observeProblemPhase} onNodeChange={observeProblemNode} onPhilosopher={(id) => openInlineEntity({ kind: "philosopher", id })} onSchool={(id) => openInlineEntity({ kind: "school", id })} onHistory={openHistoryFromProblem} onChapter={openChapter} showEnglish={showEnglishTerms} />}
+        {mode === "problems" && <ProblemMapView initialReadingTarget={readingTarget} onReadingTargetConsumed={consumeReadingTarget} originLabel={inlineEntityOrigin?.target === "problem" ? inlineEntityOrigin.label : undefined} onBack={inlineEntityOrigin?.target === "problem" ? returnFromInlineEntity : undefined} activePhaseId={problemPhaseId} activeNodeId={problemNodeId} onPhaseChange={observeProblemPhase} onNodeChange={observeProblemNode} onPhilosopher={(id) => openInlineEntity({ kind: "philosopher", id })} onSchool={(id) => openInlineEntity({ kind: "school", id })} onHistory={openHistoryFromProblem} onChapter={openChapter} showEnglish={showEnglishTerms} />}
         {mode === "history" && <HistoryView key={selectedStage.id} stage={selectedStage} response={selectedResponse} onResponse={setResponseId} onSchool={openSchoolFromHistory} onPhilosopher={openPhilosopherFromHistory} onChapter={openChapter} originLabel={problemHistoryOrigin?.label} onBack={problemHistoryOrigin ? returnFromProblemHistory : undefined} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "methods" && <MethodsView method={selectedMethod} onMethod={setMethodId} onStage={openStage} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
         {mode === "chapters" && <ChapterView chapter={selectedChapter} note={selectedNote} starred={starredChapters.has(selectedChapter.id)} onStar={() => toggleSet(selectedChapter.id, starredChapters, "ahowp-starred", setStarredChapters)} copied={copied} onCopy={async () => { await navigator.clipboard?.writeText(`《西方哲学史》PDF 第 ${selectedChapter.pdfPage} 页`); setCopied(true); }} onTheme={(theme) => setQuery(theme)} originLabel={chapterOrigin?.label} onBack={returnFromChapter} showEnglish={showEnglishTerms} onTerm={setActiveTerm} />}
@@ -997,6 +1064,7 @@ export default function Home() {
     </main>
     </PlaceInteractionContext.Provider>
     </EntityNavigationContext.Provider>
+    </KnowledgeNavigationContext.Provider>
   );
 }
 
@@ -1206,6 +1274,7 @@ function SchoolView({ profile, onSchool, onPhilosopher, onChapter, originLabel, 
 
     <section className="school-section" id="school-architecture">
       <header><span>02</span><div><p className="section-label">PROBLEM → PREMISE → METHOD → ANSWER</p><h3>共同问题与可重复回答结构</h3></div></header>
+      <KnowledgeConnections key={profile.id} context={{ kind: "school", id: profile.id }} />
       <div className="school-logic-chain"><article><span>共同问题</span><p>{termText(profile.architecture.commonProblem)}</p></article><i aria-hidden="true">→</i><article><span>共享前提</span><p>{termText(profile.architecture.sharedPremise)}</p></article><i aria-hidden="true">→</i><article><span>反复使用的方法</span><p>{termText(profile.architecture.method)}</p></article><i aria-hidden="true">→</i><article><span>代表性回答</span><p>{termText(profile.architecture.answer)}</p></article></div>
       <div className="school-tension-board"><div className="school-subheading"><span>内部张力</span><p>同属一个传统，不等于没有分歧；这些张力正是发展发生的位置。</p></div><div>{profile.architecture.tensions.map((tension) => <article key={tension.title}><h4>{termText(tension.title)}</h4><p>{termText(tension.detail)}</p></article>)}</div></div>
     </section>
@@ -1329,6 +1398,7 @@ function PhilosopherView({ profile, onSchool, onChapter, originLabel, onBack, sh
 
     <section className="profile-section inquiry-section" id="profile-inquiry">
       <header><span>03</span><div><p className="section-label">OBJECT → QUESTION → INFERENCE</p><h3>研究对象与推导路径</h3></div></header>
+      <KnowledgeConnections key={profile.id} context={{ kind: "philosopher", id: profile.id }} />
       <div className="inquiry-list">{profile.inquiries.map((inquiry, inquiryIndex) => <article className="inquiry-card" key={inquiry.object}><header><div className="inquiry-subject"><small>研究对象 <i>{lowerRomanNumerals[inquiryIndex] || String(inquiryIndex + 1)}:</i></small><b>{termText(inquiry.object)}</b></div><i className="inquiry-header-divider" aria-hidden="true" /><h4>{termText(inquiry.question)}</h4></header><div className="logic-start"><span>逻辑起点</span><p>{termText(inquiry.start)}</p></div><div className="logic-chain">{inquiry.steps.map((step, index) => <div key={step}><p>{termText(step)}</p>{index < inquiry.steps.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div><div className="logic-conclusion"><span>推导结果</span><p>{termText(inquiry.conclusion)}</p></div></article>)}</div>
     </section>
 
@@ -1390,7 +1460,7 @@ function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onC
   }, [activeDetail]);
 
   return <article className="history-page page-wrap">
-    {onBack && <button className="context-back" onClick={onBack}><span>←</span><small>返回问题图谱中的观察</small><b>{originLabel || "刚才的图谱节点"}</b></button>}
+    {onBack && <button className="context-back" onClick={onBack}><span>←</span><small>返回问题图谱中的节点</small><b>{originLabel || "刚才的图谱节点"}</b></button>}
     <header className="history-hero"><div className="hero-number"><span>{String(stageIndex + 1).padStart(2, "0")}</span><i /></div><div><p className="eyebrow">{stage.years} · {stage.subtitle}</p><h2><TermText text={stage.title} showEnglish={showEnglish} onTerm={onTerm} interactive={false} /></h2><p className="transition"><TermText text={stage.transition} showEnglish={showEnglish} onTerm={onTerm} /></p></div><div className="coverage-tag"><span>{stage.coverage === "personal" ? "个人笔记已覆盖" : "原书框架"}</span><small>{stage.responses.length} 种同期回应</small></div></header>
     <section className="world-section">
       <p className="section-label">01 · 先看同一个世界</p>
@@ -1400,6 +1470,7 @@ function HistoryView({ stage, response, onResponse, onSchool, onPhilosopher, onC
       </div>
       <aside className="carrier-strip"><b>这个时期，知识主要由谁承载？</b><p><TermText text={stage.carrier} showEnglish={showEnglish} onTerm={onTerm} /></p></aside>
     </section>
+    <KnowledgeConnections key={stage.id} context={{ kind: "history", id: stage.id }} />
     <section className="relation-section"><div className="section-heading"><p className="section-label">02 · 最短关系链</p><h3><TermText text={stage.commonQuestion} showEnglish={showEnglish} onTerm={onTerm} /></h3></div><div className="relation-chain">{stage.chain.map((link, index) => <div className={`relation-node ${link.kind}`} key={`${link.label}-${link.text}`}><span>{relationNames[link.kind]}</span><b><TermText text={link.text} showEnglish={showEnglish} onTerm={onTerm} /></b>{index < stage.chain.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div></section>
     <section className="responses-section"><div className="section-heading compact"><p className="section-label">03 · 同期比较</p><h3>同一个时代，为什么会有不同答案？</h3><p>先比较问题、方法和生活位置；具体论证留到下一层。</p></div><div className="response-tabs" role="tablist">{stage.responses.map((item, index) => <button role="tab" aria-selected={item.id === response.id} className={item.id === response.id ? "active" : ""} key={item.id} onClick={() => onResponse(item.id)}><span>0{index + 1}</span><b><TermText text={item.title} showEnglish={showEnglish} onTerm={onTerm} /></b><small><TermText text={item.figures} showEnglish={showEnglish} onTerm={onTerm} /></small></button>)}</div><div className="response-detail" role="tabpanel"><div className="response-main"><p className="response-place"><TermText text={`${response.region} · ${response.figures}`} showEnglish={showEnglish} onTerm={onTerm} /></p><h4><TermText text={response.answer} showEnglish={showEnglish} onTerm={onTerm} /></h4><div className="method-pill"><span>使用的方法</span><b><TermText text={response.method} showEnglish={showEnglish} onTerm={onTerm} /></b></div></div><div className="response-why"><p className="section-label">差异从哪里来</p><p><TermText text={response.difference} showEnglish={showEnglish} onTerm={onTerm} /></p>{response.noteCue && <blockquote><span>你的原始笔记线索</span>{response.noteCue}</blockquote>}</div><div className="chapter-evidence"><p className="section-label">下钻到原书</p>{response.chapterIds.map((id) => { const chapter = chapters.find((item) => item.id === id); return chapter ? <button key={id} onClick={() => onChapter(id)}><span>{chapter.roman}</span>{chapter.title}<i>→</i></button> : null; })}</div></div></section>
     <section className="history-explore-section"><header><div><p className="section-label">04 · 从时代回应进入流派与人物</p><h3>继续追踪“<TermText text={response.title} showEnglish={showEnglish} onTerm={onTerm} />”</h3></div><p>流派页展开共享问题、方法与内部变化；人物页进入概念、推导和具体差异。返回键会带你回到这里。</p></header>{hasDetailLinks ? <div className="history-explore-grid"><div className="history-school-links"><p className="section-label">相关哲学流派</p>{linkedSchools.map((school) => { const stars = school.stars || 1; return <button key={school.id} onClick={() => onSchool(school.id)}><span>{String(school.order).padStart(2, "0")}</span><div><small>{school.kind} · {"★".repeat(stars)}</small><b><TermText text={school.nameZh} showEnglish={false} onTerm={onTerm} /></b>{showEnglish && <em>{school.nameEn}</em>}</div><i aria-hidden="true">→</i></button>; })}</div><div className="history-philosopher-links"><p className="section-label">关键哲学家</p><div>{linkedPhilosophers.map((philosopher) => { const figure = figureEntries.find((item) => item.id === philosopher.figureId); const stars = philosopher.stars || 1; return <button key={philosopher.id} onClick={() => onPhilosopher(philosopher.id)}><span className="history-philosopher-portrait">{figure ? <img src={figure.imagePath} alt="" /> : philosopher.nameZh.slice(0, 1)}</span><span><small>{String(philosopher.order).padStart(2, "0")} · {"★".repeat(stars)}</small><b>{philosopher.nameZh}</b>{showEnglish && <em>{philosopher.nameEn}</em>}</span><i aria-hidden="true">→</i></button>; })}</div></div></div> : <aside className="history-link-scope"><b>当前详情页尚未覆盖这一回应</b><p>历史脉络与原书章节已经可读；第三卷流派和人物资料建立后，这里会按同一数据结构开放下钻。</p></aside>}</section>

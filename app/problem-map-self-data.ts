@@ -1,3 +1,5 @@
+import { selfReadingNodeIds } from "./self-reading-data";
+
 export type ProblemFacetId = "method" | "nature" | "self" | "society" | "ultimate";
 
 export type ProblemFacetOption = {
@@ -33,147 +35,38 @@ export const problemFacetOptions: ProblemFacetOption[] = [
 ];
 
 export const problemCompressionLevels: { id: ProblemCompressionLevel; label: string; note: string }[] = [
-  { id: "5", label: "5", note: "五个核心问题：从灵魂、选择到不断变化的我。" },
-  { id: "10", label: "10", note: "十个主要转折：展开每个主矛盾的历史分化。" },
-  { id: "20", label: "20", note: "二十个关键接口：保留主要分叉、回应与跨期连接。" },
-  { id: "all", label: "全部", note: "显示全部自我相关原子节点及其可追溯关系。" },
+  { id: "5", label: "总览 5", note: "先看五组基本问题与不同回答，不预设它们最终合成一种理论。" },
+  { id: "10", label: "主线 10", note: "展开每组问题中的主要分歧，保持与总览的对应。" },
+  { id: "20", label: "论证组 20", note: "定位具体问题及参与者，再进入同源的观察、问题和答案。" },
+  { id: "all", label: "全部节点", note: "显示本轮整理的自我论证网络，包括明确标识的同题比较；并非穷尽所有自我理论。" },
 ];
 
-// “自我”首轮标签：既包括主线节点，也包括与方法、自然、社会和终极直接相接的接口节点。
-// 标签表示相关性，不表示节点只能属于自我；后续主题可以复用同一稳定节点 ID。
-export const selfFacetNodeIds = [
-  "justice-as-ordered-whole",
-  "can-soul-survive-body",
-  "immortal-rational-soul",
-  "cognitive-impression-and-assent",
-  "fate-and-responsibility",
-  "assent-as-internal-cause",
-  "is-inner-freedom-enough",
-  "dependent-image-not-evil",
-  "reason-or-divine-aid",
-  "if-creator-good-whence-evil",
-  "evil-privation-disordered-will",
-  "can-will-heal-itself",
-  "grace-heals-divided-will",
-  "does-providence-cancel-freedom",
-  "eternal-present-knows-contingently",
-  "is-rational-soul-individual",
-  "shared-intellect-individual-imagination",
-  "can-intellectual-perfection-preserve-person",
-  "can-one-separate-intellect-make-this-person-think",
-  "each-human-soul-has-intellectual-powers",
-  "how-individual-intellect-knows-universals",
-  "what-makes-common-nature-this-individual",
-  "common-nature-contracted-by-haecceity",
-  "does-intellectual-judgment-determine-choice",
-  "will-has-synchronic-alternative-power",
-  "do-common-predicates-require-common-natures",
-  "how-can-thought-judge-state-classics-scripture-experience",
-  "does-expanded-agency-mean-secular-liberation",
-  "agency-expands-within-religious-patronage",
-  "justification-by-faith-reorders-works",
-  "how-free-is-will-before-grace",
-  "erasmus-small-cooperation-under-grace",
-  "luther-bound-will-in-salvation",
-  "why-command-if-will-cannot-save-itself",
-  "law-reveals-incapacity-grace-creates-will",
-  "does-scripture-conscience-create-solitary-infallibility",
-  "can-mind-be-explained-without-immaterial-faculty",
-  "sensation-imagination-passions-as-bodily-motion",
-  "self-preservation-and-protection-bound-obedience",
-  "what-can-thought-know-when-sense-and-words-mislead",
-  "what-is-the-self-known-in-cogito",
-  "thinking-thing-before-body",
-  "can-finite-thinker-secure-clear-distinct-truth",
-  "is-mind-really-distinct-from-body",
-  "matter-as-extension-mechanical-order",
-  "thought-extension-real-distinction",
-  "how-can-distinct-mind-and-body-form-one-human",
-  "mind-body-union-lived-not-mechanically-resolved",
-  "can-two-created-substances-fit-one-intelligible-nature",
-  "one-substance-god-or-nature",
-  "if-mind-and-body-do-not-interact-how-correspond",
-  "mind-body-parallel-expression",
-  "what-can-freedom-mean-in-necessary-nature",
-  "conatus-and-adequate-understanding-increase-agency",
-  "can-understanding-transform-passions-without-suppressing-them",
-  "how-do-perception-memory-and-reason-emerge",
-  "apperception-builds-conscious-continuity",
-  "are-ideas-innate-dispositions-or-experiential-materials",
-  "what-makes-one-person-same-over-time",
-  "personhood-through-conscious-appropriation",
-  "how-can-accountability-exceed-explicit-memory",
-  "what-causes-involuntary-sensory-ideas",
-  "ideas-passive-spirits-active-god-orders-sense",
-  "direct-idea-world-with-notions-of-spirit",
-  "can-spirit-cause-and-self-survive-strict-experience-test",
-  "simple-ideas-copy-impressions-source-test",
-  "what-unifies-person-without-self-impression",
-  "self-as-bundle-and-succession-of-perceptions",
-  "can-association-explain-one-mind-and-responsibility",
-  "association-explains-identity-fiction-not-full-unity",
-  "are-liberty-and-causal-necessity-compatible",
-  "liberty-as-action-according-to-will",
-  "can-caused-actions-ground-responsibility",
-  "can-scepticism-guide-life-without-paralysis",
-  "can-individuality-and-sociality-support-each-other",
-  "bildung-creative-individuality-within-relations",
-  "can-authentic-feeling-legitimate-political-power",
-  "is-amour-propre-only-corrupting-vanity",
-  "amour-propre-can-be-inflamed-or-egalitarian",
-  "how-educate-agency-without-premature-dependence",
-  "negative-education-protects-developmental-agency",
-  "can-social-order-preserve-freedom",
-  "can-self-legislation-be-universal-without-one-community",
-  "autonomy-as-rational-self-legislation",
-  "how-can-freedom-coexist-with-natural-causality",
-  "two-standpoints-natural-causality-practical-freedom",
-  "can-practical-reason-know-transcendent-freedom",
-  "why-self-consciousness-needs-mutual-recognition",
-  "mutual-recognition-constitutes-social-selfhood",
-  "can-domination-secure-recognition",
-  "asymmetric-recognition-undermines-itself",
-  "why-abstract-right-and-private-conscience-insufficient",
-  "does-intensified-desire-liberate-or-enslave",
-  "desire-reveals-will-before-rational-purpose",
-  "can-body-give-access-to-thing-in-itself",
-  "does-negating-will-repeat-nihilism",
-  "affirmation-revalues-suffering-without-worshipping-it",
-  "does-will-to-power-mean-political-domination",
-  "will-to-power-as-overcoming-and-organization-contested",
-  "can-revaluation-avoid-arbitrary-cruelty",
-  "are-all-pleasures-equal-in-value",
-  "higher-pleasures-and-competent-judges",
-  "does-liberty-serve-welfare-beyond-preference",
-  "is-freedom-an-uncaused-instant-choice",
-  "free-act-expresses-whole-developing-self",
-  "how-test-meaning-and-truth-in-plural-experience",
-  "are-relations-experienced-or-added-by-thought",
-  "radical-empiricism-includes-experienced-relations",
-  "is-experience-private-inner-content",
-  "experience-as-organism-environment-transaction",
-] as const;
+export const selfFacetNodeIds = [...new Set(Object.values(selfReadingNodeIds).flat())];
+
+export function collectSelfSummaryNodeIds(unit: SelfSummaryUnit): string[] {
+  return selfReadingNodeIds[unit.id] || [...new Set((unit.children || []).flatMap(collectSelfSummaryNodeIds))];
+}
 
 export const selfSummaryTree: SelfSummaryUnit[] = [
   {
     id: "self-5-soul-agency",
-    title: "身体之外有灵魂吗？命运之中能自主吗？",
+    title: "怎样安排欲望，又能对什么负责？",
     period: "古希腊至罗马",
-    overview: "柏拉图追问灵魂能否离开身体；斯多葛派追问人能否掌握自己的判断。",
+    overview: "柏拉图谈灵魂的秩序，亚里士多德谈德性与生活，斯多葛派谈判断与责任。",
     question: "身体会衰老，外部遭遇也常不由我决定。那么，什么使我是我，又有什么仍能由我做主？",
-    thesis: "柏拉图认为，灵魂中的理性应当引导欲望，并尝试论证灵魂能够在身体死后继续存在。斯多葛派把重点放在判断：事情怎样发生未必由我决定，但我是否接受某种看法、据此行动，仍与我的判断有关。这是关于灵魂存在和行动责任的两组问题，不能合并为一个答案。",
+    thesis: "柏拉图用灵魂各部分的秩序说明正义，并另行讨论灵魂不朽。亚里士多德把人的良好生活联系到德性的活动、习惯和城邦条件。斯多葛派则强调：外部遭遇未必由我决定，我怎样接受印象并据此行动仍涉及自己的判断。这些论证分别讨论怎样生活、灵魂是否存续和行动怎样归责。",
     transition: "即使把判断看作自己的责任，人仍可能明知不对却照做。下一段追问：为什么意愿与行动会冲突，人能靠自己改好吗？",
     children: [
       {
         id: "self-10-rational-soul",
-        title: "理性灵魂、正义与不朽",
+        title: "理性怎样引导生活，灵魂能否离开身体？",
         period: "古典希腊",
-        question: "把握不变形式的主体能否独立于身体，并以内部秩序构成正义？",
-        thesis: "灵魂被组织为认识与行动的统一承担者，但其不朽、与身体的关系及内部部分如何统一仍有争议。",
+        question: "理性怎样组织欲望和行动？灵魂的不朽是否需要另外的论证？",
+        thesis: "柏拉图用灵魂的内部秩序解释正义，亚里士多德从德性的活动与共同生活讨论幸福。柏拉图对灵魂不朽的论证属于另一问题，不能由生活有秩序直接推出。",
         transition: "帝国时代把问题从灵魂实体进一步转向日常判断与责任。",
         children: [
-          { id: "self-20-soul-order", entryNodeId: "justice-as-ordered-whole", title: "灵魂以何种秩序成为同一个人？", period: "柏拉图", question: "灵魂的不同能力怎样形成可认识、可行动的整体？", thesis: "正义被理解为灵魂各部分形成秩序，而理性活动把自我连接到稳定真实。", transition: "若灵魂属于可知秩序，还要追问它能否脱离身体。", phaseIds: ["from-perception-to-knowledge"] },
-          { id: "self-20-soul-survival", entryNodeId: "can-soul-survive-body", title: "认识真实是否保证灵魂不朽？", period: "柏拉图及其后继", question: "认识不变对象的能力，是否足以证明灵魂独立延续？", thesis: "哲学净化把自我提升为不完全受身体支配的主体，却没有自动解决个人连续性。", transition: "后继传统把自由的检验转到因果世界中的具体行动。", phaseIds: ["from-perception-to-knowledge"] },
+          { id: "self-20-soul-order", entryNodeId: "justice-as-ordered-whole", title: "理性怎样组织欲望和行动？", period: "柏拉图与亚里士多德", question: "欲望、判断和习惯怎样形成良好生活，城邦在其中起什么作用？", thesis: "柏拉图把正义理解为灵魂各部分各尽其职；亚里士多德把幸福联系到合乎德性的活动。两者都把个人生活与城邦联系起来，但没有采用同一套灵魂和幸福理论。", transition: "若灵魂属于可知秩序，还要追问它能否脱离身体。", phaseIds: ["from-perception-to-knowledge", "flourishing-and-polis", "hellenistic-therapies"] },
+          { id: "self-20-soul-survival", entryNodeId: "can-soul-survive-body", title: "认识真实是否保证灵魂不朽？", period: "柏拉图及其后继", question: "认识不变对象的能力，是否足以证明灵魂独立延续？", thesis: "柏拉图从回忆、灵魂与可知对象的亲缘等角度论证不朽；这些论证须分别检验，不能把理性能够认识稳定对象当作已经证明灵魂永远存续。", transition: "后继传统把自由的检验转到因果世界中的具体行动。", phaseIds: ["from-perception-to-knowledge"] },
         ],
       },
       {
@@ -184,7 +77,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "斯多葛派区分印象与同意，把自由安置在判断；罗马与晚期古代又追问这种内在自由是否足以支撑最高意义。",
         transition: "意志的内部秩序很快被放进创造、恶与救赎的神学框架。",
         children: [
-          { id: "self-20-assent-responsibility", entryNodeId: "fate-and-responsibility", title: "同意怎样使行动成为我的？", period: "斯多葛主义", question: "外因触发印象时，主体在哪一步承担责任？", thesis: "行动不是无原因事件；主体通过同意把外部刺激转化为自己的判断和行为。", transition: "内在因果保存责任，却未说明意志为何会持续选择错误。", phaseIds: ["criteria-freedom-cosmopolis"] },
+          { id: "self-20-assent-responsibility", entryNodeId: "fate-and-responsibility", title: "同意怎样使行动成为我的？", period: "斯多葛主义", question: "外因触发印象时，主体在哪一步承担责任？", thesis: "行动不是无原因事件；主体通过同意把外部刺激转化为自己的判断和行为。", transition: "内在因果保存责任，却未说明意志为何会持续选择错误。", phaseIds: ["hellenistic-therapies", "criteria-freedom-cosmopolis"] },
           { id: "self-20-inner-freedom-meaning", entryNodeId: "is-inner-freedom-enough", title: "内在自由是否足以回答最高意义？", period: "罗马至晚期古代", question: "控制判断、履行角色和接受命运，是否已经给出完整自我？", thesis: "自我越来越以内在转向获得稳定，但也由此向灵魂回归、恶与神圣援助开放。", transition: "基督教思想把自由的困难改写为分裂意志及其医治。", phaseIds: ["roman-inwardness-and-one"] },
         ],
       },
@@ -251,11 +144,11 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         title: "心身、情感与人格连续接受因果和经验检验",
         period: "斯宾诺莎至休谟",
         question: "若自我处于完整因果秩序，什么维持心身统一、意识连续和责任？",
-        thesis: "平行论、充足理解、统觉、意识归属和知觉束依次把自我从简单实体改写为因果能力、连续活动或关系结构。",
+        thesis: "斯宾诺莎从同一自然秩序解释心身和情感；洛克以意识归属讨论人格同一；休谟检验我们是否经验到恒常自我。它们分别回答心身关系、归责标准和经验根据的问题，不能当作同一个答案逐步完善。",
         transition: "实体自我被削弱后，个体怎样在教育和承认中形成成为新的问题。",
         children: [
-          { id: "self-20-mind-body-affect", entryNodeId: "how-can-distinct-mind-and-body-form-one-human", title: "心身对应与情感理解能否重写自由？", period: "笛卡尔与斯宾诺莎", question: "心身不直接互动或都受原因支配时，自由还剩下什么？", thesis: "心身被理解为同一秩序的不同表达，自由则转为由较充分理解组织情感与行动。", transition: "因果自我还需要跨时间保持意识和责任。", phaseIds: ["descartes-doubt-cogito-mind-body", "spinoza-one-substance-affects-freedom"] },
-          { id: "self-20-personal-identity-critique", entryNodeId: "what-makes-one-person-same-over-time", title: "意识、记忆与知觉束能否维持同一个人？", period: "莱布尼茨、洛克、贝克莱与休谟", question: "身体和心理内容变化时，什么把经验归给同一主体？", thesis: "统觉和意识归属保存连续性；经验审查随后把实体自我压缩为知觉序列，并暴露责任超过记忆的困难。", transition: "自我统一不再只靠内在材料，而要考察关系、教育和社会形成。", phaseIds: ["leibniz-monads-reasons-possible-worlds", "locke-experience-ideas-knowledge-identity", "berkeley-ideas-spirits-immaterialism", "hume-impressions-causation-self-scepticism"] },
+          { id: "self-20-mind-body-affect", entryNodeId: "how-can-distinct-mind-and-body-form-one-human", title: "心身对应与情感理解能否重写自由？", period: "笛卡尔与斯宾诺莎", question: "心身不直接互动或都受原因支配时，自由还剩下什么？", thesis: "笛卡尔坚持心身实在区分，同时承认人经验到二者的联合。斯宾诺莎拒绝两个实体的出发点，以同一自然的不同表达说明心身，并把自由联系到理解原因和增强行动能力。后一个答案改变了前提，不能写成前一个理论的补充。", transition: "因果自我还需要跨时间保持意识和责任。", phaseIds: ["descartes-doubt-cogito-mind-body", "spinoza-one-substance-affects-freedom"] },
+          { id: "self-20-personal-identity-critique", entryNodeId: "what-makes-one-person-same-over-time", title: "意识、记忆与知觉束能否维持同一个人？", period: "莱布尼茨、洛克、贝克莱与休谟", question: "身体和心理内容变化时，什么把经验归给同一主体？", thesis: "莱布尼茨讨论知觉如何形成自我意识；洛克区分同一个人、同一身体和同一实体，以意识归属说明人格同一。贝克莱仍主张能动的精神，休谟则找不到恒常自我的印象，并承认知觉的统一仍有难题。意识、记忆与责任之间的关系并未由此得到公认解答。", transition: "自我统一不再只靠内在材料，而要考察关系、教育和社会形成。", phaseIds: ["leibniz-monads-reasons-possible-worlds", "locke-experience-ideas-knowledge-identity", "berkeley-ideas-spirits-immaterialism", "hume-impressions-causation-self-scepticism"] },
         ],
       },
     ],
@@ -264,7 +157,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
     id: "self-5-formation-recognition",
     title: "活在他人的规则里，怎样才算自由？",
     period: "卢梭、康德与黑格尔",
-    overview: "卢梭关注教育与依赖；康德关注自己认可的道德原则；黑格尔关注相互承认。",
+    overview: "卢梭关注教育与依赖；康德追问道德原则能否普遍成立；黑格尔关注相互承认。",
     question: "我的愿望受教育、习俗和他人评价影响。照着愿望行动就算自由吗？遵守规则又一定是不自由吗？",
     thesis: "卢梭追问教育怎样培养判断力，而不是让人只求他人赞许。康德把自由联系到自律：依照理性能够要求每个人遵守的原则行动，而非只听从冲动。黑格尔强调，自由还需要他人承认我的地位，并在共同制度中得到保障。重点因此包括怎样形成判断、理由是否站得住，以及彼此如何相待。",
     transition: "但人不总按讲得通的理由行动。欲望、痛苦和过去的经历也会推动我们，下一段用这些经验检验理性与社会规则能解释多少。",
@@ -312,16 +205,16 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "身体意愿揭示非理性驱力，痛苦可被否定、转化或承担；能力发展又使自由与幸福不能只按快感数量衡量。",
         transition: "若自我是发展过程，自由必须在真实持续和经验关系中重新理解。",
         children: [
-          { id: "self-20-desire-suffering", entryNodeId: "desire-reveals-will-before-rational-purpose", title: "欲望和痛苦揭示了怎样的主体？", period: "叔本华与尼采", question: "理性目的是否只是更深驱力寻找对象的形式？", thesis: "自我被理解为欲望组织和克服阻力的过程；回应痛苦既不能神圣化它，也不能简单退出生命。", transition: "主体的价值重估仍要接受任意和残酷风险的检验。", phaseIds: ["schopenhauer-representation-will-suffering-release", "nietzsche-genealogy-nihilism-revaluation"] },
+          { id: "self-20-desire-suffering", entryNodeId: "desire-reveals-will-before-rational-purpose", title: "欲望和痛苦揭示了怎样的主体？", period: "叔本华与尼采", question: "理性目的是否只是更深驱力寻找对象的形式？", thesis: "叔本华从身体意愿和反复欲求解释痛苦，区分审美的暂时解脱、同情与禁欲。尼采质疑以否定生命回应痛苦，尝试重估价值；他的自我克服不能直接等同政治支配，其反平等风险也不能省略。", transition: "主体的价值重估仍要接受任意和残酷风险的检验。", phaseIds: ["schopenhauer-representation-will-suffering-release", "nietzsche-genealogy-nihilism-revaluation"] },
           { id: "self-20-capacity-liberty", entryNodeId: "are-all-pleasures-equal-in-value", title: "幸福是否包含较高能力与个性发展？", period: "密尔", question: "自由和幸福只是满足既有偏好，还是形成新能力的条件？", thesis: "较高能力、判断与生活实验进入幸福尺度，使个体发展不能被压成快感总量。", transition: "发展需要时间，因此自由行动不能只看作瞬间选择。", phaseIds: ["utilitarianism-welfare-liberty-reform"] },
         ],
       },
       {
         id: "self-10-duration-transaction",
-        title: "持续经验与环境交易取代封闭实体自我",
+        title: "过去和环境怎样参与当下的我？",
         period: "柏格森、詹姆斯与杜威",
         question: "过去如何进入现在，经验关系又怎样构成行动者？",
-        thesis: "自由行动表达持续形成的整个自我；经验包含关系和过渡，并最终被理解为有机体与环境的交易，而非封闭心灵中的材料。",
+        thesis: "柏格森从绵延说明一次行动怎样表达整个经历；詹姆斯强调经验本身包含关系；杜威考察有机体与环境的相互作用。三种视角可相互比较，但并不共同证明一种最终的自我理论。",
         transition: "自我主线以开放问题收束：怎样同时保存经验连续、公共纠错、历史条件与有限自由？",
         children: [
           { id: "self-20-duration-free-act", entryNodeId: "is-freedom-an-uncaused-instant-choice", title: "自由行动怎样表达持续形成的整个自我？", period: "柏格森", question: "自由是否必须是脱离原因的瞬间选择？", thesis: "过去在绵延中进入现在，自由行动由不可外拆的整个发展中自我发出。", transition: "个体持续还要放进与世界共享的经验关系。", phaseIds: ["bergson-duration-memory-intuition-creation"] },
@@ -358,11 +251,12 @@ function containsSummary(unit: SelfSummaryUnit, id: string): boolean {
   return unit.id === id || Boolean(unit.children?.some((child) => containsSummary(child, id)));
 }
 
-export function resolveSelfSummaryUnit(level: SelfSummaryLevel, currentUnitId?: string, phaseId?: string): SelfSummaryUnit {
+export function resolveSelfSummaryUnit(level: SelfSummaryLevel, currentUnitId?: string, phaseId?: string, nodeId?: string): SelfSummaryUnit {
   const units = flattenSelfSummaryLevel(level);
   const current = (["5", "10", "20"] as const).flatMap(flattenSelfSummaryLevel).find((unit) => unit.id === currentUnitId);
   // Stay in the same branch when moving either down to children or up to a parent.
   return units.find((unit) => current && (containsSummary(unit, current.id) || containsSummary(current, unit.id)))
+    || units.find((unit) => nodeId && collectSelfSummaryNodeIds(unit).includes(nodeId))
     || units.find((unit) => phaseId && collectSelfSummaryPhaseIds(unit).includes(phaseId))
     || units[0];
 }

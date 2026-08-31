@@ -1096,6 +1096,25 @@ button { cursor: pointer; }
 .self-summary-groups .summary-group-even { fill: rgba(218, 226, 216, .42); }
 .self-summary-groups .summary-group-label { fill: var(--muted); font: 500 9px Arial, sans-serif; letter-spacing: .06em; }
 .self-summary-edges path { fill: none; stroke: var(--green); stroke-width: 2; opacity: .58; }
+.knowledge-connections { margin: 16px 0; padding: 14px; border: 1px solid var(--line); border-left: 3px solid var(--green); background: var(--green-soft); color: var(--ink); }
+.knowledge-connections > header, .knowledge-connections article > header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.knowledge-connections h4, .knowledge-connections h5 { margin: 3px 0; font: 600 15px/1.5 var(--serif); }
+.knowledge-connections p, .knowledge-connections summary { font: 13px/1.65 var(--serif); }
+.knowledge-connections .knowledge-boundary { color: var(--muted); font-size: 12px; }
+.knowledge-connections details { border-top: 1px solid var(--line); padding: 9px 0 0; margin-top: 8px; }
+.knowledge-connections summary { cursor: pointer; }
+.knowledge-connections summary span { margin-left: 10px; color: var(--muted); font-size: 12px; }
+.knowledge-connections button { padding: 5px 8px; border: 1px solid var(--green); color: var(--green); background: transparent; text-align: left; font: 12px/1.6 var(--serif); cursor: pointer; }
+.knowledge-connections button:hover, .knowledge-connections button:focus-visible, .knowledge-connections summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.knowledge-connections article { padding: 10px 0; }
+.knowledge-connections ol { padding-left: 22px; }
+.knowledge-connections li { margin: 10px 0; }
+.knowledge-connections li small { display: block; color: var(--muted); font: 11px/1.6 var(--serif); }
+.knowledge-connections li button { border: 0; padding: 3px 0; font-weight: 600; }
+.knowledge-connections li p { margin: 3px 0; }
+.self-summary-detail details { margin: 8px 0; font: 12px/1.6 var(--serif); }
+.self-summary-detail summary { cursor: pointer; color: var(--green); }
+.self-summary-members > div { max-height: 420px; overflow-y: auto; }
 .self-summary-node { cursor: pointer; opacity: .88; touch-action: manipulation; user-select: none; }
 .self-summary-node rect { fill: #f7f2e8; stroke: var(--green); stroke-width: 1.6; filter: drop-shadow(4px 4px 0 rgba(49, 75, 61, .1)); }
 .self-summary-node:hover, .self-summary-node:focus-visible, .self-summary-node.selected { opacity: 1; outline: none; }

@@ -3,6 +3,7 @@ import test from "node:test";
 import { ancientDifferenceProblemMap } from "../app/problem-map-data";
 import {
   collectSelfSummaryPhaseIds,
+  collectSelfSummaryNodeIds,
   flattenSelfSummaryLevel,
   nextSelfSummaryLevel,
   normalizeSelfCompressionLevel,
@@ -25,7 +26,8 @@ test("expands the selected later branch instead of restarting at the first card"
 test("cards sharing one maintenance phase still enter different relevant atomic nodes", () => {
   const order = resolveSelfSummaryUnit("20", "self-20-soul-order");
   const survival = resolveSelfSummaryUnit("20", "self-20-soul-survival");
-  assert.deepEqual(collectSelfSummaryPhaseIds(order), collectSelfSummaryPhaseIds(survival));
+  assert.ok(collectSelfSummaryPhaseIds(order).some((id) => collectSelfSummaryPhaseIds(survival).includes(id)));
+  assert.notDeepEqual(collectSelfSummaryNodeIds(order), collectSelfSummaryNodeIds(survival));
   assert.equal(selfSummaryEntryNodeId(order), "justice-as-ordered-whole");
   assert.equal(selfSummaryEntryNodeId(survival), "can-soul-survive-body");
   // Returning from the atomic view must prefer the originating card to a shared phase.
@@ -61,4 +63,9 @@ test("retired and invalid stored levels recover without reintroducing the 50-nod
   assert.equal(normalizeSelfCompressionLevel(null), "5");
   assert.equal(normalizeSelfCompressionLevel("unknown"), "5");
   assert.equal(resolveSelfSummaryUnit("10", "removed-card").id, "self-10-rational-soul");
+});
+
+test("returning by a specific atomic node takes priority over a broad historical phase", () => {
+  assert.equal(resolveSelfSummaryUnit("20", undefined, "byron-romantic-rebellion-individuality", "does-intensified-desire-liberate-or-enslave").id, "self-20-desire-suffering");
+  assert.equal(resolveSelfSummaryUnit("20", undefined, "from-perception-to-knowledge", "can-soul-survive-body").id, "self-20-soul-survival");
 });

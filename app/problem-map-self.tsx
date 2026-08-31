@@ -3,15 +3,16 @@
 import { useMemo } from "react";
 import type { ProblemNode, ProblemPhase } from "./problem-map-data";
 import {
-  collectSelfSummaryPhaseIds,
+  collectSelfSummaryNodeIds,
   flattenSelfSummaryLevel,
-  selfFacetNodeIds,
   selfSummaryTree,
   nextSelfSummaryLevel,
   resolveSelfSummaryUnit,
   type SelfSummaryLevel,
   type SelfSummaryUnit,
 } from "./problem-map-self-data";
+import { ancientDifferenceProblemMap } from "./problem-map-data";
+import { buildSelfSummaryConnections, selfNodeTopics } from "./knowledge-paths";
 
 const SUMMARY_GRAPH_WIDTH = 1280;
 const SUMMARY_NODE_WIDTH = 420;
@@ -57,12 +58,12 @@ export function SelfSummaryGraph({
   onAtomicNode: (nodeId: string) => void;
 }) {
   const units = useMemo(() => flattenSelfSummaryLevel(level), [level]);
-  const selfNodeIdSet = useMemo(() => new Set<string>(selfFacetNodeIds), []);
   const phaseIndex = useMemo(() => new Map([...phaseByNodeId.values()].map((phase) => [phase.id, phase])), [phaseByNodeId]);
+  const connections = useMemo(() => buildSelfSummaryConnections(units, ancientDifferenceProblemMap.edges), [units]);
 
   const selectedUnit = resolveSelfSummaryUnit(level, selectedUnitId);
   const nextLevel = nextSelfSummaryLevel(level);
-  const expandLabel = nextLevel === "all" ? "定位到对应原子节点" : `展开到 ${nextLevel} 层的对应子卡`;
+  const expandLabel = nextLevel === "all" ? "进入具体论证节点" : nextLevel === "10" ? "展开对应主线" : "展开对应论证组";
   const measurements = units.map((unit) => {
     const titleLines = splitSummaryTitle(unit.title);
     const overviewLines = unit.overview ? splitSummaryTitle(unit.overview, 28) : [];
@@ -79,12 +80,12 @@ export function SelfSummaryGraph({
   const graphHeight = Math.max(360, unitY(units.length - 1) + layouts[units.length - 1].height + 70);
 
   const unitMemberNodes = (unit: SelfSummaryUnit) => {
-    const phaseIds = new Set(collectSelfSummaryPhaseIds(unit));
-    return allNodes.filter((node) => selfNodeIdSet.has(node.id) && phaseIds.has(phaseByNodeId.get(node.id)?.id || ""));
+    const ids = new Set(collectSelfSummaryNodeIds(unit));
+    return allNodes.filter((node) => ids.has(node.id));
   };
 
   const selectedMemberNodes = selectedUnit ? unitMemberNodes(selectedUnit) : [];
-  const selectedPhaseIds = selectedUnit ? collectSelfSummaryPhaseIds(selectedUnit) : [];
+  const selectedPhaseIds = [...new Set(selectedMemberNodes.map((node) => phaseByNodeId.get(node.id)?.id || ""))];
   const selectedPhases = selectedPhaseIds.map((id) => phaseIndex.get(id)).filter((phase): phase is ProblemPhase => Boolean(phase));
   const selectedParticipantNames = [...new Set(selectedMemberNodes.flatMap((node) => node.participants.map((participant) => participant.name)))];
   const selectedChapterIds = [...new Set(selectedMemberNodes.flatMap((node) => node.chapterIds))];
@@ -107,7 +108,7 @@ export function SelfSummaryGraph({
   return <section className="problem-graph-workspace self-summary-workspace" id="problem-graph">
     <div className="problem-graph-panel">
       <header className="problem-graph-toolbar">
-        <div><p className="section-label">CURATED SELF SUMMARY</p><h3>自我主线 · {level} 个总结节点</h3></div>
+        <div><p className="section-label">CURATED SELF SUMMARY</p><h3>自我 · {level === "5" ? "总览" : level === "10" ? "主线" : "论证组"} · {units.length} 组问题</h3></div>
         <div className="self-summary-actions">
           <p className="problem-graph-fit-note" id="self-summary-navigation-help">单击看解释 · 双击或 Enter 展开 · 空格选中</p>
           <button type="button" onClick={() => onDrillDown(selectedUnit)} aria-label={`${expandLabel}：${selectedUnit.title}`}>{expandLabel} →</button>
@@ -130,11 +131,14 @@ export function SelfSummaryGraph({
           </g>
 
           <g className="self-summary-edges">
-            {units.slice(0, -1).map((unit, index) => {
-              const startY = unitY(index) + layouts[index].height;
-              const endY = unitY(index + 1);
-              const centerX = SUMMARY_GRAPH_WIDTH / 2;
-              return <path key={`${unit.id}-${units[index + 1].id}`} d={`M ${centerX} ${startY} C ${centerX} ${startY + 24}, ${centerX} ${endY - 24}, ${centerX} ${endY}`} markerEnd="url(#self-summary-arrow)"><title>{unit.transition} · 本站学习重构</title></path>;
+            {connections.filter((link) => level === "5" || link.from === selectedUnit.id || link.to === selectedUnit.id).map((link, linkIndex) => {
+              const index = units.findIndex((unit) => unit.id === link.from);
+              const nextIndex = units.findIndex((unit) => unit.id === link.to);
+              const startY = unitY(index) + layouts[index].height / 2;
+              const endY = unitY(nextIndex) + layouts[nextIndex].height / 2;
+              const x = SUMMARY_NODE_X + SUMMARY_NODE_WIDTH;
+              const bend = x + 55 + (linkIndex % 5) * 24;
+              return <path key={`${link.from}-${link.to}`} d={`M ${x} ${startY} C ${bend} ${startY}, ${bend} ${endY}, ${x} ${endY}`} strokeDasharray={link.edges.length ? undefined : "5 4"} markerEnd={link.edges.length ? "url(#self-summary-arrow)" : undefined}><title>{link.edges.map((edge) => `${edge.connection}：${edge.label}`).join("；") + (link.sharedNodeIds.length ? `；共享 ${link.sharedNodeIds.length} 个原子节点` : "")}</title></path>;
             })}
           </g>
 
@@ -161,7 +165,7 @@ export function SelfSummaryGraph({
 
       <footer className="problem-graph-evidence self-summary-evidence">
         <span><i aria-hidden="true" />总结节点</span>
-        <span className="connection-folded"><i aria-hidden="true" />连线表示本站阅读顺序，不代表直接影响</span>
+        <span className="connection-folded"><i aria-hidden="true" />箭头可追溯至节点关系；虚线为共享节点。{level !== "5" && "只画当前卡片的连接。"}同题比较不代表直接影响</span>
       </footer>
     </div>
 
@@ -175,10 +179,21 @@ export function SelfSummaryGraph({
 
       <div className="problem-node-detail-logic">
         <section><span>这一层在追问什么</span><p>{selectedUnit.question}</p></section>
-        <section><span>{selectedUnit.id === units.at(-1)?.id ? "读到这里，还需追问" : "为什么接着读下一段"}</span><p>{selectedUnit.transition}</p></section>
+        <section><span>继续追问 · 本站阅读建议</span><p>{selectedUnit.transition}</p></section>
       </div>
 
       <div className="problem-node-detail-links">
+        <section className="self-summary-members">
+          <span>相接的问题 · 可核对关系依据</span>
+          {connections.filter((link) => link.from === selectedUnit.id || link.to === selectedUnit.id).map((link) => {
+            const other = units.find((unit) => unit.id === (link.from === selectedUnit.id ? link.to : link.from))!;
+            return <details key={`${link.from}-${link.to}`}><summary>{other.title}</summary>
+              {link.edges.map((edge) => <p key={edge.id}><b>{edge.connection}</b> · {edge.label}<button type="button" onClick={() => onAtomicNode(edge.from)}>核对起点 →</button><button type="button" onClick={() => onAtomicNode(edge.to)}>核对问题 →</button></p>)}
+              {link.sharedNodeIds.map((id) => <button type="button" key={id} onClick={() => onAtomicNode(id)}>共享节点 · {allNodes.find((node) => node.id === id)?.title}</button>)}
+              <button type="button" onClick={() => { onUnitSelect(other.id); document.getElementById(`self-summary-${other.id}`)?.scrollIntoView({ block: "center" }); }}>定位到相接卡片 →</button>
+            </details>;
+          })}
+        </section>
         <section className="self-summary-expand">
           <span>逐级展开</span>
           <p>{nextLevel === "all" ? "进入全部自我节点，并选中本卡对应的原始问题或答案。" : "展开当前卡片，选中并定位到它的第一张子卡；同层其他卡片仍然保留。"}</p>
@@ -190,8 +205,7 @@ export function SelfSummaryGraph({
         </section>
         <section className="self-summary-members">
           <span>进入原子节点</span>
-          <div>{selectedMemberNodes.slice(0, 12).map((node) => <button type="button" key={node.id} onClick={() => onAtomicNode(node.id)}><small>{node.kind}{node.answerRole ? ` · ${node.answerRole}` : ""}</small><b>{node.title}</b><i aria-hidden="true">↗</i></button>)}</div>
-          {selectedMemberNodes.length > 12 && <p>另有 {selectedMemberNodes.length - 12} 个节点；展开到“全部”后可逐项查看。</p>}
+          <div>{selectedMemberNodes.map((node) => <button type="button" key={node.id} onClick={() => onAtomicNode(node.id)}><small>{node.kind} · {selfNodeTopics(node.id).join(" / ")}</small><b>{node.title}</b><i aria-hidden="true">↗</i></button>)}</div>
         </section>
         <section className="self-summary-coverage">
           <span>覆盖范围</span>

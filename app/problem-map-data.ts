@@ -1,4 +1,5 @@
 import { modernProblemEdges, modernProblemPhases, modernProblemSources } from "./problem-map-modern-data";
+import { selfReadingEdges } from "./self-reading-data";
 
 export type ProblemNodeKind = "观察" | "问题" | "答案";
 export type ProblemAnswerRole = "提出" | "区分" | "反驳" | "修复" | "转向" | "综合";
@@ -4714,6 +4715,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     { id: "y21", from: "does-papal-decline-yield-one-successor-authority", to: "plural-authorities-replace-single-center", relation: "回应问题", label: "以功能分化的多重权威收束第二卷", connection: "本站推演" },
     { id: "y22", from: "plural-authorities-replace-single-center", to: "how-can-thought-judge-state-classics-scripture-experience", relation: "产生问题", label: "多中心秩序开放第三卷的比较与纠错问题", connection: "本站推演" },
     ...modernProblemEdges,
+    ...selfReadingEdges,
   ],
   sources: [
     { label: "罗素《西方哲学史》第一卷", url: "", note: "本站主叙述骨架；覆盖希腊文明兴起、前苏格拉底自然哲学、雅典体系、希腊化学派、罗马文化与普罗提诺三十章。" },
