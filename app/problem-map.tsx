@@ -36,6 +36,7 @@ import {
   selfSummaryEntryNodeId,
   type ProblemCompressionLevel,
   type ProblemFacetId,
+  type SelfSummaryLevel,
 } from "./problem-map-self-data";
 
 const GRAPH_WIDTH = 1280;
@@ -285,6 +286,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const chainByNodeId = useMemo(() => new Map(chainGroups.flatMap((group) => group.nodeIds.map((nodeId) => [nodeId, group]))), [chainGroups]);
   const selfMode = selectedFacetIds.includes("self");
   const selfSummaryLevel: "5" | "10" | "20" | null = selfMode && (compressionLevel === "5" || compressionLevel === "10" || compressionLevel === "20") ? compressionLevel : null;
+  const parentSummaryLevel: SelfSummaryLevel | null = compressionLevel === "all" ? "20" : compressionLevel === "20" ? "10" : compressionLevel === "10" ? "5" : null;
+  const summaryBackLabel = parentSummaryLevel ? `返回上一级：${parentSummaryLevel} 个总结节点` : "已是最上一级";
   const selfAtomicNodeIdSet = useMemo(() => new Set<string>(selfFacetNodeIds), []);
   const requestedNode = nodesById.get(activeNodeId);
   const selectedNode = selfMode && (!requestedNode || !selfAtomicNodeIdSet.has(requestedNode.id))
@@ -461,6 +464,14 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     setPendingSelfTargetId(`problem-node-${nodeId}`);
   };
 
+  const showSelfSummary = (level: SelfSummaryLevel, fromUnitId?: string) => {
+    const unit = resolveSelfSummaryUnit(level, fromUnitId, selectedPhase.id);
+    selectSummaryUnit(unit.id);
+    setCompressionLevel(level);
+    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, level);
+    setPendingSelfTargetId(`self-summary-${unit.id}`);
+  };
+
   const changeCompression = (nextLevel: ProblemCompressionLevel, fromUnitId = summaryUnitId) => {
     if (nextLevel === "all") {
       const unit = selfSummaryLevel ? resolveSelfSummaryUnit(selfSummaryLevel, fromUnitId) : null;
@@ -468,11 +479,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       openSelfAtomicNode((unit && selfSummaryEntryNodeId(unit)) || selectedNode.id);
       return;
     }
-    const unit = resolveSelfSummaryUnit(nextLevel, selfSummaryLevel ? fromUnitId : undefined, selectedPhase.id);
-    selectSummaryUnit(unit.id);
-    setCompressionLevel(nextLevel);
-    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, nextLevel);
-    setPendingSelfTargetId(`self-summary-${unit.id}`);
+    showSelfSummary(nextLevel, selfSummaryLevel ? fromUnitId : undefined);
   };
 
   const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
@@ -568,6 +575,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       {selfMode ? <div className="problem-compression-controls" role="group" aria-label="自我主题总结层级">
         <span>阅读层级</span>
         {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
+        <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showSelfSummary(parentSummaryLevel, summaryUnitId); }}><span aria-hidden="true">←</span></button>
       </div> : <>
         <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
           <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>

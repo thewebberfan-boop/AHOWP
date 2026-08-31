@@ -28,6 +28,12 @@ test("cards sharing one maintenance phase still enter different relevant atomic 
   assert.deepEqual(collectSelfSummaryPhaseIds(order), collectSelfSummaryPhaseIds(survival));
   assert.equal(selfSummaryEntryNodeId(order), "justice-as-ordered-whole");
   assert.equal(selfSummaryEntryNodeId(survival), "can-soul-survive-body");
+  // Returning from the atomic view must prefer the originating card to a shared phase.
+  const returned = resolveSelfSummaryUnit("20", survival.id, "from-perception-to-knowledge");
+  assert.equal(returned.id, survival.id);
+  const parent = resolveSelfSummaryUnit("10", returned.id);
+  assert.equal(parent.id, "self-10-rational-soul");
+  assert.equal(resolveSelfSummaryUnit("5", parent.id).id, "self-5-soul-agency");
 });
 
 test("every summary has a reachable entry within its own topic and historical coverage", () => {

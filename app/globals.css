@@ -1026,8 +1026,9 @@ button { cursor: pointer; }
 .problem-facet-controls button, .problem-compression-controls button { min-width: 34px; height: 28px; padding: 0 8px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 9px; }
 .problem-facet-controls button:hover:not(:disabled), .problem-facet-controls button:focus-visible:not(:disabled), .problem-compression-controls button:hover, .problem-compression-controls button:focus-visible { outline: none; border-color: var(--green); background: var(--green-soft); }
 .problem-facet-controls button.active, .problem-compression-controls button.active { border-color: var(--green); background: var(--green); color: white; }
-.problem-facet-controls button:disabled { cursor: not-allowed; opacity: .34; }
+.problem-facet-controls button:disabled, .problem-compression-controls button:disabled { cursor: not-allowed; opacity: .34; }
 .problem-compression-controls { flex: 1 1 270px; }
+.problem-compression-controls .problem-compression-back { min-width: 32px; margin-left: 4px; font-size: 16px; }
 [data-tooltip]::after { position: absolute; z-index: 12; bottom: calc(100% + 9px); left: 50%; width: max-content; max-width: min(300px, 78vw); padding: 8px 10px; border: 1px solid var(--ink); background: #fffdf7; box-shadow: 3px 3px 0 rgba(49, 75, 61, .13); color: var(--ink); content: attr(data-tooltip); font: 10px/1.5 var(--serif); opacity: 0; pointer-events: none; transform: translate(-50%, 3px); transition: opacity .14s ease, transform .14s ease; white-space: normal; }
 [data-tooltip]:hover::after, [data-tooltip]:focus-within::after { opacity: 1; transform: translate(-50%, 0); }
 .problem-family-legend { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 14px; border: 1px solid var(--line); }
