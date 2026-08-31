@@ -199,7 +199,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(completionProblemData, /how-combine-clarity-history-experience-freedom-public-correction/);
   assert.match(problemViewData, /how-should-christian-society-be-reformed/);
   assert.match(problemViewData, /how-can-subject-loosen-service-to-will/);
-  assert.match(spec, /826 个节点和 975 条边/);
+  assert.match(spec, /826 个节点和 1008 条边/);
   assert.match(styles, /\.problem-map-page/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);

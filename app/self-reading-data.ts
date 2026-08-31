@@ -172,14 +172,15 @@ export const selfReadingEdges: ProblemEdge[] = [
   reading("free-act-expresses-whole-developing-self", "are-relations-experienced-or-added-by-thought", "从持续的个人经验，比较经验是否原本就包含关系"),
 ];
 
-// Small, reviewed cross-topic interfaces, not automatic classification of an era.
-// The primary topic remains self; secondary dimensions refer to these very same IDs.
+// Seed interfaces from the self pilot, retained for auditing that migration.
+// Live nature/self/society/ultimate labels now come from exact tree memberships.
+// Method has no independent tree yet; only its reviewed interface badges are shown.
 export const selfCrossTopicNodes: Record<"nature" | "society" | "ultimate" | "method", string[]> = {
   nature: ids(`sensation-imagination-passions-as-bodily-motion thought-extension-real-distinction
     mind-body-parallel-expression what-can-freedom-mean-in-necessary-nature
     how-can-freedom-coexist-with-natural-causality experience-as-organism-environment-transaction`),
   society: ids(`how-order-soul-and-polis can-good-life-be-private who-belongs-moral-community
-    what-makes-one-person-same-over-time can-social-order-preserve-freedom
+    can-social-order-preserve-freedom
     why-self-consciousness-needs-mutual-recognition mutual-recognition-constitutes-social-selfhood
     ethical-life-mediates-family-civil-society-state harm-principle-protects-experiments-in-living
     how-institutionalize-fallible-plural-inquiry`),

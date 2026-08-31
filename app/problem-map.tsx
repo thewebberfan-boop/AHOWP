@@ -30,15 +30,13 @@ import { selfNodeTopics } from "./knowledge-paths";
 import {
   problemCompressionLevels,
   problemFacetOptions,
-  selfFacetNodeIds,
   nextSelfSummaryLevel,
-  normalizeSelfCompressionLevel,
-  resolveSelfSummaryUnit,
   selfSummaryEntryNodeId,
   type ProblemCompressionLevel,
   type ProblemFacetId,
   type SelfSummaryLevel,
 } from "./problem-map-self-data";
+import { ACTIVE_TOPIC_STORAGE_KEY, isReadingTopic, nodeReadingTopics, resolveTopicUnit, restoreTopicView, selectedTopicNodeIds, topicForUnit, topicLabel, topicPreferenceKey, type ReadingTopicId } from "./reading-topics-data";
 
 const GRAPH_WIDTH = 1280;
 const NODE_WIDTH = 220;
@@ -53,10 +51,8 @@ const NODE_GAP = 20;
 const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT - NODE_WIDTH) / MAX_GRAPH_LANE;
 const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
 const FACET_STORAGE_KEY = "ahowp-problem-map-facets";
-const SELF_COMPRESSION_STORAGE_KEY = "ahowp-problem-map-self-compression";
-const SELF_SUMMARY_STORAGE_KEY = "ahowp-problem-map-self-summary";
 
-function saveSelfPreference(key: string, value: string | null) {
+function saveTopicPreference(key: string, value: string | null) {
   try {
     if (value === null) window.localStorage.removeItem(key);
     else window.localStorage.setItem(key, value);
@@ -283,13 +279,14 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 }) {
   const map = ancientDifferenceProblemMap;
   const [launch] = useState(initialReadingTarget);
+  const launchTopic = launch?.topicId || topicForUnit(launch?.unitId) || "self";
   const [density, setDensity] = useState<ProblemDensityId>("standard");
   const [focusDepth, setFocusDepth] = useState<0 | 1 | 2>(0);
   const [expandedChainIds, setExpandedChainIds] = useState<Set<string>>(() => new Set());
-  const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>(launch ? ["self"] : []);
+  const [selectedFacetIds, setSelectedFacetIds] = useState<ProblemFacetId[]>(launch ? [launchTopic] : []);
   const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>(launch?.level || "5");
-  const [summaryUnitId, setSummaryUnitId] = useState(launch?.unitId || resolveSelfSummaryUnit("5").id);
-  const [pendingSelfTargetId, setPendingSelfTargetId] = useState<string | null>(launch ? launch.level === "all" ? `problem-node-${launch.nodeId}` : `self-summary-${resolveSelfSummaryUnit(launch.level, launch.unitId).id}` : null);
+  const [summaryUnitId, setSummaryUnitId] = useState(launch?.unitId || resolveTopicUnit(launchTopic, "5").id);
+  const [pendingTopicTargetId, setPendingTopicTargetId] = useState<string | null>(launch ? launch.level === "all" ? `problem-node-${launch.nodeId}` : `self-summary-${resolveTopicUnit(launchTopic, launch.level, launch.unitId, launch.nodeId).id}` : null);
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
@@ -297,14 +294,18 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const { incoming: incomingByNodeId, outgoing: outgoingByNodeId } = useMemo(() => buildDegreeMaps(allNodes, map.edges), [allNodes, map.edges]);
   const chainGroups = useMemo(() => buildChainGroups(allNodes, map.edges, phaseIdByNodeId), [allNodes, map.edges, phaseIdByNodeId]);
   const chainByNodeId = useMemo(() => new Map(chainGroups.flatMap((group) => group.nodeIds.map((nodeId) => [nodeId, group]))), [chainGroups]);
-  const selfMode = selectedFacetIds.includes("self");
-  const selfSummaryLevel: "5" | "10" | "20" | null = selfMode && (compressionLevel === "5" || compressionLevel === "10" || compressionLevel === "20") ? compressionLevel : null;
+  const selectedTopics = useMemo(() => selectedFacetIds.filter(isReadingTopic), [selectedFacetIds]);
+  const topicMode = selectedTopics.length > 0;
+  const currentTopic = topicForUnit(summaryUnitId);
+  const activeTopic = currentTopic && selectedTopics.includes(currentTopic) ? currentTopic : selectedTopics[0] || "self";
+  const topicsLabel = selectedTopics.map(topicLabel).join(" / ");
+  const topicSummaryLevel: "5" | "10" | "20" | null = topicMode && (compressionLevel === "5" || compressionLevel === "10" || compressionLevel === "20") ? compressionLevel : null;
   const parentSummaryLevel: SelfSummaryLevel | null = compressionLevel === "all" ? "20" : compressionLevel === "20" ? "10" : compressionLevel === "10" ? "5" : null;
   const summaryBackLabel = parentSummaryLevel ? `返回上一级：${parentSummaryLevel} 个总结节点` : "已是最上一级";
-  const selfAtomicNodeIdSet = useMemo(() => new Set<string>(selfFacetNodeIds), []);
+  const topicAtomicNodeIdSet = useMemo(() => selectedTopicNodeIds(selectedTopics), [selectedTopics]);
   const requestedNode = nodesById.get(activeNodeId);
-  const selectedNode = selfMode && (!requestedNode || !selfAtomicNodeIdSet.has(requestedNode.id))
-    ? allNodes.find((node) => selfAtomicNodeIdSet.has(node.id)) || allNodes[0]
+  const selectedNode = topicMode && (!requestedNode || !topicAtomicNodeIdSet.has(requestedNode.id))
+    ? allNodes.find((node) => topicAtomicNodeIdSet.has(node.id)) || allNodes[0]
     : requestedNode || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
   const selectedChain = chainByNodeId.get(selectedNode.id);
@@ -313,7 +314,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const densityOption = problemDensityOptions.find((option) => option.id === density) || problemDensityOptions[2];
 
   const focusNodeIds = useMemo(() => {
-    if (!focusDepth || selfMode) return null;
+    if (!focusDepth || topicMode) return null;
     const visible = new Set([selectedNode.id]);
     let frontier = new Set([selectedNode.id]);
     for (let depth = 0; depth < focusDepth; depth += 1) {
@@ -328,10 +329,10 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       frontier = next;
     }
     return visible;
-  }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode]);
+  }, [focusDepth, incomingByNodeId, outgoingByNodeId, selectedNode.id, topicMode]);
 
   const visibleNodeIds = useMemo(() => {
-    if (selfMode) return selfAtomicNodeIdSet;
+    if (topicMode) return topicAtomicNodeIdSet;
     if (focusNodeIds) return focusNodeIds;
     if (density === "complete" || density === "research") return new Set(allNodes.map((node) => node.id));
     if (density === "guide") {
@@ -356,19 +357,19 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       group.nodeIds.slice(1).forEach((nodeId) => visible.delete(nodeId));
     });
     return visible;
-  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id, selfMode, selfAtomicNodeIdSet]);
+  }, [allNodes, chainGroups, density, expandedChainIds, focusNodeIds, incomingByNodeId, outgoingByNodeId, selectedNode.id, topicMode, topicAtomicNodeIdSet]);
 
   const displayNodes = useMemo(() => allNodes.filter((node) => visibleNodeIds.has(node.id)), [allNodes, visibleNodeIds]);
-  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds, selfMode ? selfAtomicNodeIdSet : undefined), [map.edges, selfAtomicNodeIdSet, selfMode, visibleNodeIds]);
+  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, visibleNodeIds, topicMode ? topicAtomicNodeIdSet : undefined), [map.edges, topicAtomicNodeIdSet, topicMode, visibleNodeIds]);
   const collapsedChainByLeaderId = useMemo(() => {
     const result = new Map<string, ChainGroup>();
-    if (selfMode || density !== "standard" || focusDepth) return result;
+    if (topicMode || density !== "standard" || focusDepth) return result;
     chainGroups.forEach((group) => {
       if (!expandedChainIds.has(group.id) && visibleNodeIds.has(group.leaderId) && !visibleNodeIds.has(group.nodeIds[1])) result.set(group.leaderId, group);
     });
     return result;
-  }, [chainGroups, density, expandedChainIds, focusDepth, selfMode, visibleNodeIds]);
-  const layoutDensity = selfMode ? "complete" : density;
+  }, [chainGroups, density, expandedChainIds, focusDepth, topicMode, visibleNodeIds]);
+  const layoutDensity = topicMode ? "complete" : density;
   const graphPoints = useMemo(() => buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId), [collapsedChainByLeaderId, displayNodes, layoutDensity]);
   const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id))), 180) + 70;
   const historyBands = useMemo(() => historyStages.map((stage) => {
@@ -416,11 +417,15 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   }, [relatedParticipants]);
 
   const selectNode = (id: string) => {
-    if (selfMode && !selfAtomicNodeIdSet.has(id)) {
+    if (topicMode && topicAtomicNodeIdSet.has(id)) {
+      const topic = nodeReadingTopics(id).includes(activeTopic) ? activeTopic : nodeReadingTopics(id).find((item) => selectedTopics.includes(item));
+      if (topic) saveTopicPreference(topicPreferenceKey(topic, "node"), id);
+    }
+    if (topicMode && !topicAtomicNodeIdSet.has(id)) {
       // Following an evidence link may leave the curated topic. Show the actual
       // destination and its neighborhood instead of silently selecting the first self node.
       setSelectedFacetIds([]);
-      saveSelfPreference(FACET_STORAGE_KEY, "[]");
+      saveTopicPreference(FACET_STORAGE_KEY, "[]");
       setFocusDepth(1);
     }
     const chain = chainByNodeId.get(id);
@@ -451,55 +456,92 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const changeDensity = (nextDensity: ProblemDensityId) => {
     setDensity(nextDensity);
     setFocusDepth(0);
-    saveSelfPreference(DENSITY_STORAGE_KEY, nextDensity);
+    saveTopicPreference(DENSITY_STORAGE_KEY, nextDensity);
   };
 
   const toggleFacet = (facetId: ProblemFacetId) => {
-    setPendingSelfTargetId(null);
-    setSelectedFacetIds((current) => {
-      const next = current.includes(facetId) ? current.filter((id) => id !== facetId) : [...current, facetId];
-      saveSelfPreference(FACET_STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
+    if (!isReadingTopic(facetId)) return;
+    setPendingTopicTargetId(null);
+    const next = selectedTopics.includes(facetId) ? selectedTopics.filter((id) => id !== facetId) : [...selectedTopics, facetId];
+    setSelectedFacetIds(next);
+    saveTopicPreference(FACET_STORAGE_KEY, JSON.stringify(next));
+    const targetTopic = next.includes(facetId) ? facetId : next.includes(activeTopic) ? activeTopic : next[0];
+    if (targetTopic) {
+      const view = restoreTopicView(targetTopic, readProblemPreference);
+      setCompressionLevel(view.level);
+      setSummaryUnitId(view.unitId);
+      saveTopicPreference(ACTIVE_TOPIC_STORAGE_KEY, targetTopic);
+      if (view.level !== "all") setPendingTopicTargetId(`self-summary-${view.unitId}`);
+      else {
+        onNodeChange(view.nodeId);
+        const phase = phaseByNodeId.get(view.nodeId);
+        if (phase) onPhaseChange(phase.id);
+        setPendingTopicTargetId(`problem-node-${view.nodeId}`);
+      }
+    }
     setFocusDepth(0);
   };
 
   const clearFacets = () => {
-    setPendingSelfTargetId(null);
+    setPendingTopicTargetId(null);
     setSelectedFacetIds([]);
     setFocusDepth(0);
-    saveSelfPreference(FACET_STORAGE_KEY, "[]");
+    saveTopicPreference(FACET_STORAGE_KEY, "[]");
   };
 
   const selectSummaryUnit = (id: string) => {
     setSummaryUnitId(id);
-    saveSelfPreference(SELF_SUMMARY_STORAGE_KEY, id);
+    const topic = topicForUnit(id) || activeTopic;
+    saveTopicPreference(topicPreferenceKey(topic, "summary"), id);
+    saveTopicPreference(topicPreferenceKey(topic, "compression"), compressionLevel);
+    saveTopicPreference(ACTIVE_TOPIC_STORAGE_KEY, topic);
   };
 
-  const openSelfAtomicNode = (nodeId: string) => {
-    if (!selfAtomicNodeIdSet.has(nodeId)) return;
+  const openTopicAtomicNode = (nodeId: string, topic = activeTopic) => {
+    if (!topicAtomicNodeIdSet.has(nodeId)) return;
     setCompressionLevel("all");
-    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, "all");
+    saveTopicPreference(topicPreferenceKey(topic, "compression"), "all");
+    saveTopicPreference(topicPreferenceKey(topic, "node"), nodeId);
     selectNode(nodeId);
-    setPendingSelfTargetId(`problem-node-${nodeId}`);
+    setPendingTopicTargetId(`problem-node-${nodeId}`);
   };
 
-  const showSelfSummary = (level: SelfSummaryLevel, fromUnitId?: string) => {
-    const unit = resolveSelfSummaryUnit(level, fromUnitId, selectedPhase.id, selectedNode.id);
+  const showTopicSummary = (level: SelfSummaryLevel, fromUnitId?: string) => {
+    const contextUnitId = fromUnitId || summaryUnitId;
+    const fromTopic = topicForUnit(contextUnitId);
+    const topic = fromTopic && selectedTopics.includes(fromTopic) && (compressionLevel !== "all" || nodeReadingTopics(selectedNode.id).includes(fromTopic)) ? fromTopic
+      : nodeReadingTopics(selectedNode.id).includes(activeTopic) ? activeTopic
+      : nodeReadingTopics(selectedNode.id).find((id) => selectedTopics.includes(id)) || activeTopic;
+    const unit = resolveTopicUnit(topic, level, contextUnitId, selectedNode.id, compressionLevel === "all");
     selectSummaryUnit(unit.id);
     setCompressionLevel(level);
-    saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, level);
-    setPendingSelfTargetId(`self-summary-${unit.id}`);
+    saveTopicPreference(topicPreferenceKey(topic, "compression"), level);
+    setPendingTopicTargetId(`self-summary-${unit.id}`);
   };
 
   const changeCompression = (nextLevel: ProblemCompressionLevel, fromUnitId = summaryUnitId) => {
     if (nextLevel === "all") {
-      const unit = selfSummaryLevel ? resolveSelfSummaryUnit(selfSummaryLevel, fromUnitId) : null;
+      const unit = topicSummaryLevel ? resolveTopicUnit(topicForUnit(fromUnitId) || activeTopic, topicSummaryLevel, fromUnitId) : null;
       if (unit) selectSummaryUnit(unit.id);
-      openSelfAtomicNode((unit && selfSummaryEntryNodeId(unit)) || selectedNode.id);
+      openTopicAtomicNode((unit && selfSummaryEntryNodeId(unit)) || selectedNode.id, topicForUnit(unit?.id) || activeTopic);
       return;
     }
-    showSelfSummary(nextLevel, selfSummaryLevel ? fromUnitId : undefined);
+    showTopicSummary(nextLevel, topicSummaryLevel ? fromUnitId : undefined);
+  };
+
+  const locateNodeInTopic = (topic: ReadingTopicId, nodeId: string) => {
+    const unit = resolveTopicUnit(topic, "20", undefined, nodeId);
+    setSelectedFacetIds([topic]);
+    setSummaryUnitId(unit.id);
+    setCompressionLevel("20");
+    setFocusDepth(0);
+    saveTopicPreference(FACET_STORAGE_KEY, JSON.stringify([topic]));
+    saveTopicPreference(ACTIVE_TOPIC_STORAGE_KEY, topic);
+    saveTopicPreference(topicPreferenceKey(topic, "summary"), unit.id);
+    saveTopicPreference(topicPreferenceKey(topic, "compression"), "20");
+    saveTopicPreference(topicPreferenceKey(topic, "node"), nodeId);
+    onNodeChange(nodeId);
+    setPendingTopicTargetId(`self-summary-${unit.id}`);
   };
 
   const densityIndex = problemDensityOptions.findIndex((option) => option.id === density);
@@ -513,56 +555,66 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
   useEffect(() => {
     if (launch) {
-      saveSelfPreference(FACET_STORAGE_KEY, JSON.stringify(["self"]));
-      saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, launch.level);
-      saveSelfPreference(SELF_SUMMARY_STORAGE_KEY, launch.unitId);
+      saveTopicPreference(FACET_STORAGE_KEY, JSON.stringify([launchTopic]));
+      saveTopicPreference(ACTIVE_TOPIC_STORAGE_KEY, launchTopic);
+      saveTopicPreference(topicPreferenceKey(launchTopic, "compression"), launch.level);
+      saveTopicPreference(topicPreferenceKey(launchTopic, "summary"), launch.unitId);
+      saveTopicPreference(topicPreferenceKey(launchTopic, "node"), launch.nodeId);
       onReadingTargetConsumed?.();
       return;
     }
     const savedFacets = readProblemPreference(FACET_STORAGE_KEY);
-    const savedCompression = readProblemPreference(SELF_COMPRESSION_STORAGE_KEY);
-    const savedSummary = readProblemPreference(SELF_SUMMARY_STORAGE_KEY);
     const frame = window.requestAnimationFrame(() => {
+      let topics: ReadingTopicId[] = [];
       if (savedFacets) {
         try {
-          const parsed = JSON.parse(savedFacets) as ProblemFacetId[];
-          setSelectedFacetIds(parsed.filter((id) => problemFacetOptions.some((option) => option.id === id && option.available)));
+          const parsed: unknown = JSON.parse(savedFacets);
+          topics = Array.isArray(parsed) ? [...new Set(parsed.filter(isReadingTopic))] : [];
+          setSelectedFacetIds(topics);
         } catch {
-          saveSelfPreference(FACET_STORAGE_KEY, null);
+          saveTopicPreference(FACET_STORAGE_KEY, null);
         }
       }
-      setCompressionLevel(normalizeSelfCompressionLevel(savedCompression));
-      if (savedSummary) setSummaryUnitId(savedSummary);
-      if (savedCompression === "50") saveSelfPreference(SELF_COMPRESSION_STORAGE_KEY, "all");
+      const savedTopic = readProblemPreference(ACTIVE_TOPIC_STORAGE_KEY);
+      const topic = isReadingTopic(savedTopic) && topics.includes(savedTopic) ? savedTopic : topics[0] || "self";
+      const view = restoreTopicView(topic, readProblemPreference);
+      setCompressionLevel(view.level);
+      setSummaryUnitId(view.unitId);
+      saveTopicPreference(topicPreferenceKey(topic, "compression"), view.level);
+      if (topics.length && view.level === "all") {
+        onNodeChange(view.nodeId);
+        const phase = phaseByNodeId.get(view.nodeId);
+        if (phase) onPhaseChange(phase.id);
+      }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [launch, onReadingTargetConsumed]);
+  }, [launch, launchTopic, onReadingTargetConsumed, onNodeChange, onPhaseChange, phaseByNodeId]);
 
   useEffect(() => {
-    if (!selfMode || !pendingSelfTargetId) return;
+    if (!topicMode || !pendingTopicTargetId) return;
     // Wait for the new SVG and its layout before locating a child or atomic node.
     let frame = window.requestAnimationFrame(() => {
       frame = window.requestAnimationFrame(() => {
-        const target = document.getElementById(pendingSelfTargetId);
+        const target = document.getElementById(pendingTopicTargetId);
         if (target) {
           target.focus({ preventScroll: true });
           target.scrollIntoView({ behavior: "instant", block: "center", inline: "nearest" });
         }
-        setPendingSelfTargetId(null);
+        setPendingTopicTargetId(null);
       });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [pendingSelfTargetId, selfMode, selfSummaryLevel]);
+  }, [pendingTopicTargetId, topicMode, topicSummaryLevel]);
 
   useEffect(() => {
-    if (selfMode) return;
+    if (topicMode) return;
     if (selectedPhase.id === activePhaseId) return;
     const phase = map.phases.find((item) => item.id === activePhaseId);
     const target = phase?.nodes.find((node) => node.kind === "问题") || phase?.nodes[0];
     if (!target) return;
     const frame = window.requestAnimationFrame(() => onNodeChange(target.id));
     return () => window.cancelAnimationFrame(frame);
-  }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id, selfMode]);
+  }, [activePhaseId, map.phases, onNodeChange, selectedPhase.id, topicMode]);
 
   return <article className="problem-map-page page-wrap">
     {onBack && <button className="context-back" onClick={onBack}><span>←</span><small>返回刚才的阅读位置</small><b>{originLabel}</b></button>}
@@ -598,12 +650,12 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       <div className="problem-facet-controls" role="group" aria-label="主题筛选，可多选">
         <span>主题</span>
         <button type="button" className={selectedFacetIds.length === 0 ? "active" : ""} aria-pressed={selectedFacetIds.length === 0} onClick={clearFacets}>全图</button>
-        {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题将在自我试验完成后构建`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
+        {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题尚未整理独立分层路径`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
       </div>
-      {selfMode ? <div className="problem-compression-controls" role="group" aria-label="自我主题总结层级">
-        <span>阅读层级</span>
+      {topicMode ? <div className="problem-compression-controls" role="group" aria-label={`${topicsLabel}主题总结层级`}>
+        <span>{selectedTopics.length > 1 ? "每主题层级" : "阅读层级"}</span>
         {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
-        <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showSelfSummary(parentSummaryLevel, summaryUnitId); }}><span aria-hidden="true">←</span></button>
+        <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }}><span aria-hidden="true">←</span></button>
       </div> : <>
         <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
           <label htmlFor="problem-density"><span>组织尺度</span><b>{densityOption.label}</b></label>
@@ -617,15 +669,16 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
         </div>
       </>}
+      {selectedTopics.length > 1 && <p className="problem-graph-fit-note">并看 {selectedTopics.length} 个主题：每个主题保留自己的 5／10／20 分级，卡片上标出主题；双击仍沿当前卡片下钻。全部节点取并集，共有论证只显示一次。</p>}
     </section>
 
-    {!selfMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
+    {!topicMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
-    {selfSummaryLevel ? <SelfSummaryGraph level={selfSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} selectedUnitId={summaryUnitId} onUnitSelect={selectSummaryUnit} onDrillDown={(unit) => changeCompression(nextSelfSummaryLevel(selfSummaryLevel), unit.id)} onAtomicNode={openSelfAtomicNode} /> : <section className="problem-graph-workspace" id="problem-graph">
+    {topicSummaryLevel ? <SelfSummaryGraph topicIds={selectedTopics} level={topicSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} selectedUnitId={summaryUnitId} onUnitSelect={selectSummaryUnit} onDrillDown={(unit) => changeCompression(nextSelfSummaryLevel(topicSummaryLevel), unit.id)} onAtomicNode={openTopicAtomicNode} /> : <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
-          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{selfMode ? `自我主线 · ${displayNodes.length} 个相关原子节点` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
-          {selfMode && <p className="problem-graph-fit-note">已到最细一层；单击节点查看解释与原书入口。</p>}
+          <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{topicMode ? `${topicsLabel} · ${displayNodes.length} 个相关原子节点` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
+          {topicMode && <p className="problem-graph-fit-note">已到最细一层；单击节点查看解释与原书入口。</p>}
         </header>
 
         <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
@@ -690,7 +743,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           <div><span>{selectedNode.kind}</span>{selectedNode.answerRole && <em>{selectedNode.answerRole}型答案</em>}</div>
           <small>{kindEnglish[selectedNode.kind]} · {incomingEdges.length} 条进入 / {outgoingEdges.length} 条发出</small>
           <h3>{selectedNode.title}</h3>
-          {selfMode && <small>相接维度 · {selfNodeTopics(selectedNode.id).join(" / ")}</small>}
+          {topicMode && <small>相接维度 · {selfNodeTopics(selectedNode.id).join(" / ")}</small>}
           <p>{selectedNode.summary}</p>
         </header>
 
@@ -700,7 +753,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         </div>
 
         <div className="problem-node-detail-links">
-          {selfMode && <section className="problem-history-links"><span>在历史中定位</span><button type="button" onClick={() => onHistory({
+          {nodeReadingTopics(selectedNode.id).length > 0 && <section className="problem-history-links"><span>从其他角度看同一论证</span>{nodeReadingTopics(selectedNode.id).map((topic) => <button type="button" key={topic} onClick={() => locateNodeInTopic(topic, selectedNode.id)}>在{topicLabel(topic)}主线定位 →</button>)}</section>}
+          {topicMode && <section className="problem-history-links"><span>在历史中定位</span><button type="button" onClick={() => onHistory({
             stageId: problemPhaseHistoryStageIds[selectedPhase.id],
             label: selectedPhase.title,
             note: "这是论证所在的历史阶段，不把历史背景当作观点的充分原因。",
@@ -715,7 +769,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
             const answer = nodesById.get(answerId);
             return answer ? <button type="button" className={selectedNode.id === answerId ? "active" : ""} onClick={() => selectNode(answerId)} key={answerId}>{answer.title}</button> : null;
           })}</div></section>}
-          {(selfMode || density === "research") && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
+          {(topicMode || density === "research") && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
             const adjacent = nodesById.get(adjacentId);
             return <button type="button" onClick={() => selectNode(adjacentId)} key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{adjacent?.title}</b><em>{edge.label}</em></button>;
           })}</div></section>}

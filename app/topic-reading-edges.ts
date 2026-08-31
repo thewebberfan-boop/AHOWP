@@ -1,0 +1,45 @@
+import type { ProblemEdge } from "./problem-map-data";
+
+// Editorial questions and comparisons, not claims of direct historical influence.
+const reading = (from: string, to: string, label: string): ProblemEdge => ({
+  id: `topic-reading:${from}:${to}`, from, to, label, relation: "产生问题", connection: "本站推演",
+});
+const compare = (from: string, to: string, label: string): ProblemEdge => ({ ...reading(from, to, label), connection: "同题并列" });
+
+export const topicReadingEdges: ProblemEdge[] = [
+  reading("four-causes-teleology", "how-can-authority-correct-inherited-error", "提出原因框架之后，转问继承的解释如何发现并校正错误；这是阅读次序，不是直接影响证据"),
+  compare("experience-certifies-theoretical-conclusions", "does-computational-fit-establish-cosmic-truth", "比较经验认证与模型拟合：二者分别能支持什么结论？"),
+  compare("sensation-imagination-passions-as-bodily-motion", "how-can-ideal-experiment-test-real-motion", "机械论谈到身体运动时，对照数学实验怎样检验运动规律；不把认识论方案当成实验结论"),
+  compare("truths-of-reason-fact-and-possible-worlds", "which-qualities-belong-to-objects-themselves", "从完整理由转到经验根据：关于对象本性的判断有何支持？"),
+  compare("stable-character-links-action-and-attribution", "how-can-freedom-coexist-with-natural-causality", "比较休谟的因果归责与康德的两种立场，两者不是同一种自由论"),
+  reading("knowledge-limited-to-phenomena-not-private-illusion", "how-judgment-bridges-nature-and-freedom", "理论知识的边界之外，反思判断怎样理解自然与自由的关系？"),
+  compare("reflective-judgment-purposiveness-without-proof", "is-measured-time-the-whole-of-time", "比较哲学如何说明科学测量未穷尽的经验；不由目的判断推出绵延理论"),
+  compare("creative-evolution-marks-novelty-not-scientific-replacement", "is-experience-private-inner-content", "从生命的新异性转读杜威的交互经验，比较不同的自然观与经验观"),
+
+  compare("cosmopolis-common-reason", "who-judges-christian-power", "共同体的范围扩大后，对照基督教语境中政治权力如何受规范约束"),
+  reading("created-time-and-two-cities", "how-can-practice-survive-fragile-institutions", "不把帝国当作救赎完成后，共同体仍需怎样的日常实践？"),
+  compare("polis-practical-wisdom", "how-can-common-good-guide-changing-actions", "比较城邦中的实践判断与自然法中的共同善；保留制度和神学前提的差异"),
+  compare("law-for-common-good-limited-coercion", "how-can-rule-authority-avoid-domination", "以人法的有限强制对读修道规则对领导者的约束，不混同两类制度"),
+  compare("two-orders-mutual-limitation", "can-pope-err-and-be-corrected", "两种秩序的限制问题，可继续对读奥卡姆对可错权威的纠正"),
+  reading("distinct-powers-occasional-intervention", "who-makes-coercive-law-for-political-community", "划分权力之后，进一步追问强制法律由谁授权"),
+  compare("plural-authorities-replace-single-center", "how-can-rulers-study-political-survival", "对照权威多元与政治行动的现实难题，不把教权衰落说成某一学说的直接原因"),
+  compare("reformation-opens-judgment-not-modern-toleration", "what-domain-must-remain-outside-civil-coercion", "宗派改革没有自动带来宽容，转问强制权力应止于何处"),
+  compare("institutions-channel-conflict-into-liberty", "why-do-rational-equals-enter-war-risk", "比较把冲突纳入共和制度与用主权结束战争风险，两种秩序方案不同"),
+  compare("self-preservation-and-protection-bound-obedience", "is-state-of-nature-already-war", "比较霍布斯的保护与服从界限、洛克的自然权利起点，不把两种自然状态等同"),
+  reading("fallible-individuals-need-bounded-knowledge-and-power", "how-do-consent-and-majority-create-government", "有限政府的概览进一步落实到洛克的同意、多数与信托论证"),
+  compare("labor-appropriation-proviso-and-money", "how-natural-difference-becomes-political-inequality", "对读财产取得的正当性与不平等的发生，两者追问的对象不同"),
+  compare("totality-must-remain-answerable-to-unreconciled-lives", "whose-interests-enter-public-utility", "整体需要面对未获和解者时，改用利益纳入与伤害的尺度检验；不把功利主义当作黑格尔结论"),
+  compare("class-agency-requires-organization-and-learning", "is-learning-by-doing-unguided-activity", "集体行动需要学习，可对照教育怎样形成判断；不宣称杜威接受马克思的整套理论"),
+
+  reading("stable-object-of-knowledge", "how-can-cosmos-reflect-good", "从知识的稳定对象转问宇宙秩序与善的关系，二者之间需要额外论证"),
+  compare("cosmos-shaped-by-form-and-good", "how-many-from-one", "比较柏拉图的形式与善、普罗提诺的层级依赖，不把太一等同于一个形式"),
+  compare("eternal-present-knows-contingently", "why-possible-existents-exist", "区分行动能否偶然与存在者为何依赖根据；由同一终极问题群换一个角度"),
+  compare("negative-theology-action-attributes", "can-concept-of-greatest-show-existence", "对读语言限制与概念证明：能够构想最高者是否足以证明存在？"),
+  compare("natural-preambles-revealed-mysteries", "can-finite-thinker-secure-clear-distinct-truth", "比较理性前导的范围与笛卡尔为确定性寻求保证，两套论证承担不同任务"),
+  compare("nondeceiving-god-secures-attended-clear-perceptions", "how-can-finite-things-differ-within-one-substance", "比较神作为认识保证与神即自然的实体论，不省略两者的前提差异"),
+  compare("evil-permitted-not-good-in-itself", "how-weigh-miracle-testimony-without-dogmatism", "离开体系内的相容解释，改问具体宗教证言的证据如何权衡"),
+  compare("mitigated-scepticism-limits-and-corrects-inquiry", "what-status-for-soul-world-god-ideas", "比较经验批判与理性批判怎样划定关于超经验对象的断言范围"),
+  compare("ideas-regulative-not-constitutive-knowledge", "can-conceptual-dialectic-describe-objective-world", "对照康德对理念的限制与黑格尔的客观唯心论，不把后者说成前者的自然推论"),
+  compare("eternal-recurrence-as-affirmation-test-not-proven-cosmology", "how-act-before-evidence-can-settle", "比较生命肯定的检验与证据未决时的承诺，两者都不能冒充宇宙论证明"),
+  compare("private-experience-permits-commitment-not-universal-proof", "can-formal-analysis-settle-history-value-experience", "私人承诺不等于公共证明；反过来，形式分析是否能独自处理全部意义与经验？"),
+];

@@ -13,6 +13,7 @@ import { SchoolGraphView } from "./school-graph";
 import { ProblemMapView } from "./problem-map";
 import { KnowledgeConnections, KnowledgeNavigationContext } from "./knowledge-connections";
 import { knowledgePhaseByNodeId, type ReadingTarget } from "./knowledge-paths";
+import { readingPreferenceKeys } from "./reading-topics-data";
 import { ancientDifferenceProblemMap, type ProblemHistoryLink } from "./problem-map-data";
 import { findSchoolProfilesByPhilosopher, schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
 import { terminology, terminologyByZh, terminologyMatchers, type TermEntry } from "./terminology-data";
@@ -135,7 +136,7 @@ const learningModes: Mode[] = ["schools", "philosophers", "problems", "history",
 const defaultProblemPhaseId = ancientDifferenceProblemMap.phases[0].id;
 const problemMapNodes = ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes);
 const defaultProblemNodeId = problemMapNodes[0].id;
-const problemPreferenceKeys = ["ahowp-problem-map-facets", "ahowp-problem-map-self-compression", "ahowp-problem-map-self-summary", "ahowp-problem-map-density"];
+const problemPreferenceKeys = ["ahowp-problem-map-facets", "ahowp-problem-map-density", ...readingPreferenceKeys];
 
 function captureProblemPreferences() {
   try { return Object.fromEntries(problemPreferenceKeys.map((key) => [key, localStorage.getItem(key)])); }

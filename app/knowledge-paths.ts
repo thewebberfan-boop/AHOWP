@@ -1,25 +1,25 @@
 import { ancientDifferenceProblemMap, type ProblemEdge, type ProblemNode } from "./problem-map-data";
-import { collectSelfSummaryNodeIds, flattenSelfSummaryLevel, resolveSelfSummaryUnit, type SelfSummaryUnit, type ProblemCompressionLevel } from "./problem-map-self-data";
+import { collectSelfSummaryNodeIds, type SelfSummaryUnit, type ProblemCompressionLevel } from "./problem-map-self-data";
+import { flattenTopicLevel, nodeReadingTopics, readingTopicIds, resolveTopicUnit, topicLabel, type ReadingTopicId } from "./reading-topics-data";
 import { problemPhaseHistoryStageIds } from "./problem-map-view-data";
 import { schoolProfiles } from "./school-data";
 import { selfCrossTopicNodes } from "./self-reading-data";
 
-export type ReadingTarget = { unitId: string; nodeId: string; level: ProblemCompressionLevel };
+export type ReadingTarget = { topicId?: ReadingTopicId; unitId: string; nodeId: string; level: ProblemCompressionLevel };
 export type KnowledgeContext = { kind: "philosopher" | "school" | "history"; id: string };
 export const knowledgeNodeById = new Map(ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, node])));
 export const knowledgePhaseByNodeId = new Map(ancientDifferenceProblemMap.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase])));
 
 export function selfNodeTopics(nodeId: string) {
-  return ["自我", ...Object.entries(selfCrossTopicNodes).filter(([, ids]) => ids.includes(nodeId)).map(([id]) =>
-    ({ nature: "自然", society: "社会", ultimate: "终极", method: "方法" })[id as keyof typeof selfCrossTopicNodes])];
+  return [...nodeReadingTopics(nodeId).map(topicLabel), ...(selfCrossTopicNodes.method.includes(nodeId) ? ["方法"] : [])];
 }
 
-export function knowledgeUnitsFor(context: KnowledgeContext) {
+export function knowledgeUnitsFor(context: KnowledgeContext, topicIds: readonly ReadingTopicId[] = readingTopicIds) {
   const school = context.kind === "school" ? schoolProfiles.find((item) => item.id === context.id) : undefined;
   const people = context.kind === "school"
     ? new Set(school?.philosophers.map((person) => person.id) || [])
     : new Set([context.id]);
-  return flattenSelfSummaryLevel("20").flatMap((unit) => {
+  return topicIds.flatMap((topicId) => flattenTopicLevel(topicId, "20").flatMap((unit) => {
     const nodes = collectSelfSummaryNodeIds(unit).map((id) => knowledgeNodeById.get(id)).filter((node): node is ProblemNode => Boolean(node));
     const attributedNodes = nodes.filter((node) => context.kind === "history"
       ? problemPhaseHistoryStageIds[knowledgePhaseByNodeId.get(node.id)?.id || ""] === context.id
@@ -38,8 +38,8 @@ export function knowledgeUnitsFor(context: KnowledgeContext) {
     });
     if (!localNodes.length) return [];
     const entry = localNodes.find((node) => node.id === unit.entryNodeId) || localNodes.find((node) => node.kind === "问题") || localNodes[0];
-    return [{ unit, root: resolveSelfSummaryUnit("5", unit.id), nodes: localNodes, entry }];
-  });
+    return [{ topicId, unit, root: resolveTopicUnit(topicId, "5", unit.id), nodes: localNodes, entry }];
+  }));
 }
 
 export type SummaryConnection = {

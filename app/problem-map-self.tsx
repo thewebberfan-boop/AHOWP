@@ -4,15 +4,13 @@ import { useMemo } from "react";
 import type { ProblemNode, ProblemPhase } from "./problem-map-data";
 import {
   collectSelfSummaryNodeIds,
-  flattenSelfSummaryLevel,
-  selfSummaryTree,
   nextSelfSummaryLevel,
-  resolveSelfSummaryUnit,
   type SelfSummaryLevel,
   type SelfSummaryUnit,
 } from "./problem-map-self-data";
 import { ancientDifferenceProblemMap } from "./problem-map-data";
 import { buildSelfSummaryConnections, selfNodeTopics } from "./knowledge-paths";
+import { flattenTopicLevel, readingTrees, resolveTopicUnit, topicForUnit, topicLabel, type ReadingTopicId } from "./reading-topics-data";
 
 const SUMMARY_GRAPH_WIDTH = 1280;
 const SUMMARY_NODE_WIDTH = 420;
@@ -41,6 +39,7 @@ function splitSummaryTitle(title: string, limit = 22) {
 }
 
 export function SelfSummaryGraph({
+  topicIds = ["self"],
   level,
   allNodes,
   phaseByNodeId,
@@ -49,6 +48,7 @@ export function SelfSummaryGraph({
   onDrillDown,
   onAtomicNode,
 }: {
+  topicIds?: ReadingTopicId[];
   level: SelfSummaryLevel;
   allNodes: ProblemNode[];
   phaseByNodeId: Map<string, ProblemPhase>;
@@ -57,11 +57,14 @@ export function SelfSummaryGraph({
   onDrillDown: (unit: SelfSummaryUnit) => void;
   onAtomicNode: (nodeId: string) => void;
 }) {
-  const units = useMemo(() => flattenSelfSummaryLevel(level), [level]);
+  const units = useMemo(() => topicIds.flatMap((id) => flattenTopicLevel(id, level)), [topicIds, level]);
   const phaseIndex = useMemo(() => new Map([...phaseByNodeId.values()].map((phase) => [phase.id, phase])), [phaseByNodeId]);
   const connections = useMemo(() => buildSelfSummaryConnections(units, ancientDifferenceProblemMap.edges), [units]);
 
-  const selectedUnit = resolveSelfSummaryUnit(level, selectedUnitId);
+  const activeTopic = topicForUnit(selectedUnitId);
+  const selectedTopic = activeTopic && topicIds.includes(activeTopic) ? activeTopic : topicIds[0];
+  const selectedUnit = resolveTopicUnit(selectedTopic, level, selectedUnitId);
+  const topicsLabel = topicIds.map(topicLabel).join(" / ");
   const nextLevel = nextSelfSummaryLevel(level);
   const expandLabel = nextLevel === "all" ? "进入具体论证节点" : nextLevel === "10" ? "展开对应主线" : "展开对应论证组";
   const measurements = units.map((unit) => {
@@ -89,7 +92,7 @@ export function SelfSummaryGraph({
   const selectedPhases = selectedPhaseIds.map((id) => phaseIndex.get(id)).filter((phase): phase is ProblemPhase => Boolean(phase));
   const selectedParticipantNames = [...new Set(selectedMemberNodes.flatMap((node) => node.participants.map((participant) => participant.name)))];
   const selectedChapterIds = [...new Set(selectedMemberNodes.flatMap((node) => node.chapterIds))];
-  const groupRanges = selfSummaryTree.map((root) => {
+  const groupRanges = topicIds.flatMap((id) => readingTrees[id]).map((root) => {
     const memberIds = new Set(level === "5"
       ? [root.id]
       : level === "10"
@@ -108,15 +111,15 @@ export function SelfSummaryGraph({
   return <section className="problem-graph-workspace self-summary-workspace" id="problem-graph">
     <div className="problem-graph-panel">
       <header className="problem-graph-toolbar">
-        <div><p className="section-label">CURATED SELF SUMMARY</p><h3>自我 · {level === "5" ? "总览" : level === "10" ? "主线" : "论证组"} · {units.length} 组问题</h3></div>
+        <div><p className="section-label">CURATED READING PATHS</p><h3>{topicsLabel} · {level === "5" ? "总览" : level === "10" ? "主线" : "论证组"} · {units.length} 组问题</h3></div>
         <div className="self-summary-actions">
           <p className="problem-graph-fit-note" id="self-summary-navigation-help">单击看解释 · 双击或 Enter 展开 · 空格选中</p>
           <button type="button" onClick={() => onDrillDown(selectedUnit)} aria-label={`${expandLabel}：${selectedUnit.title}`}>{expandLabel} →</button>
         </div>
       </header>
 
-      <div className="problem-graph-scroll" role="region" aria-label={`自我问题的 ${level} 节点总结图`}>
-        <svg viewBox={`0 0 ${SUMMARY_GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`自我问题历史主线：${units.length} 个总结节点`}>
+      <div className="problem-graph-scroll" role="region" aria-label={`${topicsLabel}问题的 ${units.length} 节点总结图`}>
+        <svg viewBox={`0 0 ${SUMMARY_GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${topicsLabel}问题主线：${units.length} 个总结节点`}>
           <defs>
             <marker id="self-summary-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
               <path d="M0,0 L0,6 L7,3 z" fill="context-stroke" />
@@ -126,12 +129,12 @@ export function SelfSummaryGraph({
           <g className="self-summary-groups">
             {groupRanges.map(({ root, top, height }, index) => <g key={root.id}>
               <rect className={index % 2 ? "summary-group-even" : "summary-group-odd"} x="0" y={top} width={SUMMARY_GRAPH_WIDTH} height={height} />
-              <text className="summary-group-label" x="48" y={top + 24}>{String(index + 1).padStart(2, "0")} · {root.title}</text>
+              <text className="summary-group-label" x="48" y={top + 24}>{String(index + 1).padStart(2, "0")} · {topicLabel(topicForUnit(root.id)!)} · {root.title}</text>
             </g>)}
           </g>
 
           <g className="self-summary-edges">
-            {connections.filter((link) => level === "5" || link.from === selectedUnit.id || link.to === selectedUnit.id).map((link, linkIndex) => {
+            {connections.filter((link) => (level === "5" && topicIds.length === 1) || link.from === selectedUnit.id || link.to === selectedUnit.id).map((link, linkIndex) => {
               const index = units.findIndex((unit) => unit.id === link.from);
               const nextIndex = units.findIndex((unit) => unit.id === link.to);
               const startY = unitY(index) + layouts[index].height / 2;
@@ -147,12 +150,12 @@ export function SelfSummaryGraph({
               const selected = unit.id === selectedUnit?.id;
               const memberCount = unitMemberNodes(unit).length;
               const { height, titleLines, overviewLines, overviewY } = layouts[index];
-              return <g className={`self-summary-node${selected ? " selected" : ""}`} id={`self-summary-${unit.id}`} key={unit.id} role="button" tabIndex={0} aria-pressed={selected} aria-describedby="self-summary-navigation-help" aria-label={`总结节点：${unit.title}，覆盖 ${memberCount} 个自我相关原子节点。${expandLabel}`} transform={`translate(${SUMMARY_NODE_X}, ${unitY(index)})`} onClick={() => onUnitSelect(unit.id)} onDoubleClick={() => onDrillDown(unit)} onKeyDown={(event) => {
+              return <g className={`self-summary-node${selected ? " selected" : ""}`} id={`self-summary-${unit.id}`} key={unit.id} role="button" tabIndex={0} aria-pressed={selected} aria-describedby="self-summary-navigation-help" aria-label={`总结节点：${unit.title}，覆盖 ${memberCount} 个相关原子节点。${expandLabel}`} transform={`translate(${SUMMARY_NODE_X}, ${unitY(index)})`} onClick={() => onUnitSelect(unit.id)} onDoubleClick={() => onDrillDown(unit)} onKeyDown={(event) => {
                 if (event.key === "Enter") { event.preventDefault(); if (!event.repeat) onDrillDown(unit); }
                 if (event.key === " ") { event.preventDefault(); onUnitSelect(unit.id); }
               }}>
                 <rect width={SUMMARY_NODE_WIDTH} height={height} rx="8" />
-                <text className="self-summary-meta" x="16" y="21">{String(index + 1).padStart(2, "0")} · {unit.period} · {memberCount} 个原子节点</text>
+                <text className="self-summary-meta" x="16" y="21">{topicLabel(topicForUnit(unit.id)!)} · {unit.period} · {memberCount} 个节点</text>
                 <text className="self-summary-title" x="16" y="50">{titleLines.map((line, lineIndex) => <tspan x="16" dy={lineIndex === 0 ? 0 : 22} key={`${unit.id}-${lineIndex}`}>{line}</tspan>)}</text>
                 {overviewLines.length > 0 && <text className="self-summary-overview" x="16" y={overviewY}>{overviewLines.map((line, lineIndex) => <tspan x="16" dy={lineIndex === 0 ? 0 : 18} key={`${unit.id}-overview-${lineIndex}`}>{line}</tspan>)}</text>}
                 <text className="self-summary-hint" x="16" y={height - 12}>双击展开 · 本站学习重构</text>
@@ -165,14 +168,14 @@ export function SelfSummaryGraph({
 
       <footer className="problem-graph-evidence self-summary-evidence">
         <span><i aria-hidden="true" />总结节点</span>
-        <span className="connection-folded"><i aria-hidden="true" />箭头可追溯至节点关系；虚线为共享节点。{level !== "5" && "只画当前卡片的连接。"}同题比较不代表直接影响</span>
+        <span className="connection-folded"><i aria-hidden="true" />箭头可追溯至节点关系；虚线为共享节点。{(level !== "5" || topicIds.length > 1) && "只画当前卡片的连接。"}同题比较不代表直接影响</span>
       </footer>
     </div>
 
     {selectedUnit && <aside className="problem-node-detail self-summary-detail" aria-live="polite">
       <header>
         <div><span>总结节点</span><em>本站学习重构</em></div>
-        <small>SELF · {level} 节点层 · 覆盖 {selectedMemberNodes.length} 个原子节点</small>
+        <small>{topicLabel(selectedTopic)} · 每主题 {level} 组 · 覆盖 {selectedMemberNodes.length} 个原子节点</small>
         <h3>{selectedUnit.title}</h3>
         <p>{selectedUnit.thesis}</p>
       </header>
@@ -196,7 +199,7 @@ export function SelfSummaryGraph({
         </section>
         <section className="self-summary-expand">
           <span>逐级展开</span>
-          <p>{nextLevel === "all" ? "进入全部自我节点，并选中本卡对应的原始问题或答案。" : "展开当前卡片，选中并定位到它的第一张子卡；同层其他卡片仍然保留。"}</p>
+          <p>{nextLevel === "all" ? "进入所选主题的全部节点，并选中本卡对应的原始问题或答案。共有节点只显示一次。" : "展开当前卡片，选中并定位到它的第一张子卡；同层其他卡片仍然保留。"}</p>
           <button type="button" onClick={() => onDrillDown(selectedUnit)}>{expandLabel} →</button>
         </section>
         <section className="self-summary-phases">
@@ -210,6 +213,9 @@ export function SelfSummaryGraph({
         <section className="self-summary-coverage">
           <span>覆盖范围</span>
           <p>{selectedParticipantNames.length} 位相关参与者 · {selectedChapterIds.length} 个原书章节 · {selectedPhases.length} 个维护阶段</p>
+        </section>
+        <section className="self-summary-coverage"><span>来源与范围</span><p>总结属于本站学习重构。下钻可核对原始节点、参与者、关系类别和原书章节；不是该领域全部学说的目录。</p>
+          {(resolveTopicUnit(selectedTopic, "5", selectedUnit.id).sources || []).map((source) => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.label} ↗</a>)}
         </section>
       </div>
     </aside>}

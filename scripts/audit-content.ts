@@ -9,6 +9,7 @@ import { problemMaps } from "../app/problem-map-data";
 import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
 import { collectSelfSummaryNodeIds, collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfSummaryTree } from "../app/problem-map-self-data";
 import { selfCrossTopicNodes } from "../app/self-reading-data";
+import { collectSummaryNodeIds, flattenTopicLevel, readingTopicIds, readingTrees, topicNodeIds } from "../app/reading-topics-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
 type Issue = { level: "ERROR" | "WARN"; message: string };
@@ -234,6 +235,27 @@ if (!publishedProblemMap) {
   Object.entries(selfCrossTopicNodes).forEach(([topic, ids]) => {
     ids.filter((id) => !selfFacetNodeIds.includes(id)).forEach((id) => error(`跨主题接口 ${topic} 引用的 ${id} 不在自我论证网络中`));
   });
+  const topicSummaryIds: string[] = [];
+  readingTopicIds.forEach((topic) => {
+    if (!problemFacetOptions.find((option) => option.id === topic)?.available) error(`${topic} 阅读主题未启用`);
+    readingTrees[topic].filter((unit) => !unit.overview).forEach((unit) => error(`${unit.id} 缺少总览中的简明回答`));
+    (["5", "10", "20"] as const).forEach((level) => {
+      const units = flattenTopicLevel(topic, level);
+      if (units.length !== Number(level)) error(`${topic} 的 ${level} 层实际有 ${units.length} 组`);
+      const covered = new Set(units.flatMap(collectSummaryNodeIds));
+      if (covered.size !== topicNodeIds[topic].length || topicNodeIds[topic].some((id) => !covered.has(id))) error(`${topic} 的 ${level} 层丢失了论证归属`);
+      units.forEach((unit) => {
+        topicSummaryIds.push(unit.id);
+        if (!unit.title || !unit.period || !unit.question || !unit.thesis || !unit.transition) error(`${unit.id} 缺少问题、回答或继续追问`);
+        const ids = collectSummaryNodeIds(unit);
+        if (!ids.length) error(`${unit.id} 没有明确的节点成员`);
+        ids.filter((id) => !nodeById.has(id)).forEach((id) => error(`${unit.id} 引用不存在的节点 ${id}`));
+        if (level === "20" && (!unit.entryNodeId || !ids.includes(unit.entryNodeId))) error(`${unit.id} 没有属于该论证的下钻入口`);
+        for (const source of unit.sources || []) if (!source.label || !/^https:\/\//.test(source.url)) error(`${unit.id} 的补充来源无效`);
+      });
+    });
+  });
+  duplicates(topicSummaryIds).forEach((id) => error(`四主题总结 ID 重复 ${id}`));
   const historyStageIds = new Set(historyStages.map((stage) => stage.id));
   publishedProblemMap.phases.forEach((phase) => {
     const stageId = problemPhaseHistoryStageIds[phase.id];

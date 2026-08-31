@@ -23,28 +23,30 @@ export type SelfSummaryUnit = {
   overview?: string;
   entryNodeId?: string;
   phaseIds?: string[];
+  nodeIds?: string[];
+  sources?: { label: string; url: string }[];
   children?: SelfSummaryUnit[];
 };
 
 export const problemFacetOptions: ProblemFacetOption[] = [
   { id: "method", label: "方法", english: "METHOD", question: "我们怎样观察、推理、证明与表达？", available: false },
-  { id: "nature", label: "自然", english: "NATURE", question: "自然怎样构成、变化并形成可解释的秩序？", available: false },
+  { id: "nature", label: "自然", english: "NATURE", question: "自然怎样构成、变化并形成可解释的秩序？", available: true },
   { id: "self", label: "自我", english: "SELF", question: "心灵、感受、人格与自由怎样成立？", available: true },
-  { id: "society", label: "社会", english: "SOCIETY", question: "行为、规范、权力与共同生活怎样组织？", available: false },
-  { id: "ultimate", label: "终极", english: "ULTIMATE", question: "存在、目的、最高原则与最终边界是什么？", available: false },
+  { id: "society", label: "社会", english: "SOCIETY", question: "行为、规范、权力与共同生活怎样组织？", available: true },
+  { id: "ultimate", label: "终极", english: "ULTIMATE", question: "存在、目的、最高原则与最终边界是什么？", available: true },
 ];
 
 export const problemCompressionLevels: { id: ProblemCompressionLevel; label: string; note: string }[] = [
   { id: "5", label: "总览 5", note: "先看五组基本问题与不同回答，不预设它们最终合成一种理论。" },
   { id: "10", label: "主线 10", note: "展开每组问题中的主要分歧，保持与总览的对应。" },
   { id: "20", label: "论证组 20", note: "定位具体问题及参与者，再进入同源的观察、问题和答案。" },
-  { id: "all", label: "全部节点", note: "显示本轮整理的自我论证网络，包括明确标识的同题比较；并非穷尽所有自我理论。" },
+  { id: "all", label: "全部节点", note: "显示所选主题的论证网络；多选取并集，共有节点只显示一次。主题路径是本站选读，不穷尽该领域。" },
 ];
 
 export const selfFacetNodeIds = [...new Set(Object.values(selfReadingNodeIds).flat())];
 
 export function collectSelfSummaryNodeIds(unit: SelfSummaryUnit): string[] {
-  return selfReadingNodeIds[unit.id] || [...new Set((unit.children || []).flatMap(collectSelfSummaryNodeIds))];
+  return unit.nodeIds || selfReadingNodeIds[unit.id] || [...new Set((unit.children || []).flatMap(collectSelfSummaryNodeIds))];
 }
 
 export const selfSummaryTree: SelfSummaryUnit[] = [

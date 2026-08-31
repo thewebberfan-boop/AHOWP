@@ -1112,6 +1112,9 @@ button { cursor: pointer; }
 .knowledge-connections li small { display: block; color: var(--muted); font: 11px/1.6 var(--serif); }
 .knowledge-connections li button { border: 0; padding: 3px 0; font-weight: 600; }
 .knowledge-connections li p { margin: 3px 0; }
+.knowledge-connections .problem-facet-controls { margin-top: 10px; padding: 0; border: 0; }
+.knowledge-connections .problem-facet-controls button { height: auto; min-height: 32px; }
+.self-summary-coverage a { display: block; margin: 5px 0; color: var(--green); font-size: 11px; line-height: 1.6; }
 .self-summary-detail details { margin: 8px 0; font: 12px/1.6 var(--serif); }
 .self-summary-detail summary { cursor: pointer; color: var(--green); }
 .self-summary-members > div { max-height: 420px; overflow-y: auto; }
