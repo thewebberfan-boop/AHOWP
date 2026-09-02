@@ -123,8 +123,16 @@ test("rendered launches use the requested topic, and multi-topic summaries keep 
     for (const level of ["5", "10", "20", "all"] as const) {
       const html = renderToStaticMarkup(<ProblemMapView activeNodeId={nodeId} activePhaseId={knowledgePhaseByNodeId.get(nodeId)!.id} onNodeChange={noop} onPhaseChange={noop} onPhilosopher={noop} onSchool={noop} onHistory={noop} onChapter={noop} showEnglish={false} onBack={noop} originLabel="刚才的原文" initialReadingTarget={{ topicId: topic, unitId: leaf.id, nodeId, level }} />);
       assert.match(html, /返回刚才的阅读位置/);
-      if (level === "all") assert.ok(html.includes(`id="problem-node-${nodeId}"`));
-      else assert.ok(html.includes(`id="self-summary-${resolveTopicUnit(topic, level, leaf.id).id}"`));
+      if (level === "all") {
+        assert.ok(html.includes(`id="problem-node-${nodeId}"`));
+        const historyBands = [...html.matchAll(/<rect class="phase-(?:odd|even)" x="0" y="([^"]+)" width="1280" height="([^"]+)"/g)]
+          .map((match) => ({ y: Number(match[1]), height: Number(match[2]) }));
+        assert.equal((html.match(/class="phase-label-link" role="button"/g) || []).length, historyBands.length);
+        assert.doesNotMatch(html, /<g class="(?:active)?" role="button" tabindex="0" aria-label="进入历史概览/);
+        for (let index = 1; index < historyBands.length; index += 1) {
+          assert.ok(historyBands[index].y > historyBands[index - 1].y + historyBands[index - 1].height, `${topic} atomic history backgrounds ${index} and ${index + 1} must not overlap`);
+        }
+      } else assert.ok(html.includes(`id="self-summary-${resolveTopicUnit(topic, level, leaf.id).id}"`));
     }
   }
   const html = renderToStaticMarkup(<SelfSummaryGraph topicIds={["nature", "self", "society"]} level="5" allNodes={[...knowledgeNodeById.values()]} phaseByNodeId={knowledgePhaseByNodeId} selectedUnitId="society-5-security-rights" onUnitSelect={noop} onDrillDown={noop} onAtomicNode={noop} />);
@@ -137,4 +145,12 @@ test("rendered launches use the requested topic, and multi-topic summaries keep 
   assert.match(html, /class="cross-topic/);
   assert.match(html, /虚线为共享节点/);
   assert.match(html, /跨主题关系持续显示/);
+  const groupRects = [...html.matchAll(/<rect class="summary-group-(?:odd|even)" x="0" y="([^"]+)" width="1280" height="([^"]+)"/g)]
+    .map((match) => ({ y: Number(match[1]), height: Number(match[2]) }));
+  assert.equal(groupRects.length, 5);
+  for (let index = 1; index < groupRects.length; index += 1) {
+    assert.ok(groupRects[index].y > groupRects[index - 1].y + groupRects[index - 1].height, `history backgrounds ${index} and ${index + 1} must not overlap`);
+  }
+  assert.match(html, /<rect x="[^"]+" y="8" width="[^"]+" height="32" rx="3"/);
+  assert.ok(groupRects[0].y > 40, "topic headers must end before the first history background begins");
 });

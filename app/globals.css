@@ -1052,14 +1052,14 @@ button { cursor: pointer; }
 .problem-graph-scroll { width: 100%; overflow: hidden; background-color: #ebe8df; background-image: linear-gradient(rgba(49, 75, 61, .045) 1px, transparent 1px), linear-gradient(90deg, rgba(49, 75, 61, .045) 1px, transparent 1px); background-size: 24px 24px; }
 .problem-graph-scroll:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
 .problem-graph-scroll svg { display: block; width: 100%; height: auto; }
-.problem-graph-phases g { cursor: pointer; }
-.problem-graph-phases g:focus-visible { outline: none; }
+.problem-graph-phases .phase-label-link { cursor: pointer; }
+.problem-graph-phases .phase-label-link:focus-visible { outline: none; }
 .problem-graph-phases rect { stroke: rgba(49, 75, 61, .13); stroke-width: 1; }
 .problem-graph-phases .phase-odd { fill: rgba(250, 248, 242, .66); }
 .problem-graph-phases .phase-even { fill: rgba(218, 226, 216, .38); }
 .problem-graph-phases .phase-label { fill: rgba(250, 248, 242, .93); stroke: rgba(49, 75, 61, .28); }
 .problem-graph-phases g.active rect { stroke: rgba(145, 52, 42, .48); stroke-width: 2; }
-.problem-graph-phases g:hover rect, .problem-graph-phases g:focus-visible rect { stroke: var(--green); stroke-width: 2; }
+.problem-graph-phases .phase-label-link:hover .phase-label, .problem-graph-phases .phase-label-link:focus-visible .phase-label { stroke: var(--green); stroke-width: 2; }
 .problem-graph-phases .phase-label-text { fill: var(--ink); font: 500 11px var(--serif); }
 .problem-graph-phases .phase-label-years { fill: var(--red); font: 700 8px Arial, sans-serif; letter-spacing: .06em; }
 
@@ -1099,7 +1099,7 @@ button { cursor: pointer; }
 .self-summary-groups .summary-group-odd { fill: rgba(250, 248, 242, .68); }
 .self-summary-groups .summary-group-even { fill: rgba(218, 226, 216, .42); }
 .self-summary-groups .summary-group-label { fill: var(--muted); font: 500 9px Arial, sans-serif; letter-spacing: .06em; }
-.self-summary-lanes rect { fill: rgba(250, 248, 242, .88); stroke: rgba(49, 75, 61, .34); }
+.self-summary-lanes rect { fill: var(--paper-light); stroke: rgba(49, 75, 61, .18); stroke-width: 1; }
 .self-summary-lanes circle { fill: var(--paper-light); stroke: var(--red); stroke-width: 1.5; }
 .self-summary-lanes .summary-time-axis { fill: none; stroke: rgba(145, 52, 42, .55); stroke-width: 1.5; }
 .self-summary-lanes .summary-time-label { fill: var(--red); font: 700 8px Arial, sans-serif; letter-spacing: .08em; }

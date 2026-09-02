@@ -201,6 +201,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemViewData, /how-can-subject-loosen-service-to-will/);
   assert.match(spec, /826 个节点和 1033 条边/);
   assert.match(styles, /\.problem-map-page/);
+  assert.match(styles, /\.self-summary-lanes rect \{ fill: var\(--paper-light\)/);
   assert.match(page, /EntityNavigationContext/);
   assert.match(page, /openInlineEntity/);
   assert.match(page, /returnFromInlineEntity/);

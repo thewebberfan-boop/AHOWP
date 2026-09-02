@@ -48,6 +48,9 @@ const GRAPH_RIGHT = 48;
 const MAX_GRAPH_LANE = 4.7;
 const ROW_GAP = 32;
 const NODE_GAP = 20;
+const HISTORY_STAGE_GAP = 32;
+const HISTORY_BAND_TOP_PADDING = 52;
+const HISTORY_BAND_BOTTOM_PADDING = 8;
 const LANE_GAP = (GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT - NODE_WIDTH) / MAX_GRAPH_LANE;
 const DENSITY_STORAGE_KEY = "ahowp-problem-map-density";
 const FACET_STORAGE_KEY = "ahowp-problem-map-facets";
@@ -208,42 +211,58 @@ function buildDisplayEdges(edges: ProblemEdge[], visibleNodeIds: Set<string>, al
   return displayEdges;
 }
 
-function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId, chainByLeaderId: Map<string, ChainGroup>) {
+function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId, chainByLeaderId: Map<string, ChainGroup>, phaseByNodeId: Map<string, ProblemPhase>) {
   const points = new Map<string, GraphPoint>();
   const nodesByOriginalRow = new Map<number, ProblemNode[]>();
+  const historyStageOrder = new Map(historyStages.map((stage, index) => [stage.id, index]));
   nodes.forEach((node) => nodesByOriginalRow.set(node.graph.row, [...(nodesByOriginalRow.get(node.graph.row) || []), node]));
   let verticalCursor = GRAPH_TOP;
   let layoutRow = 0;
+  let previousHistoryStageId: string | undefined;
 
   [...nodesByOriginalRow.entries()].sort(([left], [right]) => left - right).forEach(([, rowNodes]) => {
-    const subrows: ProblemNode[][] = [];
-    const rightEdgesBySubrow: number[] = [];
-    rowNodes.sort((left, right) => left.graph.lane - right.graph.lane).forEach((node) => {
-      const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
-      const x = GRAPH_LEFT + lane * LANE_GAP;
-      let subrow = rightEdgesBySubrow.findIndex((rightEdge) => rightEdge + NODE_GAP <= x);
-      if (subrow < 0) {
-        subrow = subrows.length;
-        subrows.push([]);
-        rightEdgesBySubrow.push(0);
-      }
-      subrows[subrow].push(node);
-      rightEdgesBySubrow[subrow] = x + NODE_WIDTH;
+    const nodesByHistoryStage = new Map<string, ProblemNode[]>();
+    rowNodes.forEach((node) => {
+      const phase = phaseByNodeId.get(node.id);
+      const historyStageId = phase ? problemPhaseHistoryStageIds[phase.id] : "unmapped";
+      nodesByHistoryStage.set(historyStageId, [...(nodesByHistoryStage.get(historyStageId) || []), node]);
     });
 
-    subrows.forEach((subrowNodes) => {
-      subrowNodes.forEach((node) => {
-        const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
-        points.set(node.id, {
-          x: GRAPH_LEFT + lane * LANE_GAP,
-          y: verticalCursor,
-          row: layoutRow,
-          lane,
+    [...nodesByHistoryStage.entries()]
+      .sort(([left], [right]) => (historyStageOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (historyStageOrder.get(right) ?? Number.MAX_SAFE_INTEGER))
+      .forEach(([historyStageId, stageNodes]) => {
+        if (previousHistoryStageId && previousHistoryStageId !== historyStageId) verticalCursor += HISTORY_STAGE_GAP;
+        previousHistoryStageId = historyStageId;
+
+        const subrows: ProblemNode[][] = [];
+        const rightEdgesBySubrow: number[] = [];
+        stageNodes.sort((left, right) => left.graph.lane - right.graph.lane).forEach((node) => {
+          const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
+          const x = GRAPH_LEFT + lane * LANE_GAP;
+          let subrow = rightEdgesBySubrow.findIndex((rightEdge) => rightEdge + NODE_GAP <= x);
+          if (subrow < 0) {
+            subrow = subrows.length;
+            subrows.push([]);
+            rightEdgesBySubrow.push(0);
+          }
+          subrows[subrow].push(node);
+          rightEdgesBySubrow[subrow] = x + NODE_WIDTH;
+        });
+
+        subrows.forEach((subrowNodes) => {
+          subrowNodes.forEach((node) => {
+            const lane = density === "guide" ? (familyByAnchorNodeId.get(node.id)?.lane ?? node.graph.lane) : node.graph.lane;
+            points.set(node.id, {
+              x: GRAPH_LEFT + lane * LANE_GAP,
+              y: verticalCursor,
+              row: layoutRow,
+              lane,
+            });
+          });
+          verticalCursor += Math.max(...subrowNodes.map((node) => nodeHeight(node, chainByLeaderId.get(node.id)))) + ROW_GAP;
+          layoutRow += 1;
         });
       });
-      verticalCursor += Math.max(...subrowNodes.map((node) => nodeHeight(node, chainByLeaderId.get(node.id)))) + ROW_GAP;
-      layoutRow += 1;
-    });
   });
   return points;
 }
@@ -370,7 +389,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     return result;
   }, [chainGroups, density, expandedChainIds, focusDepth, topicMode, visibleNodeIds]);
   const layoutDensity = topicMode ? "complete" : density;
-  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId), [collapsedChainByLeaderId, displayNodes, layoutDensity]);
+  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId, phaseByNodeId), [collapsedChainByLeaderId, displayNodes, layoutDensity, phaseByNodeId]);
   const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id))), 180) + 70;
   const historyBands = useMemo(() => historyStages.map((stage) => {
     const stageNodes = displayNodes.filter((node) => {
@@ -378,8 +397,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       return phase && problemPhaseHistoryStageIds[phase.id] === stage.id;
     });
     if (!stageNodes.length) return null;
-    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - 52;
-    const bottom = Math.max(...stageNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id)))) + 28;
+    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - HISTORY_BAND_TOP_PADDING;
+    const bottom = Math.max(...stageNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id)))) + HISTORY_BAND_BOTTOM_PADDING;
     return { stage, top, height: bottom - top };
   }).filter((band): band is NonNullable<typeof band> => Boolean(band)), [collapsedChainByLeaderId, displayNodes, graphPoints, phaseByNodeId]);
   const selectedHistoryStageId = problemPhaseHistoryStageIds[selectedPhase.id];
@@ -691,10 +710,12 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
             </defs>
 
             <g className="problem-graph-phases">
-              {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title}`} onClick={() => onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期背景带进入历史概览。" }, selectedNode.id); } }} key={band.stage.id}>
+              {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} key={band.stage.id}>
                 <rect className={index % 2 ? "phase-even" : "phase-odd"} x="0" y={band.top} width={GRAPH_WIDTH} height={band.height} />
-                <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
-                <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
+                <g className="phase-label-link" role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title} ${band.stage.years}`} onClick={() => onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id); } }}>
+                  <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
+                  <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
+                </g>
               </g>)}
             </g>
 

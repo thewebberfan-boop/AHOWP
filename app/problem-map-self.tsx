@@ -22,6 +22,10 @@ const SUMMARY_TIMELINE_WIDTH = 72;
 const SUMMARY_LANE_GAP = 24;
 const SUMMARY_TOP = 82;
 const SUMMARY_ROW_GAP = 48;
+const SUMMARY_GROUP_TOP_PADDING = 38;
+const SUMMARY_GROUP_BOTTOM_PADDING = 8;
+const SUMMARY_LANE_HEADER_TOP = 8;
+const SUMMARY_LANE_HEADER_HEIGHT = 32;
 
 function splitSummaryTitle(title: string, limit = 22) {
   const lines: string[] = [];
@@ -131,8 +135,14 @@ export function SelfSummaryGraph({
     const historyLabel = !firstStage ? "历史阶段待核对"
       : firstStage.id === lastStage?.id ? `${firstStage.title} · ${firstStage.years}`
         : `${firstStage.title}（${firstStage.years}）→ ${lastStage?.title}（${lastStage?.years}）`;
-    const top = rowY(first) - 38;
-    return { id: roots.map((root) => root.id).join("-"), historyLabel, stages, top, height: rowY(last) + rowHeights[last] + 24 - top };
+    const top = rowY(first) - SUMMARY_GROUP_TOP_PADDING;
+    return {
+      id: roots.map((root) => root.id).join("-"),
+      historyLabel,
+      stages,
+      top,
+      height: rowY(last) + rowHeights[last] + SUMMARY_GROUP_BOTTOM_PADDING - top,
+    };
   });
 
   return <section className="problem-graph-workspace self-summary-workspace" id="problem-graph">
@@ -161,15 +171,15 @@ export function SelfSummaryGraph({
           </g>
 
           {isMultiTopic && <g className="self-summary-lanes" aria-hidden="true">
-            <text className="summary-time-label" x={SUMMARY_SIDE} y="28">时间序列</text>
+            <text className="summary-time-label" x={SUMMARY_SIDE} y="29">时间序列</text>
             <path className="summary-time-axis" d={`M ${SUMMARY_SIDE + 18} 42 L ${SUMMARY_SIDE + 18} ${graphHeight - 36}`} markerEnd="url(#self-summary-arrow)" />
             {rowHeights.map((height, rowIndex) => <g key={`time-${rowIndex}`}>
               <circle cx={SUMMARY_SIDE + 18} cy={rowY(rowIndex) + height / 2} r="4" />
               <text className="summary-time-index" x={SUMMARY_SIDE + 18} y={rowY(rowIndex) + height / 2 + 3}>{String(rowIndex + 1).padStart(2, "0")}</text>
             </g>)}
             {topicIds.map((topicId, topicIndex) => <g key={topicId}>
-              <rect x={nodeX(topicIndex)} y="14" width={laneWidth} height="36" rx="4" />
-              <text className="summary-lane-label" x={nodeX(topicIndex) + laneWidth / 2} y="37">{topicLabel(topicId)}</text>
+              <rect x={nodeX(topicIndex)} y={SUMMARY_LANE_HEADER_TOP} width={laneWidth} height={SUMMARY_LANE_HEADER_HEIGHT} rx="3" />
+              <text className="summary-lane-label" x={nodeX(topicIndex) + laneWidth / 2} y="29">{topicLabel(topicId)}</text>
             </g>)}
           </g>}
 
