@@ -34,10 +34,11 @@ test("server-renders the learning entrance", async () => {
 });
 
 test("keeps the complete philosopher, school, and problem graphs in the project", async () => {
-  const [page, styles, problemMap, problemData, modernProblemData, enlightenmentProblemData, humeProblemData, romanticKantProblemData, idealismWillProblemData, completionProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
+  const [page, styles, problemMap, problemControls, problemData, modernProblemData, enlightenmentProblemData, humeProblemData, romanticKantProblemData, idealismWillProblemData, completionProblemData, problemViewData, historyData, structureData, graph, forceGraph, philosopherData, medieval, modern, schoolData, medievalSchools, modernSchools, schoolGraph, spec, status, figuresText] = await Promise.all([
     readFile(new URL("app/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
     readFile(new URL("app/problem-map.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/problem-graph-controls.tsx", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-modern-data.ts", projectRoot), "utf8"),
     readFile(new URL("app/problem-map-enlightenment-data.ts", projectRoot), "utf8"),
@@ -97,7 +98,8 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(styles, /app-mode-problems \.sidebar/);
   assert.match(problemMap, /function ProblemMapView/);
   assert.match(problemMap, /为什么进入图谱/);
-  assert.match(problemMap, /图谱图例与组织尺度/);
+  assert.match(problemMap, /ProblemGraphControls/);
+  assert.match(problemControls, /图谱阅读控制与图例/);
   assert.match(problemMap, /局部聚焦 · 前后/);
   assert.match(problemMap, /连续论证链/);
   assert.match(problemMap, /并行答案扇面/);

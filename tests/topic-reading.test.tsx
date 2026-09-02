@@ -8,7 +8,7 @@ import { buildSelfSummaryConnections, knowledgeNodeById, knowledgePhaseByNodeId,
 import { problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
 import { schoolProfiles } from "../app/school-data";
 import { topicReadingEdges } from "../app/topic-reading-edges";
-import { ProblemMapView } from "../app/problem-map";
+import { ProblemMapView, ScopedProblemGraph } from "../app/problem-map";
 import { SelfSummaryGraph } from "../app/problem-map-self";
 
 test("all five reading paths retain the same canonical knowledge at every resolution", () => {
@@ -64,6 +64,18 @@ test("cross-topic comparisons reuse stable nodes and coarse connections have act
       link.sharedNodeIds.forEach((id) => assert.ok(from.has(id) && to.has(id)));
     }
   }
+});
+
+test("the atomic level keeps multi-topic nodes inside explicit topic columns", () => {
+  const selfOnly = topicNodeIds.self.find((id) => nodeReadingTopics(id).length === 1)!;
+  const societyOnly = topicNodeIds.society.find((id) => nodeReadingTopics(id).length === 1)!;
+  const shared = topicNodeIds.self.find((id) => nodeReadingTopics(id).includes("society"))!;
+  const html = renderToStaticMarkup(<ScopedProblemGraph nodeIds={[selfOnly, societyOnly, shared]} topicIds={["self", "society"]} selectedNodeId={selfOnly} onNodeSelect={() => {}} ariaLabel="双主题原子图" />);
+  assert.match(html, /2 个主题列/);
+  assert.match(html, /data-topic-column="self"/);
+  assert.match(html, /data-topic-column="society"/);
+  assert.match(html, /class="problem-graph-node[^"]*shared-topic/);
+  assert.match(html, /data-reading-topics="self society"/);
 });
 
 test("down/up navigation preserves branches, while a newly selected atom can change the branch", () => {

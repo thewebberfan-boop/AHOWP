@@ -60,7 +60,16 @@ test("Locke's person, school and period expose the identical identity argument a
       assert.ok(nodes.includes(knowledgeNodeById.get(id)!), `${context.kind}: ${id}`);
     }
     const html = renderToStaticMarkup(<KnowledgeConnections context={context} />);
-    assert.ok(html.includes(knowledgeNodeById.get("personhood-through-conscious-appropriation")!.summary));
+    assert.match(html, /class="problem-map-controls knowledge-problem-controls"/);
+    assert.match(html, /阅读主题/);
+    assert.match(html, /总览 5/);
+    assert.match(html, /主线 10/);
+    assert.match(html, /论证组 20/);
+    assert.match(html, /全部节点/);
+    assert.match(html, /class="problem-graph-scroll knowledge-problem-graph"/);
+    assert.match(html, /data-knowledge-node="personhood-through-conscious-appropriation"/);
+    assert.match(html, /在完整图谱中定位/);
+    assert.doesNotMatch(html, /<details/);
   }
   assert.deepEqual(knowledgeUnitsFor({ kind: "philosopher", id: "unknown" }), []);
   for (const ids of Object.values(selfCrossTopicNodes)) for (const id of ids) {

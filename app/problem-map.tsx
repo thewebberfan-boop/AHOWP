@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 import { chapters } from "./book-data";
 import { historyStages, stageDetailPanels } from "./history-data";
 import { philosopherProfiles } from "./philosopher-data";
@@ -8,13 +8,10 @@ import { findSchoolProfilesByPhilosopher } from "./school-data";
 import {
   ancientDifferenceProblemMap,
   problemConnectionNotes,
-  problemRelationNotes,
   type ProblemConnectionKind,
   type ProblemEdge,
   type ProblemHistoryLink,
   type ProblemNode,
-  type ProblemNodeKind,
-  type ProblemRelationKind,
 } from "./problem-map-data";
 import {
   problemBoundaryNotes,
@@ -26,10 +23,9 @@ import {
   type ProblemFamily,
 } from "./problem-map-view-data";
 import { SelfSummaryGraph } from "./problem-map-self";
+import { kindEnglish, ProblemGraphControls } from "./problem-graph-controls";
 import { selfNodeTopics } from "./knowledge-paths";
 import {
-  problemCompressionLevels,
-  problemFacetOptions,
   nextSelfSummaryLevel,
   selfSummaryEntryNodeId,
   type ProblemCompressionLevel,
@@ -66,18 +62,6 @@ function readProblemPreference(key: string) {
   try { return window.localStorage.getItem(key); } catch { return null; }
 }
 
-const kindEnglish: Record<ProblemNodeKind, string> = {
-  观察: "OBSERVATION",
-  问题: "QUESTION",
-  答案: "ANSWER",
-};
-
-const relationEnglish: Record<ProblemRelationKind, string> = {
-  提出问题: "RAISES",
-  回应问题: "ANSWERS",
-  产生问题: "GENERATES",
-};
-
 const connectionClass: Record<ProblemConnectionKind, string> = {
   原书线索: "source",
   历史回应: "historical",
@@ -104,6 +88,25 @@ type GraphPoint = {
   y: number;
   row: number;
   lane: number;
+};
+
+type HistoryBand = {
+  stage: (typeof historyStages)[number];
+  top: number;
+  height: number;
+};
+
+type TopicColumn = {
+  id: ReadingTopicId;
+  label: string;
+  x: number;
+  width: number;
+};
+
+type TopicGraphLayout = {
+  points: Map<string, GraphPoint>;
+  columns: TopicColumn[];
+  topicByNodeId: Map<string, ReadingTopicId>;
 };
 
 const familyByAnchorNodeId = new Map<string, ProblemFamily>();
@@ -267,6 +270,75 @@ function buildGraphPoints(nodes: ProblemNode[], density: ProblemDensityId, chain
   return points;
 }
 
+function buildTopicGraphLayout(nodes: ProblemNode[], topicIds: readonly ReadingTopicId[], chainByLeaderId: Map<string, ChainGroup>, phaseByNodeId: Map<string, ProblemPhase>): TopicGraphLayout {
+  const columnGap = 18;
+  const availableWidth = GRAPH_WIDTH - GRAPH_LEFT - GRAPH_RIGHT;
+  const columnWidth = (availableWidth - columnGap * Math.max(0, topicIds.length - 1)) / Math.max(1, topicIds.length);
+  const columns = topicIds.map((id, index) => ({ id, label: topicLabel(id), x: GRAPH_LEFT + index * (columnWidth + columnGap), width: columnWidth }));
+  const topicByNodeId = new Map<string, ReadingTopicId>();
+  const topicLoads = new Map(topicIds.map((topic) => [topic, 0]));
+  const historyStageOrder = new Map(historyStages.map((stage, index) => [stage.id, index]));
+  const orderedNodes = [...nodes].sort((left, right) => {
+    const leftPhase = phaseByNodeId.get(left.id);
+    const rightPhase = phaseByNodeId.get(right.id);
+    const leftStage = leftPhase ? historyStageOrder.get(problemPhaseHistoryStageIds[leftPhase.id]) ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+    const rightStage = rightPhase ? historyStageOrder.get(problemPhaseHistoryStageIds[rightPhase.id]) ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+    return leftStage - rightStage || left.graph.row - right.graph.row || left.graph.lane - right.graph.lane;
+  });
+  orderedNodes.forEach((node) => {
+    const memberships = nodeReadingTopics(node.id).filter((topic) => topicIds.includes(topic));
+    const owner = memberships.reduce<ReadingTopicId | undefined>((best, topic) => !best || (topicLoads.get(topic) || 0) < (topicLoads.get(best) || 0) ? topic : best, undefined) || topicIds[0];
+    if (!owner) return;
+    topicByNodeId.set(node.id, owner);
+    topicLoads.set(owner, (topicLoads.get(owner) || 0) + 1);
+  });
+
+  const points = new Map<string, GraphPoint>();
+  const stageNodes = new Map<string, ProblemNode[]>();
+  orderedNodes.forEach((node) => {
+    const phase = phaseByNodeId.get(node.id);
+    const stageId = phase ? problemPhaseHistoryStageIds[phase.id] : "unmapped";
+    stageNodes.set(stageId, [...(stageNodes.get(stageId) || []), node]);
+  });
+  let verticalCursor = 96;
+  let layoutRow = 0;
+  [...stageNodes.entries()].sort(([left], [right]) => (historyStageOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (historyStageOrder.get(right) ?? Number.MAX_SAFE_INTEGER)).forEach(([, nodesInStage], stageIndex) => {
+    if (stageIndex > 0) verticalCursor += HISTORY_STAGE_GAP;
+    const originalRows = new Map<number, ProblemNode[]>();
+    nodesInStage.forEach((node) => originalRows.set(node.graph.row, [...(originalRows.get(node.graph.row) || []), node]));
+    [...originalRows.entries()].sort(([left], [right]) => left - right).forEach(([, nodesInRow]) => {
+      const nodesByTopic = new Map(topicIds.map((topic) => [topic, [] as ProblemNode[]]));
+      nodesInRow.forEach((node) => nodesByTopic.get(topicByNodeId.get(node.id)!)?.push(node));
+      nodesByTopic.forEach((topicNodes) => topicNodes.sort((left, right) => left.graph.lane - right.graph.lane));
+      const slots = Math.max(...topicIds.map((topic) => nodesByTopic.get(topic)?.length || 0));
+      for (let slot = 0; slot < slots; slot += 1) {
+        const rowNodes = topicIds.flatMap((topic) => nodesByTopic.get(topic)?.[slot] ? [nodesByTopic.get(topic)![slot]] : []);
+        rowNodes.forEach((node) => {
+          const topic = topicByNodeId.get(node.id)!;
+          const column = columns.find((item) => item.id === topic)!;
+          points.set(node.id, { x: column.x + Math.max(0, (column.width - NODE_WIDTH) / 2), y: verticalCursor, row: layoutRow, lane: topicIds.indexOf(topic) });
+        });
+        verticalCursor += Math.max(...rowNodes.map((node) => nodeHeight(node, chainByLeaderId.get(node.id)))) + ROW_GAP;
+        layoutRow += 1;
+      }
+    });
+  });
+  return { points, columns, topicByNodeId };
+}
+
+function buildHistoryBands(nodes: ProblemNode[], points: Map<string, GraphPoint>, phaseByNodeId: Map<string, ProblemPhase>, chainByLeaderId: Map<string, ChainGroup>): HistoryBand[] {
+  return historyStages.map((stage) => {
+    const stageNodes = nodes.filter((node) => {
+      const phase = phaseByNodeId.get(node.id);
+      return phase && problemPhaseHistoryStageIds[phase.id] === stage.id;
+    });
+    if (!stageNodes.length) return null;
+    const top = Math.min(...stageNodes.map((node) => points.get(node.id)?.y || 0)) - HISTORY_BAND_TOP_PADDING;
+    const bottom = Math.max(...stageNodes.map((node) => (points.get(node.id)?.y || 0) + nodeHeight(node, chainByLeaderId.get(node.id)))) + HISTORY_BAND_BOTTOM_PADDING;
+    return { stage, top, height: bottom - top };
+  }).filter((band): band is HistoryBand => Boolean(band));
+}
+
 function edgePath(edge: DisplayEdge, nodesById: Map<string, ProblemNode>, points: Map<string, GraphPoint>, chainByLeaderId: Map<string, ChainGroup>) {
   const source = nodesById.get(edge.from);
   const target = nodesById.get(edge.to);
@@ -279,6 +351,154 @@ function edgePath(edge: DisplayEdge, nodesById: Map<string, ProblemNode>, points
   const endY = targetPoint.y;
   const bend = Math.max(42, (endY - startY) * 0.48);
   return `M ${startX} ${startY} C ${startX} ${startY + bend}, ${endX} ${endY - bend}, ${endX} ${endY}`;
+}
+
+function ProblemGraphCanvas({
+  allNodes,
+  displayNodes,
+  displayEdges,
+  graphPoints,
+  graphHeight,
+  historyBands,
+  selectedHistoryStageId,
+  selectedNodeId,
+  connectedEdgeIds,
+  connectedNodeIds,
+  comparisonNodeIds,
+  collapsedChainByLeaderId,
+  density,
+  ariaLabel,
+  className = "",
+  topicColumns = [],
+  topicByNodeId = new Map(),
+  onSelectNode,
+  onHistoryStage,
+}: {
+  allNodes: ProblemNode[];
+  displayNodes: ProblemNode[];
+  displayEdges: DisplayEdge[];
+  graphPoints: Map<string, GraphPoint>;
+  graphHeight: number;
+  historyBands: HistoryBand[];
+  selectedHistoryStageId?: string;
+  selectedNodeId: string;
+  connectedEdgeIds: Set<string>;
+  connectedNodeIds: Set<string>;
+  comparisonNodeIds?: Set<string>;
+  collapsedChainByLeaderId: Map<string, ChainGroup>;
+  density: ProblemDensityId;
+  ariaLabel: string;
+  className?: string;
+  topicColumns?: TopicColumn[];
+  topicByNodeId?: Map<string, ReadingTopicId>;
+  onSelectNode: (node: ProblemNode, collapsedChain?: ChainGroup) => void;
+  onHistoryStage?: (stage: HistoryBand["stage"]) => void;
+}) {
+  const markerId = `problem-arrow-${useId().replace(/:/g, "")}`;
+  const nodesById = new Map(allNodes.map((node) => [node.id, node]));
+  const comparisonIds = comparisonNodeIds || new Set<string>();
+
+  return <>
+    <div className={`problem-graph-scroll${className ? ` ${className}` : ""}`} role="region" aria-label={ariaLabel}>
+      <svg viewBox={`0 0 ${GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${ariaLabel}：当前显示 ${displayNodes.length} 个节点、${displayEdges.length} 条可见路径${topicColumns.length ? `、${topicColumns.length} 个主题列` : ""}`}>
+        <defs>
+          <marker id={markerId} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L7,3 z" fill="context-stroke" />
+          </marker>
+        </defs>
+
+        <g className="problem-graph-phases">
+          {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} key={band.stage.id}>
+            <rect className={index % 2 ? "phase-even" : "phase-odd"} x="0" y={band.top} width={GRAPH_WIDTH} height={band.height} />
+            {onHistoryStage ? <g className="phase-label-link" role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title} ${band.stage.years}`} onClick={() => onHistoryStage(band.stage)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistoryStage(band.stage); } }}>
+              <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
+              <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
+            </g> : <g className="phase-label-static" aria-hidden="true">
+              <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
+              <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
+            </g>}
+          </g>)}
+        </g>
+
+        {topicColumns.length > 0 && <g className="problem-graph-topic-columns" aria-hidden="true">
+          {topicColumns.map((column) => <g key={column.id}>
+            <line x1={column.x} y1="48" x2={column.x} y2={graphHeight - 24} />
+            <line x1={column.x + column.width} y1="48" x2={column.x + column.width} y2={graphHeight - 24} />
+            <rect x={column.x} y="8" width={column.width} height="32" rx="3" />
+            <text x={column.x + column.width / 2} y="29">{column.label}</text>
+          </g>)}
+        </g>}
+
+        <g className="problem-graph-edges">
+          {displayEdges.map((edge) => {
+            const connected = connectedEdgeIds.has(edge.id);
+            const edgeConnectionClass = edge.connectionKinds.length === 1 ? connectionClass[edge.connectionKinds[0]] : "mixed";
+            return <g className={connected ? "connected" : ""} key={edge.id}>
+              <path className={`problem-graph-edge relation-${edge.relation} connection-${edgeConnectionClass}${edge.folded ? " folded" : ""}`} d={edgePath(edge, nodesById, graphPoints, collapsedChainByLeaderId)} markerEnd={`url(#${markerId})`}>
+                <title>{`${edge.folded ? `折叠 ${edge.hiddenNodeCount} 个中间节点。` : ""}${edge.label} · ${edge.connectionKinds.join("／")}`}</title>
+              </path>
+            </g>;
+          })}
+        </g>
+
+        <g className="problem-graph-nodes">
+          {displayNodes.map((node) => {
+            const point = graphPoints.get(node.id);
+            if (!point) return null;
+            const selected = node.id === selectedNodeId;
+            const connected = connectedNodeIds.has(node.id);
+            const collapsedChain = collapsedChainByLeaderId.get(node.id);
+            const lines = splitTitle(node.title);
+            const height = nodeHeight(node, collapsedChain);
+            const family = familyByAnchorNodeId.get(node.id);
+            const memberships = topicColumns.length ? nodeReadingTopics(node.id).filter((topic) => topicColumns.some((column) => column.id === topic)) : [];
+            const ownerTopic = topicByNodeId.get(node.id);
+            return <g className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}${collapsedChain ? " folded-chain" : ""}${comparisonIds.has(node.id) ? " comparison-peer" : ""}${memberships.length > 1 ? " shared-topic" : ""}`} id={`problem-node-${node.id}`} data-knowledge-node={node.id} data-topic-column={ownerTopic} data-reading-topics={memberships.join(" ")} key={node.id} role="button" tabIndex={0} aria-label={`${node.kind}${node.answerRole ? `，${node.answerRole}型答案` : ""}：${node.title}${ownerTopic ? `，位于${topicLabel(ownerTopic)}主题列` : ""}${memberships.length > 1 ? `，同时属于${memberships.map(topicLabel).join("、")}` : ""}${collapsedChain ? `，包含 ${collapsedChain.nodeIds.length} 个连续节点` : ""}`} transform={`translate(${point.x}, ${point.y})`} onClick={() => onSelectNode(node, collapsedChain)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelectNode(node, collapsedChain); } }}>
+              {collapsedChain && <><rect className="problem-chain-shadow shadow-two" x="7" y="7" width={NODE_WIDTH} height={height} rx="7" /><rect className="problem-chain-shadow shadow-one" x="3.5" y="3.5" width={NODE_WIDTH} height={height} rx="7" /></>}
+              <rect width={NODE_WIDTH} height={height} rx="7" />
+              <text className="problem-graph-node-meta" x="13" y="18">{String(allNodes.indexOf(node) + 1).padStart(2, "0")} · {family && density === "guide" ? family.label : kindEnglish[node.kind]}{node.answerRole && density !== "guide" ? ` · ${node.answerRole}` : ""}{memberships.length > 1 ? ` · 共享${memberships.length}` : ""}</text>
+              <text className="problem-graph-node-title" x="13" y="41">{lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : NODE_TITLE_LINE_HEIGHT} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}</text>
+              {collapsedChain && <text className="problem-chain-count" x="13" y={height - 9}>{collapsedChain.nodeIds.length} 个连续节点 · 点击展开</text>}
+              <circle cx={NODE_WIDTH - 14} cy="14" r="3.5" />
+            </g>;
+          })}
+        </g>
+      </svg>
+    </div>
+
+    <footer className="problem-graph-evidence">
+      {(Object.keys(problemConnectionNotes) as ProblemConnectionKind[]).map((kind) => <span className={`connection-${connectionClass[kind]}`} title={problemConnectionNotes[kind]} key={kind}><i aria-hidden="true" />{kind}</span>)}
+      {displayEdges.some((edge) => edge.folded) && <span className="connection-folded"><i aria-hidden="true" />折叠路径</span>}
+    </footer>
+  </>;
+}
+
+export function ScopedProblemGraph({ nodeIds, topicIds = [], selectedNodeId, onNodeSelect, ariaLabel }: {
+  nodeIds: readonly string[];
+  topicIds?: readonly ReadingTopicId[];
+  selectedNodeId: string;
+  onNodeSelect: (id: string) => void;
+  ariaLabel: string;
+}) {
+  const map = ancientDifferenceProblemMap;
+  const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
+  const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
+  const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
+  const scopedIds = useMemo(() => new Set(nodeIds), [nodeIds]);
+  const displayNodes = useMemo(() => allNodes.filter((node) => scopedIds.has(node.id)), [allNodes, scopedIds]);
+  const activeNode = nodesById.get(selectedNodeId) && scopedIds.has(selectedNodeId) ? nodesById.get(selectedNodeId)! : displayNodes[0];
+  const emptyChains = useMemo(() => new Map<string, ChainGroup>(), []);
+  const graphLayout = useMemo(() => topicIds.length ? buildTopicGraphLayout(displayNodes, topicIds, emptyChains, phaseByNodeId) : { points: buildGraphPoints(displayNodes, "complete", emptyChains, phaseByNodeId), columns: [], topicByNodeId: new Map<string, ReadingTopicId>() }, [displayNodes, emptyChains, phaseByNodeId, topicIds]);
+  const graphPoints = graphLayout.points;
+  const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node)), 180) + 70;
+  const historyBands = useMemo(() => buildHistoryBands(displayNodes, graphPoints, phaseByNodeId, emptyChains), [displayNodes, emptyChains, graphPoints, phaseByNodeId]);
+  const displayEdges = useMemo(() => buildDisplayEdges(map.edges, scopedIds, scopedIds), [map.edges, scopedIds]);
+  const connectedEdges = displayEdges.filter((edge) => edge.from === activeNode?.id || edge.to === activeNode?.id);
+  const connectedEdgeIds = new Set(connectedEdges.map((edge) => edge.id));
+  const connectedNodeIds = new Set(activeNode ? [activeNode.id, ...connectedEdges.flatMap((edge) => [edge.from, edge.to])] : []);
+
+  if (!activeNode) return null;
+  return <ProblemGraphCanvas allNodes={allNodes} displayNodes={displayNodes} displayEdges={displayEdges} graphPoints={graphPoints} graphHeight={graphHeight} historyBands={historyBands} selectedHistoryStageId={problemPhaseHistoryStageIds[phaseByNodeId.get(activeNode.id)?.id || ""]} selectedNodeId={activeNode.id} connectedEdgeIds={connectedEdgeIds} connectedNodeIds={connectedNodeIds} collapsedChainByLeaderId={emptyChains} density="complete" ariaLabel={ariaLabel} className="knowledge-problem-graph" topicColumns={graphLayout.columns} topicByNodeId={graphLayout.topicByNodeId} onSelectNode={(node) => onNodeSelect(node.id)} />;
 }
 
 export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish, initialReadingTarget, onReadingTargetConsumed, originLabel, onBack }: {
@@ -389,18 +609,10 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     return result;
   }, [chainGroups, density, expandedChainIds, focusDepth, topicMode, visibleNodeIds]);
   const layoutDensity = topicMode ? "complete" : density;
-  const graphPoints = useMemo(() => buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId, phaseByNodeId), [collapsedChainByLeaderId, displayNodes, layoutDensity, phaseByNodeId]);
+  const graphLayout = useMemo(() => topicMode ? buildTopicGraphLayout(displayNodes, selectedTopics, collapsedChainByLeaderId, phaseByNodeId) : { points: buildGraphPoints(displayNodes, layoutDensity, collapsedChainByLeaderId, phaseByNodeId), columns: [], topicByNodeId: new Map<string, ReadingTopicId>() }, [collapsedChainByLeaderId, displayNodes, layoutDensity, phaseByNodeId, selectedTopics, topicMode]);
+  const graphPoints = graphLayout.points;
   const graphHeight = Math.max(...displayNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id))), 180) + 70;
-  const historyBands = useMemo(() => historyStages.map((stage) => {
-    const stageNodes = displayNodes.filter((node) => {
-      const phase = phaseByNodeId.get(node.id);
-      return phase && problemPhaseHistoryStageIds[phase.id] === stage.id;
-    });
-    if (!stageNodes.length) return null;
-    const top = Math.min(...stageNodes.map((node) => graphPoints.get(node.id)?.y || 0)) - HISTORY_BAND_TOP_PADDING;
-    const bottom = Math.max(...stageNodes.map((node) => (graphPoints.get(node.id)?.y || 0) + nodeHeight(node, collapsedChainByLeaderId.get(node.id)))) + HISTORY_BAND_BOTTOM_PADDING;
-    return { stage, top, height: bottom - top };
-  }).filter((band): band is NonNullable<typeof band> => Boolean(band)), [collapsedChainByLeaderId, displayNodes, graphPoints, phaseByNodeId]);
+  const historyBands = useMemo(() => buildHistoryBands(displayNodes, graphPoints, phaseByNodeId, collapsedChainByLeaderId), [collapsedChainByLeaderId, displayNodes, graphPoints, phaseByNodeId]);
   const selectedHistoryStageId = problemPhaseHistoryStageIds[selectedPhase.id];
   const selectedFamily = familyByAnchorNodeId.get(selectedNode.id);
   const selectedBoundaryNotes = problemBoundaryNotes[selectedNode.id] || [];
@@ -655,18 +867,8 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
     <aside className="problem-map-boundary"><span>阅读边界</span><p>{map.scopeNote}</p></aside>
 
-    <section className="problem-map-controls" aria-label="图谱图例与组织尺度">
-      <div className={`problem-control-main ${topicMode ? "topic-mode" : "full-mode"}`}>
-        <div className="problem-facet-controls" role="group" aria-label="主题筛选，可多选">
-          <span><small>01</small>阅读主题</span>
-          <button type="button" className={selectedFacetIds.length === 0 ? "active" : ""} aria-pressed={selectedFacetIds.length === 0} onClick={clearFacets}>全图</button>
-          {problemFacetOptions.map((option) => <button type="button" className={selectedFacetIds.includes(option.id) ? "active" : ""} aria-pressed={selectedFacetIds.includes(option.id)} disabled={!option.available} title={option.available ? option.question : `${option.label}主题尚未整理独立分层路径`} onClick={() => toggleFacet(option.id)} key={option.id}>{option.label}</button>)}
-        </div>
-        {topicMode ? <div className="problem-compression-controls" role="group" aria-label={`${topicsLabel}主题总结层级`}>
-          <span><small>02</small>{selectedTopics.length > 1 ? "并列层级" : "阅读层级"}</span>
-          {problemCompressionLevels.map((option) => <button type="button" className={compressionLevel === option.id ? "active" : ""} aria-pressed={compressionLevel === option.id} title={option.note} onClick={() => changeCompression(option.id)} key={option.id}>{option.label}</button>)}
-          <button type="button" className="problem-compression-back" disabled={!parentSummaryLevel} aria-label={summaryBackLabel} title={summaryBackLabel} onClick={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }}><span aria-hidden="true">←</span></button>
-        </div> : <>
+    <ProblemGraphControls selectedTopicIds={selectedTopics} compressionLevel={topicMode ? compressionLevel : undefined} onToggleTopic={toggleFacet} onClearTopics={clearFacets} onCompressionChange={changeCompression} onCompressionBack={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }} compressionBackDisabled={!parentSummaryLevel} compressionBackLabel={summaryBackLabel} topicCountForLabel={selectedTopics.length} mode={topicMode ? "topic" : "full"}>
+      {!topicMode && <>
           <div className="problem-density-slider" data-tooltip={`${densityOption.description} 当前显示 ${displayNodes.length}／${allNodes.length} 个节点。`}>
             <label htmlFor="problem-density"><span><small>02</small>组织尺度</span><b>{densityOption.label}</b></label>
             <input id="problem-density" type="range" min="0" max={problemDensityOptions.length - 1} step="1" value={densityIndex} aria-valuetext={`${densityOption.label}模式：${densityOption.description}`} onChange={(event) => changeDensity(problemDensityOptions[Number(event.target.value)].id)} />
@@ -679,18 +881,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
             {focusDepth > 0 && <button type="button" className="reset" onClick={() => setFocusDepth(0)}>全图</button>}
           </div>
         </>}
-      </div>
-      <div className="problem-control-reference" aria-label="图谱图例">
-        <div className="problem-control-legend" aria-label="节点类型">
-          <span className="problem-control-label">节点</span>
-          {(Object.keys(kindEnglish) as ProblemNodeKind[]).map((kind) => <span className={`problem-control-token kind-${kind}`} data-tooltip={`${kindEnglish[kind]}：${kind === "观察" ? "记录使问题出现的经验、实践或历史条件。" : kind === "问题" ? "明确尚待回答的解释压力。" : "对问题提出的区分、反驳、修复或综合。"}`} key={kind}><i aria-hidden="true" />{kind}</span>)}
-        </div>
-        <div className="problem-control-legend" aria-label="关系类型">
-          <span className="problem-control-label">箭头</span>
-          {(Object.keys(problemRelationNotes) as ProblemRelationKind[]).map((relation) => <span className="problem-control-token relation" data-tooltip={`${relationEnglish[relation]}：${problemRelationNotes[relation]}`} key={relation}><i aria-hidden="true" />{relation}</span>)}
-        </div>
-      </div>
-    </section>
+    </ProblemGraphControls>
 
     {!topicMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
@@ -701,63 +892,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           {topicMode && <p className="problem-graph-fit-note">已到最细一层；单击节点查看解释与原书入口。</p>}
         </header>
 
-        <div className="problem-graph-scroll" role="region" aria-label="观察、问题与答案的有向关系图">
-          <svg viewBox={`0 0 ${GRAPH_WIDTH} ${graphHeight}`} role="img" aria-label={`${map.title}：当前显示 ${displayNodes.length} 个节点、${displayEdges.length} 条可见路径`}>
-            <defs>
-              <marker id="problem-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L7,3 z" fill="context-stroke" />
-              </marker>
-            </defs>
-
-            <g className="problem-graph-phases">
-              {historyBands.map((band, index) => <g className={band.stage.id === selectedHistoryStageId ? "active" : ""} key={band.stage.id}>
-                <rect className={index % 2 ? "phase-even" : "phase-odd"} x="0" y={band.top} width={GRAPH_WIDTH} height={band.height} />
-                <g className="phase-label-link" role="button" tabIndex={0} aria-label={`进入历史概览：${band.stage.title} ${band.stage.years}`} onClick={() => onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onHistory({ stageId: band.stage.id, label: band.stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id); } }}>
-                  <rect className="phase-label" x={GRAPH_LEFT} y={band.top + 8} width="206" height="29" rx="3" />
-                  <text className="phase-label-text" x={GRAPH_LEFT + 10} y={band.top + 20}>{band.stage.title}<tspan className="phase-label-years" dx="9">{band.stage.years}</tspan></text>
-                </g>
-              </g>)}
-            </g>
-
-            <g className="problem-graph-edges">
-              {displayEdges.map((edge) => {
-                const connected = connectedEdgeIds.has(edge.id);
-                const edgeConnectionClass = edge.connectionKinds.length === 1 ? connectionClass[edge.connectionKinds[0]] : "mixed";
-                return <g className={connected ? "connected" : ""} key={edge.id}>
-                  <path className={`problem-graph-edge relation-${edge.relation} connection-${edgeConnectionClass}${edge.folded ? " folded" : ""}`} d={edgePath(edge, nodesById, graphPoints, collapsedChainByLeaderId)} markerEnd="url(#problem-arrow)">
-                    <title>{`${edge.folded ? `折叠 ${edge.hiddenNodeCount} 个中间节点。` : ""}${edge.label} · ${edge.connectionKinds.join("／")}`}</title>
-                  </path>
-                </g>;
-              })}
-            </g>
-
-            <g className="problem-graph-nodes">
-              {displayNodes.map((node) => {
-                const point = graphPoints.get(node.id);
-                if (!point) return null;
-                const selected = node.id === selectedNode.id;
-                const connected = connectedNodeIds.has(node.id);
-                const collapsedChain = collapsedChainByLeaderId.get(node.id);
-                const lines = splitTitle(node.title);
-                const height = nodeHeight(node, collapsedChain);
-                const family = familyByAnchorNodeId.get(node.id);
-                return <g className={`problem-graph-node kind-${node.kind}${selected ? " selected" : ""}${connected ? " connected" : ""}${collapsedChain ? " folded-chain" : ""}${comparisonNodeIds.has(node.id) ? " comparison-peer" : ""}`} id={`problem-node-${node.id}`} key={node.id} role="button" tabIndex={0} aria-label={`${node.kind}${node.answerRole ? `，${node.answerRole}型答案` : ""}：${node.title}${collapsedChain ? `，包含 ${collapsedChain.nodeIds.length} 个连续节点` : ""}`} transform={`translate(${point.x}, ${point.y})`} onClick={() => { if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); } }}>
-                  {collapsedChain && <><rect className="problem-chain-shadow shadow-two" x="7" y="7" width={NODE_WIDTH} height={height} rx="7" /><rect className="problem-chain-shadow shadow-one" x="3.5" y="3.5" width={NODE_WIDTH} height={height} rx="7" /></>}
-                  <rect width={NODE_WIDTH} height={height} rx="7" />
-                  <text className="problem-graph-node-meta" x="13" y="18">{String(allNodes.indexOf(node) + 1).padStart(2, "0")} · {family && density === "guide" ? family.label : kindEnglish[node.kind]}{node.answerRole && density !== "guide" ? ` · ${node.answerRole}` : ""}</text>
-                  <text className="problem-graph-node-title" x="13" y="41">{lines.map((line, lineIndex) => <tspan x="13" dy={lineIndex === 0 ? 0 : NODE_TITLE_LINE_HEIGHT} key={`${node.id}-${lineIndex}`}>{line}</tspan>)}</text>
-                  {collapsedChain && <text className="problem-chain-count" x="13" y={height - 9}>{collapsedChain.nodeIds.length} 个连续节点 · 点击展开</text>}
-                  <circle cx={NODE_WIDTH - 14} cy="14" r="3.5" />
-                </g>;
-              })}
-            </g>
-          </svg>
-        </div>
-
-        <footer className="problem-graph-evidence">
-          {(Object.keys(problemConnectionNotes) as ProblemConnectionKind[]).map((kind) => <span className={`connection-${connectionClass[kind]}`} title={problemConnectionNotes[kind]} key={kind}><i aria-hidden="true" />{kind}</span>)}
-          {displayEdges.some((edge) => edge.folded) && <span className="connection-folded"><i aria-hidden="true" />折叠路径</span>}
-        </footer>
+        <ProblemGraphCanvas allNodes={allNodes} displayNodes={displayNodes} displayEdges={displayEdges} graphPoints={graphPoints} graphHeight={graphHeight} historyBands={historyBands} selectedHistoryStageId={selectedHistoryStageId} selectedNodeId={selectedNode.id} connectedEdgeIds={connectedEdgeIds} connectedNodeIds={connectedNodeIds} comparisonNodeIds={comparisonNodeIds} collapsedChainByLeaderId={collapsedChainByLeaderId} density={density} ariaLabel="观察、问题与答案的有向关系图" topicColumns={graphLayout.columns} topicByNodeId={graphLayout.topicByNodeId} onSelectNode={(node, collapsedChain) => { if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); }} onHistoryStage={(stage) => onHistory({ stageId: stage.id, label: stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id)} />
       </div>
 
       <aside className={`problem-node-detail kind-${selectedNode.kind}`} aria-live="polite">

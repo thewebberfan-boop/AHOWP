@@ -52,6 +52,7 @@ export function SelfSummaryGraph({
   allNodes,
   phaseByNodeId,
   selectedUnitId,
+  visibleNodeIds,
   onUnitSelect,
   onDrillDown,
   onAtomicNode,
@@ -61,22 +62,33 @@ export function SelfSummaryGraph({
   allNodes: ProblemNode[];
   phaseByNodeId: Map<string, ProblemPhase>;
   selectedUnitId: string;
+  visibleNodeIds?: readonly string[];
   onUnitSelect: (id: string) => void;
   onDrillDown: (unit: SelfSummaryUnit) => void;
   onAtomicNode: (nodeId: string) => void;
 }) {
-  const units = useMemo(() => topicIds.flatMap((id) => flattenTopicLevel(id, level)), [topicIds, level]);
+  const visibleNodeIdSet = useMemo(() => visibleNodeIds ? new Set(visibleNodeIds) : null, [visibleNodeIds]);
+  const fullUnitsByTopic = useMemo(() => topicIds.map((id) => flattenTopicLevel(id, level)), [topicIds, level]);
+  const unitsByTopic = useMemo(() => fullUnitsByTopic.map((topicUnits) => visibleNodeIdSet
+    ? topicUnits.filter((unit) => collectSelfSummaryNodeIds(unit).some((id) => visibleNodeIdSet.has(id)))
+    : topicUnits), [fullUnitsByTopic, visibleNodeIdSet]);
+  const units = useMemo(() => unitsByTopic.flat(), [unitsByTopic]);
   const phaseIndex = useMemo(() => new Map([...phaseByNodeId.values()].map((phase) => [phase.id, phase])), [phaseByNodeId]);
-  const connections = useMemo(() => buildSelfSummaryConnections(units, ancientDifferenceProblemMap.edges), [units]);
+  const connections = useMemo(() => {
+    if (!visibleNodeIdSet) return buildSelfSummaryConnections(units, ancientDifferenceProblemMap.edges);
+    const scopedUnits = units.map((unit) => ({ ...unit, nodeIds: collectSelfSummaryNodeIds(unit).filter((id) => visibleNodeIdSet.has(id)) }));
+    const scopedEdges = ancientDifferenceProblemMap.edges.filter((edge) => visibleNodeIdSet.has(edge.from) && visibleNodeIdSet.has(edge.to));
+    return buildSelfSummaryConnections(scopedUnits, scopedEdges);
+  }, [units, visibleNodeIdSet]);
 
   const activeTopic = topicForUnit(selectedUnitId);
   const selectedTopic = activeTopic && topicIds.includes(activeTopic) ? activeTopic : topicIds[0];
-  const selectedUnit = resolveTopicUnit(selectedTopic, level, selectedUnitId);
+  const resolvedUnit = resolveTopicUnit(selectedTopic, level, selectedUnitId);
+  const selectedUnit = units.find((unit) => unit.id === resolvedUnit.id) || units.find((unit) => topicForUnit(unit.id) === selectedTopic) || units[0];
   const topicsLabel = topicIds.map(topicLabel).join(" / ");
   const nextLevel = nextSelfSummaryLevel(level);
   const expandLabel = nextLevel === "all" ? "进入具体论证节点" : nextLevel === "10" ? "展开对应主线" : "展开对应论证组";
   const isMultiTopic = topicIds.length > 1;
-  const unitsByTopic = topicIds.map((topicId) => flattenTopicLevel(topicId, level));
   const laneAreaLeft = isMultiTopic ? SUMMARY_SIDE + SUMMARY_TIMELINE_WIDTH : 0;
   const laneAreaWidth = isMultiTopic ? SUMMARY_GRAPH_WIDTH - laneAreaLeft - SUMMARY_SIDE : SUMMARY_GRAPH_WIDTH;
   const laneWidth = isMultiTopic ? (laneAreaWidth - SUMMARY_LANE_GAP * (topicIds.length - 1)) / topicIds.length : SUMMARY_SINGLE_NODE_WIDTH;
@@ -94,25 +106,34 @@ export function SelfSummaryGraph({
     return { height, titleLines, overviewLines, overviewY };
   });
   const measurementByUnitId = new Map(units.map((unit, index) => [unit.id, measurements[index]]));
-  const rowCount = Math.max(...unitsByTopic.map((topicUnits) => topicUnits.length));
-  const rowHeights = Array.from({ length: rowCount }, (_, rowIndex) => Math.max(...unitsByTopic.map((topicUnits) => {
-    const unit = topicUnits[rowIndex];
-    return unit ? measurementByUnitId.get(unit.id)!.height : 0;
-  })));
+  const rowsPerGroup = level === "5" ? 1 : level === "10" ? 2 : 4;
+  const rowKeyByUnitId = new Map<string, string>();
+  fullUnitsByTopic.forEach((topicUnits) => topicUnits.forEach((unit, index) => rowKeyByUnitId.set(unit.id, `${Math.floor(index / rowsPerGroup)}:${index % rowsPerGroup}`)));
+  const activeRowKeys = [...new Set(units.map((unit) => rowKeyByUnitId.get(unit.id)!))].sort((left, right) => {
+    const [leftGroup, leftRow] = left.split(":").map(Number);
+    const [rightGroup, rightRow] = right.split(":").map(Number);
+    return leftGroup - rightGroup || leftRow - rightRow;
+  });
+  const rowIndexByKey = new Map(activeRowKeys.map((key, index) => [key, index]));
+  const rowCount = activeRowKeys.length;
+  const rowHeights = activeRowKeys.map((rowKey) => Math.max(...units.filter((unit) => rowKeyByUnitId.get(unit.id) === rowKey).map((unit) => measurementByUnitId.get(unit.id)!.height)));
   const rowY = (rowIndex: number) => SUMMARY_TOP + rowHeights.slice(0, rowIndex).reduce((height, item) => height + item + SUMMARY_ROW_GAP, 0);
-  const layouts = new Map(unitsByTopic.flatMap((topicUnits, topicIndex) => topicUnits.map((unit, rowIndex) => [unit.id, {
+  const layouts = new Map(unitsByTopic.flatMap((topicUnits, topicIndex) => topicUnits.map((unit) => {
+    const rowIndex = rowIndexByKey.get(rowKeyByUnitId.get(unit.id)!)!;
+    return [unit.id, {
     ...measurementByUnitId.get(unit.id)!,
     x: nodeX(topicIndex),
     y: rowY(rowIndex),
     width: laneWidth,
     rowIndex,
     topicIndex,
-  }] as const)));
-  const graphHeight = Math.max(360, rowY(rowCount - 1) + rowHeights[rowCount - 1] + 70);
+  }] as const;
+  })));
+  const graphHeight = rowCount ? Math.max(360, rowY(rowCount - 1) + rowHeights[rowCount - 1] + 70) : 360;
 
   const unitMemberNodes = (unit: SelfSummaryUnit) => {
     const ids = new Set(collectSelfSummaryNodeIds(unit));
-    return allNodes.filter((node) => ids.has(node.id));
+    return allNodes.filter((node) => ids.has(node.id) && (!visibleNodeIdSet || visibleNodeIdSet.has(node.id)));
   };
 
   const selectedMemberNodes = selectedUnit ? unitMemberNodes(selectedUnit) : [];
@@ -120,12 +141,14 @@ export function SelfSummaryGraph({
   const selectedPhases = selectedPhaseIds.map((id) => phaseIndex.get(id)).filter((phase): phase is ProblemPhase => Boolean(phase));
   const selectedParticipantNames = [...new Set(selectedMemberNodes.flatMap((node) => node.participants.map((participant) => participant.name)))];
   const selectedChapterIds = [...new Set(selectedMemberNodes.flatMap((node) => node.chapterIds))];
-  const rowsPerGroup = level === "5" ? 1 : level === "10" ? 2 : 4;
-  const groupRanges = Array.from({ length: 5 }, (_, groupIndex) => {
-    const first = groupIndex * rowsPerGroup;
-    const last = first + rowsPerGroup - 1;
+  const activeGroupIndexes = [...new Set(activeRowKeys.map((key) => Number(key.split(":")[0])))];
+  const groupRanges = activeGroupIndexes.map((groupIndex) => {
+    const groupRows = activeRowKeys.map((key, rowIndex) => ({ key, rowIndex })).filter(({ key }) => Number(key.split(":")[0]) === groupIndex).map(({ rowIndex }) => rowIndex);
+    const first = groupRows[0];
+    const last = groupRows.at(-1)!;
     const roots = topicIds.map((topicId) => readingTrees[topicId][groupIndex]);
-    const historyStageIds = new Set(roots.flatMap(collectSelfSummaryNodeIds).map((nodeId) => {
+    const groupNodeIds = roots.flatMap(collectSelfSummaryNodeIds).filter((nodeId) => !visibleNodeIdSet || visibleNodeIdSet.has(nodeId));
+    const historyStageIds = new Set(groupNodeIds.map((nodeId) => {
       const phase = phaseByNodeId.get(nodeId);
       return phase ? problemPhaseHistoryStageIds[phase.id] : undefined;
     }).filter((id): id is string => Boolean(id)));

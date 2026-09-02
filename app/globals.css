@@ -1062,6 +1062,9 @@ button { cursor: pointer; }
 .problem-graph-phases .phase-label-link:hover .phase-label, .problem-graph-phases .phase-label-link:focus-visible .phase-label { stroke: var(--green); stroke-width: 2; }
 .problem-graph-phases .phase-label-text { fill: var(--ink); font: 500 11px var(--serif); }
 .problem-graph-phases .phase-label-years { fill: var(--red); font: 700 8px Arial, sans-serif; letter-spacing: .06em; }
+.problem-graph-topic-columns line { stroke: rgba(49, 75, 61, .16); stroke-width: 1; stroke-dasharray: 3 5; }
+.problem-graph-topic-columns rect { fill: var(--paper-light); stroke: rgba(49, 75, 61, .42); stroke-width: 1; }
+.problem-graph-topic-columns text { fill: var(--green); font: 600 11px var(--serif); text-anchor: middle; }
 
 .problem-graph-edge { fill: none; stroke: currentColor; stroke-width: 1.45; opacity: .27; transition: opacity .18s ease, stroke-width .18s ease; }
 .problem-graph-edges g.connected .problem-graph-edge { stroke-width: 2.3; opacity: .94; }
@@ -1076,6 +1079,7 @@ button { cursor: pointer; }
 .problem-graph-node.kind-观察 rect { fill: #e0e9df; stroke: var(--green); }
 .problem-graph-node.kind-问题 rect { fill: #efe0da; stroke: var(--red); }
 .problem-graph-node.kind-答案 rect { fill: #f7f2e8; stroke: #7a6757; }
+.problem-graph-node.shared-topic rect { stroke-dasharray: 4 3; }
 .problem-graph-node.selected rect, .problem-graph-node:focus-visible rect { stroke-width: 3.2; filter: drop-shadow(5px 5px 0 rgba(145, 52, 42, .16)); }
 .problem-graph-node-meta { fill: var(--muted); font: 7px Arial, sans-serif; letter-spacing: .07em; }
 .problem-graph-node.kind-观察 .problem-graph-node-meta { fill: var(--green); }
@@ -1109,24 +1113,27 @@ button { cursor: pointer; }
 .self-summary-edges path.cross-topic { stroke: var(--red); stroke-width: 1.65; opacity: .34; }
 .self-summary-edges path.cross-topic.connected { stroke-width: 2.5; opacity: .9; }
 .self-summary-edges path.within-topic:not(.connected) { opacity: .2; }
-.knowledge-connections { margin: 16px 0; padding: 14px; border: 1px solid var(--line); border-left: 3px solid var(--green); background: var(--green-soft); color: var(--ink); }
-.knowledge-connections > header, .knowledge-connections article > header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; }
+.knowledge-connections { margin: 16px 0; border: 1px solid var(--ink); border-left: 3px solid var(--green); background: var(--paper-light); color: var(--ink); }
+.knowledge-connections > header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 14px; }
 .knowledge-connections h4, .knowledge-connections h5 { margin: 3px 0; font: 600 15px/1.5 var(--serif); }
-.knowledge-connections p, .knowledge-connections summary { font: 13px/1.65 var(--serif); }
-.knowledge-connections .knowledge-boundary { color: var(--muted); font-size: 12px; }
-.knowledge-connections details { border-top: 1px solid var(--line); padding: 9px 0 0; margin-top: 8px; }
-.knowledge-connections summary { cursor: pointer; }
-.knowledge-connections summary span { margin-left: 10px; color: var(--muted); font-size: 12px; }
-.knowledge-connections button { padding: 5px 8px; border: 1px solid var(--green); color: var(--green); background: transparent; text-align: left; font: 12px/1.6 var(--serif); cursor: pointer; }
-.knowledge-connections button:hover, .knowledge-connections button:focus-visible, .knowledge-connections summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
-.knowledge-connections article { padding: 10px 0; }
-.knowledge-connections ol { padding-left: 22px; }
-.knowledge-connections li { margin: 10px 0; }
-.knowledge-connections li small { display: block; color: var(--muted); font: 11px/1.6 var(--serif); }
-.knowledge-connections li button { border: 0; padding: 3px 0; font-weight: 600; }
-.knowledge-connections li p { margin: 3px 0; }
-.knowledge-connections .problem-facet-controls { margin-top: 10px; padding: 0; border: 0; }
-.knowledge-connections .problem-facet-controls button { height: auto; min-height: 32px; }
+.knowledge-connections p { font: 13px/1.65 var(--serif); }
+.knowledge-connections > header button, .knowledge-graph-actions button { padding: 5px 8px; border: 1px solid var(--green); background: transparent; color: var(--green); text-align: left; font: 12px/1.6 var(--serif); cursor: pointer; }
+.knowledge-connections > header button:hover, .knowledge-connections > header button:focus-visible, .knowledge-graph-actions button:hover, .knowledge-graph-actions button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.knowledge-connections .knowledge-boundary { margin: 0; padding: 0 14px 13px; color: var(--muted); font-size: 12px; }
+.knowledge-connections .knowledge-problem-controls { position: relative; top: auto; z-index: auto; margin: 0; border-right: 0; border-left: 0; box-shadow: none; backdrop-filter: none; }
+.knowledge-graph-panel { border-top: 1px solid var(--ink); background: #e8e5dc; }
+.knowledge-connections .problem-graph-workspace { margin-top: 0; }
+.knowledge-connections .problem-graph-panel { border: 0; box-shadow: none; }
+.knowledge-connections .problem-graph-scroll { max-height: 560px; overflow-x: hidden; overflow-y: auto; }
+.knowledge-connections .self-summary-workspace .problem-node-detail { position: static; width: auto; max-height: none; margin: 0; border-right: 0; border-bottom: 0; border-left: 0; box-shadow: none; }
+.knowledge-graph-detail { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--ink); border-left: 3px solid var(--green); background: var(--paper-light); }
+.knowledge-graph-detail.kind-问题 { border-left-color: var(--red); }
+.knowledge-graph-detail.kind-答案 { border-left-color: #66594c; }
+.knowledge-graph-detail small { color: var(--muted); font: 9px/1.5 Arial, sans-serif; letter-spacing: .04em; }
+.knowledge-graph-detail h5 { margin: 3px 0; }
+.knowledge-graph-detail p { margin: 0; }
+.knowledge-graph-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; max-width: 220px; }
+.knowledge-graph-actions small { text-align: right; }
 .self-summary-coverage a { display: block; margin: 5px 0; color: var(--green); font-size: 11px; line-height: 1.6; }
 .self-summary-detail details { margin: 8px 0; font: 12px/1.6 var(--serif); }
 .self-summary-detail summary { cursor: pointer; color: var(--green); }
@@ -1539,6 +1546,10 @@ span.place-token {
   .problem-map-title blockquote { font-size: 15px; line-height: 1.58; }
   .problem-map-facts { grid-column: 1 / -1; }
   .problem-map-boundary { grid-template-columns: 1fr; gap: 5px; }
+  .knowledge-connections .problem-graph-scroll { max-height: 420px; }
+  .knowledge-graph-detail { grid-template-columns: 1fr; }
+  .knowledge-graph-actions { align-items: stretch; max-width: none; }
+  .knowledge-graph-actions small { text-align: left; }
   .history-sources-section > header { grid-template-columns: 1fr; gap: 8px; }
   .problem-map-local-nav { display: none; }
   .problem-map-key { padding-top: 16px; }
