@@ -79,7 +79,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "斯多葛派区分印象与同意，把自由安置在判断；罗马与晚期古代又追问这种内在自由是否足以支撑最高意义。",
         transition: "意志的内部秩序很快被放进创造、恶与救赎的神学框架。",
         children: [
-          { id: "self-20-assent-responsibility", entryNodeId: "fate-and-responsibility", title: "同意怎样使行动成为我的？", period: "斯多葛主义", question: "外因触发印象时，主体在哪一步承担责任？", thesis: "行动不是无原因事件；主体通过同意把外部刺激转化为自己的判断和行为。", transition: "内在因果保存责任，却未说明意志为何会持续选择错误。", phaseIds: ["hellenistic-therapies", "criteria-freedom-cosmopolis"] },
+          { id: "self-20-assent-responsibility", entryNodeId: "fate-and-responsibility", title: "同意怎样使行动成为我的？", period: "斯多葛主义与学院怀疑论", question: "外因触发印象时，主体在哪一步承担责任？", thesis: "斯多葛派以印象与同意区分知识和行动责任；学院怀疑者质疑印象能否自证真实，并以合理性、可信度与反复检查说明不确定时怎样行动。悬置与认可不是同一种回答。", transition: "内在因果保存责任，却未说明意志为何会持续选择错误。", phaseIds: ["hellenistic-therapies", "criteria-freedom-cosmopolis"] },
           { id: "self-20-inner-freedom-meaning", entryNodeId: "is-inner-freedom-enough", title: "内在自由是否足以回答最高意义？", period: "罗马至晚期古代", question: "控制判断、履行角色和接受命运，是否已经给出完整自我？", thesis: "自我越来越以内在转向获得稳定，但也由此向灵魂回归、恶与神圣援助开放。", transition: "基督教思想把自由的困难改写为分裂意志及其医治。", phaseIds: ["roman-inwardness-and-one"] },
         ],
       },
@@ -114,7 +114,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "共同理智论、个体灵魂、此性和意志同步选择能力，分别尝试保存知识普遍性与个人不可替代性。",
         transition: "个体化不仅成为形而上问题，也转化为个人判断能否面对多重权威。",
         children: [
-          { id: "self-20-individual-intellect", entryNodeId: "is-rational-soul-individual", title: "普遍理智如何属于每个具体的人？", period: "阿维森纳、阿威罗伊与阿奎那", question: "超越私人感觉的知识怎样仍由个体承担？", thesis: "共享理智强化知识普遍性，个体灵魂论则坚持每个人拥有自己的理智能力。", transition: "个体理智成立后，还要说明个体本身怎样不可重复。", phaseIds: ["translation-demonstration-revelation", "aquinas-nature-grace-order"] },
+          { id: "self-20-individual-intellect", entryNodeId: "is-rational-soul-individual", title: "普遍理智如何属于每个具体的人？", period: "阿维森纳、阿威罗伊与阿奎那", question: "超越私人感觉的知识怎样仍由个体承担？", thesis: "阿维森纳从自我意识讨论灵魂；阿威罗伊的共同理智方案突出普遍性，阿奎那则坚持每个人拥有自己的理智能力。三者对个体与普遍知识的关联作出不同解释。", transition: "个体理智成立后，还要说明个体本身怎样不可重复。", phaseIds: ["translation-demonstration-revelation", "aquinas-nature-grace-order"] },
           { id: "self-20-haecceity-choice", entryNodeId: "what-makes-common-nature-this-individual", title: "此性与选择怎样构成不可替代者？", period: "司各脱及晚期经院哲学", question: "共同本性如何成为这个个体，理智理由又是否必然决定意志？", thesis: "此性标记不可重复个体，意志的同步可能性则把自由定位为面对理由仍可选择。", transition: "个人能力扩大后，判断权开始进入文本、教会和国家的冲突。", phaseIds: ["scotus-ockham-individual-signs"] },
         ],
       },
@@ -138,7 +138,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         transition: "把思维确立为独立实体，立即产生它怎样与身体组成一个人的难题。",
         children: [
           { id: "self-20-agency-conscience", entryNodeId: "how-can-thought-judge-state-classics-scripture-experience", title: "能动性与良心如何面对多重权威？", period: "文艺复兴与宗教改革", question: "个人行动和经文良心获得地位后，怎样避免孤立判断自称无误？", thesis: "主体从制度中获得更大判断空间，却仍嵌在宗教、城市、文本和共同解释关系中。", transition: "认识权威的冲突推动思想寻找不依赖争议传统的起点。", phaseIds: ["schism-conciliar-reform-transition", "renaissance-texts-cities-human-agency", "humanism-reformation-conscience-authority"] },
-          { id: "self-20-body-cogito", entryNodeId: "can-mind-be-explained-without-immaterial-faculty", title: "身体过程与我思分别怎样解释心灵？", period: "霍布斯与笛卡尔", question: "心灵能否化约为身体运动，或首先确定为思维之物？", thesis: "机械论说明感觉和欲望的因果过程，我思则从第一人称确定性确立主体；两者形成近代自我的基本张力。", transition: "思维与广延的清楚区分把统一的人重新变成问题。", phaseIds: ["hobbes-motion-language-covenant-sovereignty", "descartes-doubt-cogito-mind-body"] },
+          { id: "self-20-body-cogito", entryNodeId: "can-mind-be-explained-without-immaterial-faculty", title: "身体过程与我思分别怎样解释心灵？", period: "霍布斯与笛卡尔", question: "心灵能否化约为身体运动，或首先确定为思维之物？", thesis: "霍布斯以身体运动说明感觉和欲望，但机械论不能独自证明政治授权；笛卡尔则从怀疑中寻找实际思考时的确定性。两条路线的起点和解释任务不同。", transition: "思维与广延的清楚区分把统一的人重新变成问题。", phaseIds: ["hobbes-motion-language-covenant-sovereignty", "descartes-doubt-cogito-mind-body"] },
         ],
       },
       {
@@ -172,7 +172,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "个体性不再被理解为先于社会的封闭内核；教育与平等关系可以塑造判断，也可能制造依赖。",
         transition: "形成中的主体还需要一个不依赖特殊共同体的自由标准。",
         children: [
-          { id: "self-20-formed-individuality", entryNodeId: "can-individuality-and-sociality-support-each-other", title: "独特个体是否只能在关系中形成？", period: "浪漫主义", question: "创造性个体怎样既非习俗复制，也非孤立任性？", thesis: "教育、文化和关系成为个体能力的形成条件，同时保留对社会同化的批判。", transition: "卢梭把这种形成问题具体化为自爱、教育和依赖。", phaseIds: ["romanticism-reason-nature-individuality"] },
+          { id: "self-20-formed-individuality", entryNodeId: "can-individuality-and-sociality-support-each-other", title: "独特个体是否只能在关系中形成？", period: "浪漫主义与拜伦", question: "创造性个体怎样既非习俗复制，也非孤立任性？", thesis: "教育、文化和关系形成个体能力，同时也可能使人屈从习俗。拜伦的反叛与讽刺暴露这种压力；但作者不等于英雄，魅力和越界也不自动保证自由或公共正当性。", transition: "卢梭把这种形成问题具体化为自爱、教育和依赖。", phaseIds: ["romanticism-reason-nature-individuality"] },
           { id: "self-20-education-dependence", entryNodeId: "how-educate-agency-without-premature-dependence", title: "教育怎样培养自主而不是服从？", period: "卢梭", question: "儿童和公民怎样在不可避免的依赖中形成判断与自制？", thesis: "消极教育延缓虚荣竞争，以安排后的经验培养能力；社会自爱则可能转向平等承认。", transition: "发展性自由仍需说明为何具有普遍规范力量。", phaseIds: ["rousseau-inequality-education-general-will"] },
         ],
       },
@@ -184,7 +184,7 @@ export const selfSummaryTree: SelfSummaryUnit[] = [
         thesis: "康德用现象与实践立场区分保存归责；黑格尔指出孤立自我不能独自完成自由，承认必须进入权利和共同规范。",
         transition: "形式自律和制度承认之后，欲望与生活时间重新检验主体是否过于抽象。",
         children: [
-          { id: "self-20-autonomy-causality", entryNodeId: "how-can-freedom-coexist-with-natural-causality", title: "自然因果与实践自由能否同时成立？", period: "康德", question: "同一行动怎样既可被因果说明，又可被主体负责？", thesis: "行动在现象层属于自然因果，在实践立场必须按自我立法归责；自由不是理论对象。", transition: "普遍自律仍没有说明具体自我怎样在社会中确认自身。", phaseIds: ["kant-experience-autonomy-judgment"] },
+          { id: "self-20-autonomy-causality", entryNodeId: "how-can-freedom-coexist-with-natural-causality", title: "自然因果与实践自由能否同时成立？", period: "康德", question: "同一行动怎样既可被因果说明，又可被主体负责？", thesis: "普遍法则要求同时把人格当作目的，而非只当作工具。行动在现象层属于自然因果，在实践立场须按自我立法归责；实践自由不能冒充理论上已知的超经验对象。", transition: "普遍自律仍没有说明具体自我怎样在社会中确认自身。", phaseIds: ["kant-experience-autonomy-judgment"] },
           { id: "self-20-recognition-social-self", entryNodeId: "why-self-consciousness-needs-mutual-recognition", title: "为什么自我意识需要他者承认？", period: "黑格尔", question: "一个主体为何不能单独确认自己的自由？", thesis: "相互承认构成可持续自我、权利和共同规范；支配因取消对方主体性而自行失败。", transition: "社会自我形成后，身体欲望与非理性动力仍要求解释。", phaseIds: ["hegel-dialectic-recognition-ethical-life-history", "byron-romantic-rebellion-individuality"] },
         ],
       },

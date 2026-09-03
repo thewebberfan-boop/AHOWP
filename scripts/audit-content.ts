@@ -9,6 +9,8 @@ import { problemMaps } from "../app/problem-map-data";
 import { problemBoundaryNotes, problemComparisonFans, problemDensityOptions, problemFamilies, problemPhaseHistoryStageIds } from "../app/problem-map-view-data";
 import { collectSelfSummaryNodeIds, collectSelfSummaryPhaseIds, flattenSelfSummaryLevel, problemCompressionLevels, problemFacetOptions, selfFacetNodeIds, selfSummaryTree } from "../app/problem-map-self-data";
 import { selfCrossTopicNodes } from "../app/self-reading-data";
+import { philosopherReadings, philosopherReadingNodeIds } from "../app/philosopher-reading-data";
+import { knowledgeNodeById, knowledgeUnitsFor } from "../app/knowledge-paths";
 import { collectSummaryNodeIds, flattenTopicLevel, readingTopicIds, readingTrees, topicNodeIds } from "../app/reading-topics-data";
 
 type Rating = 1 | 2 | 3 | 4 | 5;
@@ -280,10 +282,25 @@ if (!publishedProblemMap) {
   });
 }
 
+Object.keys(philosopherReadings).filter((id) => !philosopherIds.has(id)).forEach((id) => error(`核心阅读引用不存在的人物 ${id}`));
+duplicates(Object.values(philosopherReadings).flatMap((readings) => readings.map((reading) => reading.id))).forEach((id) => error(`核心阅读 ID 重复：${id}`));
+
 philosopherProfiles.forEach((profile) => {
   if (!profile.stars) error(`${profile.nameZh}缺少星级`);
   if (!profile.sources.length) error(`${profile.nameZh}缺少来源`);
-  if (!profile.inquiries.length || !profile.concepts.length || !profile.comparisons.length) error(`${profile.nameZh}的推导、概念或关系为空`);
+  if (!philosopherReadings[profile.id]?.length || !profile.concepts.length || !profile.comparisons.length) error(`${profile.nameZh}的核心问题、概念或关系为空`);
+  if ("inquiries" in profile) error(`${profile.nameZh}仍在维护旧卡片与同源阅读两套内容`);
+  const readings = philosopherReadings[profile.id];
+  if (readings) {
+    const visibleIds = new Set(knowledgeUnitsFor({ kind: "philosopher", id: profile.id }).flatMap((unit) => unit.nodes.map((node) => node.id)));
+    for (const reading of readings) {
+      if (!reading.label.trim()) error(`${reading.id}缺少阅读目录名`);
+      duplicates(reading.nodeIds).forEach((id) => error(`${reading.id}重复引用 ${id}`));
+      if (!reading.nodeIds.includes(reading.questionId) || knowledgeNodeById.get(reading.questionId)?.kind !== "问题") error(`${reading.id}缺少有效的核心问题`);
+      for (const id of reading.nodeIds) if (!visibleIds.has(id)) error(`${reading.id}的节点 ${id} 未进入共用图谱`);
+      if (!reading.nodeIds.some((id) => knowledgeNodeById.get(id)?.kind === "答案" && knowledgeNodeById.get(id)?.participants.some((person) => person.philosopherId === profile.id))) error(`${reading.id}没有本人参与的回答`);
+    }
+  }
   profile.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`${profile.nameZh}引用不存在的章节 ${id}`));
   const term = terminology.find((entry) => entry.entity?.kind === "philosopher" && entry.entity.id === profile.id);
   if (!term) error(`${profile.nameZh}没有自动生成的人物卡`);
@@ -342,7 +359,12 @@ const schoolMinimum: Record<Rating, number> = { 1: 1150, 2: 1200, 3: 1500, 4: 18
 const culturalNoteMinimum: Record<Rating, number> = { 1: 0, 2: 0, 3: 1, 4: 2, 5: 3 };
 
 philosopherProfiles.forEach((profile) => {
-  const size = textSize(profile);
+  // Count the actual shared reading text once; do not require duplicated prose
+  // just to satisfy an old per-profile word-count warning.
+  const size = textSize(profile) + textSize(philosopherReadingNodeIds(profile.id).flatMap((id) => {
+    const node = knowledgeNodeById.get(id);
+    return node ? [node.title, node.summary, node.pressure, node.consequence] : [];
+  }));
   if (size < personMinimum[profile.stars || 1]) warn(`${profile.stars}星人物“${profile.nameZh}”正文量 ${size}，低于建议值 ${personMinimum[profile.stars || 1]}`);
   const noteCount = profile.culturalNotes?.length || 0;
   const expectedNotes = culturalNoteMinimum[profile.stars || 1];

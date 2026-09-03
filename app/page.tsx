@@ -12,7 +12,8 @@ import { PhilosopherGraphView } from "./philosopher-graph";
 import { SchoolGraphView } from "./school-graph";
 import { ProblemMapView } from "./problem-map";
 import { KnowledgeConnections, KnowledgeNavigationContext } from "./knowledge-connections";
-import { knowledgePhaseByNodeId, type ReadingTarget } from "./knowledge-paths";
+import { knowledgeNodeById, knowledgePhaseByNodeId, type ReadingTarget } from "./knowledge-paths";
+import { philosopherReadingNodeIds } from "./philosopher-reading-data";
 import { readingPreferenceKeys } from "./reading-topics-data";
 import { ancientDifferenceProblemMap, type ProblemHistoryLink } from "./problem-map-data";
 import { findSchoolProfilesByPhilosopher, schoolProfiles, schoolRelationMeta, sortSchoolRelations, type SchoolProfile } from "./school-data";
@@ -121,12 +122,11 @@ const philosopherRelationSymbols = { "影响后继": "→", "承接前人": "←
 const philosopherSectionLinks = [
   { id: "profile-life", label: "生平" },
   { id: "profile-concepts", label: "概念" },
-  { id: "profile-inquiry", label: "问题与推导" },
+  { id: "profile-inquiry", label: "思想路径" },
   { id: "profile-relations", label: "关系与比较" },
   { id: "profile-cultural", label: "故事与名言" },
   { id: "profile-russell", label: "罗素与校正" },
 ] as const;
-const lowerRomanNumerals = ["i", "ii", "iii", "iv", "v", "vi"];
 const inlineMatchers = [...new Set([...terminologyMatchers, ...geographyMatchers])].sort((a, b) => b.length - a.length);
 const inlinePattern = new RegExp(`(${inlineMatchers.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
 const PlaceInteractionContext = createContext<((place: GeographyEntry) => void) | null>(null);
@@ -507,7 +507,10 @@ export default function Home() {
         profile.lifeSummary, profile.russellView, profile.modernCorrection, ...profile.places,
         ...(profile.culturalNotes || []).flatMap((note) => [note.kind, note.title, note.text, note.caveat || ""]),
         ...profile.concepts.flatMap((concept) => [concept.zh, concept.en, concept.definition]),
-        ...profile.inquiries.flatMap((inquiry) => [inquiry.object, inquiry.question, inquiry.start, inquiry.conclusion, ...inquiry.steps]),
+        ...philosopherReadingNodeIds(profile.id).flatMap((id) => {
+          const node = knowledgeNodeById.get(id);
+          return node ? [node.title, node.summary, node.pressure, node.consequence] : [];
+        }),
       ], needle)) results.push({ kind: "philosopher", id: profile.id, title: profile.nameZh, meta: `${profile.stars || 1}星 · ${profile.nameEn} · ${profile.school}` });
     });
     methodAtlas.forEach((method) => {
@@ -1283,7 +1286,7 @@ function SchoolView({ profile, onSchool, onPhilosopher, onChapter, originLabel, 
     <section className="school-section" id="school-philosophers">
       <header><span>03</span><div><p className="section-label">PEOPLE AS FUNCTIONS IN A TRADITION</p><h3>主要哲学家及其互动</h3></div></header>
       <div className="school-philosopher-grid">{profile.philosophers.map((person) => { const philosopher = profileById(person.id); const figure = philosopher ? figureEntries.find((item) => item.id === philosopher.figureId) : undefined; if (!philosopher) return null; const stars = philosopher.stars || 1; return <button key={person.id} onClick={() => onPhilosopher(person.id, "主要哲学家")} aria-label={`打开哲学家页面：${philosopher.nameZh}，${stars}星`}><span className="school-person-portrait">{figure ? <img src={figure.imagePath} alt="" /> : <i>{philosopher.nameZh.slice(0, 1)}</i>}<span className="school-person-rating" aria-label={`${stars}星`} title={`${stars}星`}>{"★".repeat(stars)}</span></span><span className="school-person-copy"><small>{person.role}</small><b>{philosopher.nameZh}<em>{philosopher.nameEn}</em></b><p>{termText(person.contribution)}</p><span className="school-person-interaction">互动 · {termText(person.interaction)}</span></span><i className="school-person-open" aria-hidden="true">→</i></button>; })}</div>
-      <p className="school-person-note">人物卡只说明其在传统中的功能；点击进入“哲学家”页查看生平、概念与完整推导，并可由页首箭头返回这里。</p>
+      <p className="school-person-note">人物卡只说明其在传统中的功能；点击进入“哲学家”页查看生平、概念与核心思想路径，并可由页首箭头返回这里。</p>
     </section>
 
     <section className="school-section" id="school-development">
@@ -1387,7 +1390,7 @@ function PhilosopherView({ profile, onSchool, onChapter, originLabel, onBack, sh
     </section>
 
     <section className="profile-section concept-section" id="profile-concepts">
-      <header><span>02</span><div><p className="section-label">CONCEPT SYSTEM</p><h3>先识别概念，再进入推导</h3></div></header>
+      <header><span>02</span><div><p className="section-label">CONCEPT SYSTEM</p><h3>先识别概念，再理解关系</h3></div></header>
       <div className="profile-concept-grid">{profile.concepts.map((concept, index) => {
         const label = formatLanguageLabel(concept.en);
         const knownTerm = terminologyByZh.get(concept.zh);
@@ -1398,9 +1401,8 @@ function PhilosopherView({ profile, onSchool, onChapter, originLabel, onBack, sh
     </section>
 
     <section className="profile-section inquiry-section" id="profile-inquiry">
-      <header><span>03</span><div><p className="section-label">OBJECT → QUESTION → INFERENCE</p><h3>研究对象与推导路径</h3></div></header>
-      <KnowledgeConnections key={profile.id} context={{ kind: "philosopher", id: profile.id }} />
-      <div className="inquiry-list">{profile.inquiries.map((inquiry, inquiryIndex) => <article className="inquiry-card" key={inquiry.object}><header><div className="inquiry-subject"><small>研究对象 <i>{lowerRomanNumerals[inquiryIndex] || String(inquiryIndex + 1)}:</i></small><b>{termText(inquiry.object)}</b></div><i className="inquiry-header-divider" aria-hidden="true" /><h4>{termText(inquiry.question)}</h4></header><div className="logic-start"><span>逻辑起点</span><p>{termText(inquiry.start)}</p></div><div className="logic-chain">{inquiry.steps.map((step, index) => <div key={step}><p>{termText(step)}</p>{index < inquiry.steps.length - 1 && <i aria-hidden="true">→</i>}</div>)}</div><div className="logic-conclusion"><span>推导结果</span><p>{termText(inquiry.conclusion)}</p></div></article>)}</div>
+      <header><span>03</span><div><p className="section-label">QUESTIONS & RELATIONS</p><h3>核心问题与思想路径</h3></div></header>
+      <KnowledgeConnections key={profile.id} context={{ kind: "philosopher", id: profile.id }} renderText={termText} onChapter={onChapter} />
     </section>
 
     <section className="profile-section relation-profile-section" id="profile-relations">

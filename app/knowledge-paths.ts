@@ -3,6 +3,7 @@ import { collectSelfSummaryNodeIds, type SelfSummaryUnit, type ProblemCompressio
 import { flattenTopicLevel, nodeReadingTopics, readingTopicIds, resolveTopicUnit, topicLabel, type ReadingTopicId } from "./reading-topics-data";
 import { problemPhaseHistoryStageIds } from "./problem-map-view-data";
 import { schoolProfiles } from "./school-data";
+import { philosopherReadings, philosopherReadingNodeIds } from "./philosopher-reading-data";
 
 export type ReadingTarget = { topicId?: ReadingTopicId; unitId: string; nodeId: string; level: ProblemCompressionLevel };
 export type KnowledgeContext = { kind: "philosopher" | "school" | "history"; id: string };
@@ -14,12 +15,20 @@ export function selfNodeTopics(nodeId: string) {
 }
 
 export function knowledgeUnitsFor(context: KnowledgeContext, topicIds: readonly ReadingTopicId[] = readingTopicIds) {
+  const curatedIds = context.kind === "philosopher" && philosopherReadings[context.id]
+    ? new Set(philosopherReadingNodeIds(context.id)) : null;
   const school = context.kind === "school" ? schoolProfiles.find((item) => item.id === context.id) : undefined;
   const people = context.kind === "school"
     ? new Set(school?.philosophers.map((person) => person.id) || [])
     : new Set([context.id]);
   return topicIds.flatMap((topicId) => flattenTopicLevel(topicId, "20").flatMap((unit) => {
     const nodes = collectSelfSummaryNodeIds(unit).map((id) => knowledgeNodeById.get(id)).filter((node): node is ProblemNode => Boolean(node));
+    if (curatedIds) {
+      const localNodes = nodes.filter((node) => curatedIds.has(node.id));
+      if (!localNodes.length) return [];
+      const entry = localNodes.find((node) => node.kind === "问题") || localNodes[0];
+      return [{ topicId, unit, root: resolveTopicUnit(topicId, "5", unit.id), nodes: localNodes, entry }];
+    }
     const attributedNodes = nodes.filter((node) => context.kind === "history"
       ? problemPhaseHistoryStageIds[knowledgePhaseByNodeId.get(node.id)?.id || ""] === context.id
       : node.participants.some((person) => person.philosopherId && people.has(person.philosopherId))

@@ -17,8 +17,7 @@ export const selfReadingNodeIds: Record<string, string[]> = {
     stoic-virtue-in-order freedom-withdrawal-or-role role-and-inner-freedom
     can-impression-certify-truth cognitive-impression-and-assent
     fate-and-responsibility assent-as-internal-cause
-    who-belongs-moral-community cosmopolis-common-reason
-  `),
+    who-belongs-moral-community cosmopolis-common-reason suspend-self-certifying-assent how-act-without-certainty probable-tested-guidance`),
   "self-20-inner-freedom-meaning": ids(`
     role-and-inner-freedom imperial-vulnerability-observation is-inner-freedom-enough
     one-intellect-soul how-many-from-one emanation-without-loss
@@ -36,8 +35,7 @@ export const selfReadingNodeIds: Record<string, string[]> = {
     can-intellectual-perfection-preserve-person
     can-one-separate-intellect-make-this-person-think each-human-soul-has-intellectual-powers
     how-individual-intellect-knows-universals abstraction-makes-universal-knowledge
-    what-of-person-after-body subsistent-soul-survives-incomplete
-  `),
+    what-of-person-after-body subsistent-soul-survives-incomplete self-awareness-immaterial-soul`),
   "self-20-haecceity-choice": ids(`
     shared-nature-distinct-individuals-observation what-makes-common-nature-this-individual
     common-nature-contracted-by-haecceity does-intellectual-judgment-determine-choice
@@ -50,16 +48,14 @@ export const selfReadingNodeIds: Record<string, string[]> = {
     justification-by-faith-reorders-works how-free-is-will-before-grace
     erasmus-small-cooperation-under-grace luther-bound-will-in-salvation
     why-command-if-will-cannot-save-itself law-reveals-incapacity-grace-creates-will
-    does-scripture-conscience-create-solitary-infallibility
-  `),
+    does-scripture-conscience-create-solitary-infallibility is-salvation-mediated-by-church-achievement`),
   "self-20-body-cogito": ids(`
     bodily-impact-sensation-memory-observation can-mind-be-explained-without-immaterial-faculty
     sensation-imagination-passions-as-bodily-motion
     what-can-thought-know-when-sense-and-words-mislead sensory-error-dream-observation
     methodic-doubt-suspends-uncertain-beliefs does-any-judgment-survive-hyperbolic-doubt
     cogito-performed-certainty what-is-the-self-known-in-cogito thinking-thing-before-body
-    can-finite-thinker-secure-clear-distinct-truth
-  `),
+    can-finite-thinker-secure-clear-distinct-truth does-mechanism-by-itself-justify-sovereignty mechanism-constrains-but-does-not-deduce-authority`),
   "self-20-mind-body-affect": ids(`
     thinking-thing-before-body is-mind-really-distinct-from-body
     matter-as-extension-mechanical-order thought-extension-real-distinction
@@ -69,8 +65,7 @@ export const selfReadingNodeIds: Record<string, string[]> = {
     if-mind-and-body-do-not-interact-how-correspond mind-body-parallel-expression
     what-can-freedom-mean-in-necessary-nature conatus-and-adequate-understanding-increase-agency
     can-understanding-transform-passions-without-suppressing-them
-    active-affects-through-common-causes
-  `),
+    active-affects-through-common-causes affects-shift-capacity-observation can-free-thought-strengthen-common-power freedom-of-philosophizing-supports-peace`),
   "self-20-personal-identity-critique": ids(`
     how-do-perception-memory-and-reason-emerge apperception-builds-conscious-continuity
     are-ideas-innate-dispositions-or-experiential-materials sensation-and-reflection-supply-idea-materials
@@ -83,12 +78,10 @@ export const selfReadingNodeIds: Record<string, string[]> = {
     can-association-explain-one-mind-and-responsibility association-explains-identity-fiction-not-full-unity
     are-liberty-and-causal-necessity-compatible liberty-as-action-according-to-will
     can-caused-actions-ground-responsibility stable-character-links-action-and-attribution
-    can-scepticism-guide-life-without-paralysis
-  `),
+    can-scepticism-guide-life-without-paralysis unnoticed-perceptions-observation stream-of-perceptions-no-constant-self-observation`),
   "self-20-formed-individuality": ids(`
     can-individuality-and-sociality-support-each-other bildung-creative-individuality-within-relations
-    can-authentic-feeling-legitimate-political-power
-  `),
+    can-authentic-feeling-legitimate-political-power can-rebellion-protect-individual-without-glorifying-power byronic-figure-exposes-conformity-without-system can-charismatic-hero-represent-public-liberty celebrity-scandal-authorship-observation can-self-mythology-preserve-self-critique irony-splits-author-hero-public-image does-transgression-prove-authentic-freedom charisma-mobilizes-but-cannot-legitimate-rule can-poetic-solidarity-become-responsible-action responsible-rebellion-links-courage-solidarity-limits transgression-reveals-hypocrisy-not-automatic-freedom`),
   "self-20-education-dependence": ids(`
     is-amour-propre-only-corrupting-vanity amour-propre-can-be-inflamed-or-egalitarian
     how-educate-agency-without-premature-dependence negative-education-protects-developmental-agency
@@ -97,8 +90,7 @@ export const selfReadingNodeIds: Record<string, string[]> = {
   "self-20-autonomy-causality": ids(`
     can-self-legislation-be-universal-without-one-community autonomy-as-rational-self-legislation
     how-can-freedom-coexist-with-natural-causality two-standpoints-natural-causality-practical-freedom
-    can-practical-reason-know-transcendent-freedom
-  `),
+    can-practical-reason-know-transcendent-freedom duty-can-conflict-with-inclination-observation what-makes-moral-law-universal categorical-imperative-universal-law can-persons-be-used-merely-as-means humanity-as-end-and-kingdom-of-ends`),
   "self-20-recognition-social-self": ids(`
     self-consciousness-seeks-recognition-observation why-self-consciousness-needs-mutual-recognition
     mutual-recognition-constitutes-social-selfhood can-domination-secure-recognition

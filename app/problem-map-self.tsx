@@ -256,7 +256,8 @@ export function SelfSummaryGraph({
 
     {selectedUnit && <aside className="problem-node-detail self-summary-detail" aria-live="polite">
       <header>
-        <div><span>总结节点</span><em>本站学习重构</em></div>
+        <div><span>{visibleNodeIdSet ? "全局争论背景" : "总结节点"}</span><em>本站学习重构</em></div>
+        {visibleNodeIdSet && <p className="knowledge-scope-note">下文解释这组问题的全局分歧，不代表本页人物或流派接受全部回答；图中与下方成员仅显示本页相关部分。</p>}
         <small>{topicLabel(selectedTopic)} · 每主题 {level} 组 · 覆盖 {selectedMemberNodes.length} 个原子节点</small>
         <h3>{selectedUnit.title}</h3>
         <p>{selectedUnit.thesis}</p>

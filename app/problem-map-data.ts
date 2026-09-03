@@ -902,7 +902,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
           answerRole: "转向",
           title: "相反理由势均时悬置断言，让扰动失去抓手",
           summary: "皮浪式怀疑不急于为世界增加新体系，而在无法决定时停止把显现批准为事物本性。安宁被理解为放松教条执着后的实践结果。",
-          pressure: "不轻率断言可以降低焦虑，却必须说明人如何行动，也要面对印象是否可能提供可靠标准的争论。",
+          pressure: "减少断言仍须说明人怎样行动。早期皮浪究竟主张事物本性不确定，还是人的认识无法确定，证言存在解释分歧；不能把后期皮浪主义的完整方法倒推给本人。",
           consequence: "怀疑路线同时提出知识是否必要、表象能否自证和无确定性如何行动的问题。",
           participants: [{ name: "皮浪", philosopherId: "pyrrho", role: "把悬置与不受扰动的生活联系起来" }],
           chapterIds: ["b1-26"],

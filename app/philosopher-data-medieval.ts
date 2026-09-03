@@ -23,7 +23,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 38—41", place: "罗马", title: "参加申诉使团", detail: "代表亚历山大里亚犹太社群面见卡利古拉，后在《致盖乌斯使团》中记述事件。", certainty: "较可靠" },
       { date: "1 世纪中叶", place: "亚历山大里亚", title: "完成主要释经著作", detail: "以希腊文写作经文注释、哲学论文和历史记述。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "经文与哲学", question: "摩西经文与希腊哲学看似冲突时，如何同时保存启示权威与理性解释？", start: "经文用人格化叙事谈论上帝，哲学却要求不变、非物质的第一原则。", steps: ["区分经文字面层与寓意层", "把人物和事件解释为灵魂能力与德性过程", "以逻各斯说明超越者与世界之间的中介", "将希腊哲学视为对摩西智慧的部分发现"], conclusion: "经文的哲学意义可通过寓意解释显现；上帝保持超越，而逻各斯、理念和能力说明创造与认识。" }],
     concepts: [
       { zh: "逻各斯", en: "Logos", definition: "上帝的理性、话语与创造范型；斐洛的用法并不总是一致，不能简单等同于后来基督教的第二位格。" },
       { zh: "寓意解释", en: "allegorical interpretation", definition: "在不取消字面叙事的前提下，把经文人物与事件读作灵魂、德性和宇宙结构。" },
@@ -50,7 +49,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 230 年代", place: "凯撒利亚", title: "迁居并任教", detail: "与亚历山大主教冲突后在凯撒利亚讲学、释经并受任圣职。", certainty: "较可靠" },
       { date: "约 249—253", place: "凯撒利亚／推罗", title: "受迫害与去世", detail: "德西乌斯迫害中受刑，数年后去世；具体地点和年份略有分歧。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "启示的理性结构", question: "经文中的矛盾、拟人叙事与哲学难题，能否被理解为同一救赎秩序？", start: "若上帝良善而理性，经文与宇宙就不应只是任意命令和字面冲突。", steps: ["区分经文的身体、灵魂与精神意义", "以自由意志解释理性受造物的差异", "把物质世界理解为教育与医治场域", "在基督—逻各斯中说明知识与复归"], conclusion: "哲学推理可以服务于信仰，但必须接受经文和教会规则约束；救赎是理性受造物重新面向上帝的过程。" }],
     concepts: [
       { zh: "三重经义", en: "threefold sense of scripture", definition: "经文具有身体、灵魂、精神层次；困难文本会迫使读者越过字面寻找更深意义。" },
       { zh: "自由意志", en: "free choice", definition: "灵魂差异不是上帝偏私造成，而源于受造理性者的不同选择；这是神义论与教育宇宙论的支点。" },
@@ -77,7 +75,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "386", place: "米兰", title: "抵抗宫廷索取教堂", detail: "拒绝把教堂交给阿里乌派宫廷使用，以群众礼拜维护主教管辖。", certainty: "较可靠" },
       { date: "390", place: "米兰", title: "要求狄奥多西悔罪", detail: "帖撒罗尼迦屠杀后拒绝照常举行圣礼，事件细节仍需结合书信谨慎重建。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "教会与皇权", question: "信奉基督教的皇帝犯下公共罪行时，谁能对他作道德审判？", start: "皇帝掌握法律与军队，但圣礼与教会纪律不应成为宫廷工具。", steps: ["区分政治统治与圣礼管辖", "主张皇帝作为信徒也受教会纪律约束", "用拒绝共融迫使权力回应公共罪责"], conclusion: "皇帝在教会之内，不在教会之上；政治权力不能自动取得宗教与道德上的无责地位。" }],
     concepts: [
       { zh: "教会自主", en: "ecclesial autonomy", definition: "圣所、教义与圣礼纪律不由皇帝随意处分。" },
       { zh: "主教劝诫", en: "episcopal admonition", definition: "主教以公共教导和圣礼纪律纠正统治者，而非直接取代行政权。" },
@@ -104,7 +101,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "386", place: "伯利恒", title: "定居修院", detail: "在保拉资助下建立修院、旅舍与学习中心。", certainty: "较可靠" },
       { date: "约 390—405", place: "伯利恒", title: "由希伯来文翻译旧约", detail: "逐步形成后来武加大传统的核心部分。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "翻译与权威", question: "当希腊、希伯来和旧拉丁文本不一致时，基督徒应以什么校正文义？", start: "教会通行译本彼此有差异，字面错误会改变解释与争论。", steps: ["比较多种语言文本", "把希伯来文本视为旧约的重要校准依据", "保留教会用语同时重译难句", "以注释解释译法和历史语境"], conclusion: "翻译不是透明抄写，而是需要语言学、文本批判与共同体判断的解释工作。" }],
     concepts: [
       { zh: "希伯来真本", en: "Hebraica veritas", definition: "用希伯来文本校准旧约拉丁译文的原则，并不意味着哲罗姆拥有现代文本批判方法。" },
       { zh: "武加大译本", en: "Vulgate", definition: "以哲罗姆翻译和修订为核心、后世逐步定型的拉丁圣经传统。" },
@@ -132,11 +128,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "395/396", place: "希波", title: "成为主教", detail: "此后参与多纳徒派、伯拉纠派等长期争论。", certainty: "较可靠" },
       { date: "397—400", place: "希波", title: "写作《忏悔录》", detail: "以祈祷、自传和哲学分析交织的形式讨论记忆、意志、时间与皈依。", certainty: "较可靠" },
       { date: "430", place: "希波", title: "围城中去世", detail: "汪达尔人围攻希波期间去世。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "时间与意识", question: "过去已不在、未来尚未来，时间怎样仍能被测量？", start: "日常说长短时间，却无法把过去未来当作现成物体观察。", steps: ["把过去定位为现在的记忆", "把未来定位为现在的期待", "把当下过程定位为注意", "用心灵的延展解释时间经验"], conclusion: "被测量的是心灵中记忆、注意与期待的延展；时间问题由宇宙对象转入意识结构。" },
-      { object: "恶与意志", question: "若上帝全善且创造万物，恶从哪里来？", start: "把恶当作独立实体会限制上帝，把一切归给上帝又似乎取消责任。", steps: ["把存在本身理解为善", "将恶解释为秩序和善的缺失", "追踪意志由较高善转向较低善", "以恩典说明受缚意志的医治"], conclusion: "恶没有独立本体，却通过意志失序产生真实损害；自由、习惯、原罪和恩典构成张力。" },
-      { object: "怀疑与确定性", question: "当感官、推理和他人的判断都可能出错时，是否还有不能被怀疑的知识？", start: "学院怀疑派使奥古斯丁看到：仅以意见相互冲突为由，可以不断撤回判断。", steps: ["注意怀疑本身是一项正在发生的心灵活动", "确认受骗者至少必须存在、生活并思考", "由可错的感官判断区分不可同时否认的自我在场", "再借真理、记忆和照明讨论知识何以超出私人瞬间"], conclusion: "‘即使我错，我也存在’给出内在确定性，但奥古斯丁的目标不是把个人意识封闭为世界起点，而是说明有限心灵如何参与不由自己制造的真理。" },
     ],
     concepts: [
       { zh: "内在确定性", en: "inner certainty", definition: "即使受骗或怀疑，正在思考、生活和记忆的主体仍不能同时被取消。" },
@@ -171,7 +162,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "522", place: "拉文纳", title: "两个儿子同任执政官", detail: "家族政治地位达到高峰。", certainty: "较可靠" },
       { date: "523—524", place: "帕维亚附近", title: "监禁、写作与处决", detail: "被控叛国和魔法等罪名；审判是否公正长期有争议。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "先知与自由", question: "若上帝无误地知道未来，人还可能不那样行动吗？", start: "无误知识似乎把未来变成必然事实。", steps: ["区分事物自身的单纯必然与条件必然", "区分时间中的预见与永恒中的同时观看", "让知识方式取决于认识者而非对象被强迫", "保留行动由理性主体产生的自愿性"], conclusion: "上帝不是提前猜中未来，而在永恒当下认识时间全体；被认识不等于被知识强迫。" }],
     concepts: [
       { zh: "命运之轮", en: "wheel of Fortune", definition: "外在地位、财富和权力不断翻转；把幸福系于轮缘就必然不稳。" },
       { zh: "永恒", en: "eternity", definition: "对无限生命的完整、同时占有，不只是持续无限长时间。" },
@@ -198,7 +188,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 529", place: "卡西诺山", title: "建立修院", detail: "传统纪年广泛采用，但没有同期文件可精确确认。", certainty: "传统记载" },
       { date: "6 世纪中叶", place: "卡西诺山", title: "形成《规程》", detail: "文本吸收更早《师傅规程》等传统，后来逐渐成为西欧修院标准。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "共同生活", question: "普通人怎样在长年共同生活中持续训练欲望，而不是依赖少数极端苦行者？", start: "孤独苦行可能过度，松散团体又容易受财产、权力和情绪破坏。", steps: ["要求稳定居所和共同规程", "让院长权威受规程、咨询与责任约束", "以固定祈祷和阅读划分时间", "根据年龄、健康和季节调节劳动与饮食"], conclusion: "德性成为日复一日的制度实践；克制并非最大痛苦，而是可持续、共同且有尺度的生活。" }],
     concepts: [
       { zh: "稳定", en: "stabilitas", definition: "承诺留在具体共同体，不以不断迁徙逃避关系和纪律。" },
       { zh: "服从", en: "obedientia", definition: "通过倾听规程、院长与共同体训练自我意志，同时要求权威对灵魂负责。" },
@@ -225,7 +214,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "590", place: "罗马", title: "成为教皇", detail: "在瘟疫、战争和救济压力中接任。", certainty: "较可靠" },
       { date: "597", place: "罗马—肯特", title: "派遣英格兰传教团", detail: "坎特伯雷的奥古斯丁率团抵达肯特。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "治理与灵魂", question: "公共领导怎样避免变成权力欲，又不以追求纯洁为由逃避责任？", start: "默观生活有吸引力，危机中的共同体却需要行政、纠正和照料。", steps: ["把职位理解为重担而非荣耀", "要求牧者先检查自身动机", "按不同性格与处境调整劝诫", "让行动返回默观，让默观承担邻人需要"], conclusion: "真正的治理是‘牧灵照管’：权威越大，对具体人的责任越重，也越需要自我怀疑和谦卑。" }],
     concepts: [
       { zh: "牧灵规则", en: "pastoral rule", definition: "按人的处境施教、纠正和照顾的治理艺术，也是中世纪主教与君主反复阅读的领导手册。" },
       { zh: "众仆之仆", en: "servant of the servants of God", definition: "教皇自称，表达权威作为服务的规范；现实政治并不因此失去权力竞争。" },
@@ -252,7 +240,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 860 年代", place: "宫廷学术圈", title: "翻译希腊教父", detail: "翻译伪狄奥尼修等作品，为拉丁世界建立术语。", certainty: "较可靠" },
       { date: "约 862—866", place: "西法兰克", title: "写作《论自然的区分》", detail: "以师生对话组织创造、认识与复归。", certainty: "推定" },
     ],
-    inquiries: [{ object: "自然与神显", question: "超越一切范畴的上帝，怎样既不可说又在万物中显现？", start: "若上帝是一种最高的‘东西’，便仍落入受造范畴；若完全不可知，创造又无法显示神。", steps: ["把自然定义为存在与非存在的一切", "区分创造而不受造、受造且创造、受造不创造、不创造也不受造", "把理念与万物理解为神显", "让分析过程返回超越一切断言的上帝"], conclusion: "创造是上帝的显现而非对外部材料加工；理性可追踪显现，却必须以否定神学承认源头超越存在。" }],
     concepts: [
       { zh: "自然四分", en: "four divisions of nature", definition: "按创造／受造关系组织上帝、理念、具体世界与终极复归的辩证结构。" },
       { zh: "神显", en: "theophany", definition: "受造物是不可见上帝以有限方式呈现自身，不意味着每个有限物就是神的全部。" },
@@ -279,7 +266,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1070 年代", place: "贝克", title: "写作《独白》《宣讲》", detail: "探索不单依靠经文权威的理性论证。", certainty: "较可靠" },
       { date: "1093—1109", place: "坎特伯雷／流亡地", title: "大主教与王权冲突", detail: "围绕授职、效忠与教会自主多次谈判。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "上帝存在", question: "理解‘无法设想有比它更伟大者’是否已经要求它不只存在于思想？", start: "即使否认者也能理解这个表达，概念因而存在于心中。", steps: ["设定不可设想更伟大者", "区分只在理解中与也在现实中存在", "指出现实存在似乎比仅在思想中更伟大", "推出该对象若只在思想中便可设想更伟大者，形成矛盾"], conclusion: "上帝不能只作为概念存在；但论证是否偷渡存在谓词、定义能否保证实例，成为持续千年的争论。" }],
     concepts: [
       { zh: "信仰寻求理解", en: "faith seeking understanding", definition: "理性不是先悬置信仰再中立证明，而是信者希望理解已相信内容的内在必然性。" },
       { zh: "本体论论证", en: "ontological argument", definition: "由上帝概念及其不可超越性推向现实存在的一类先验论证，名称由后世赋予。" },
@@ -306,7 +292,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1092", place: "苏瓦松", title: "三位一体观点受谴责", detail: "在压力下撤回；会议材料主要由后世来源重建。", certainty: "较可靠" },
       { date: "约 1120", place: "法国", title: "晚年仍参与论争", detail: "与阿伯拉尔的敌对书信显示其尚在活动。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "共相", question: "‘人’‘动物’等共同名称，除许多个体之外还对应一个共同实在吗？", start: "感官中只有苏格拉底、柏拉图等个体，语言却能用一个词谈论许多人。", steps: ["拒绝把种属当作独立实体", "把普遍性定位到共同语词或发声功能", "以个体为实际存在的首要单位", "检验这一立场用于三位一体时的后果"], conclusion: "共同名称不必对应一个额外实体；但罗瑟林究竟持声音论、语词论还是更细的语义理论，证据不足。" }],
     concepts: [
       { zh: "唯名论", en: "nominalism", definition: "否认共相作为独立普遍实体存在；在罗瑟林处只能依据敌对材料谨慎使用。" },
       { zh: "气息之声", en: "flatus vocis", definition: "后世归给他的公式，意指共相接近发出的声音；是否准确概括其观点有争议。" },
@@ -332,10 +317,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 1100—1115", place: "巴黎", title: "以辩证教学成名", detail: "先后与香波的威廉等教师论争。", certainty: "较可靠" },
       { date: "约 1116—1118", place: "巴黎", title: "与爱洛依丝的关系及阉割事件", detail: "基本事件较可信，动机和书信传承仍有争议。", certainty: "较可靠" },
       { date: "1121／1140", place: "苏瓦松／桑斯", title: "两次受谴责", detail: "神学命题先后遭会议处理，晚年赴克吕尼。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "共相与语言", question: "同一个谓词如何真实地述说许多个体，而不假定一个共同物体？", start: "一个实体不能完整地同时存在于多个彼此分离的个体中，纯声音本身又没有可共同理解的内容。", steps: ["区分声音、语词意义与所指个体", "拒绝共同实体", "考察个体因某种状态而相似", "把普遍性归于语词可谓述多个对象的功能"], conclusion: "共相主要是有意义语词的语义地位；共同述说有客观根据，却不要求额外普遍物。" },
-      { object: "伦理意图", question: "外在行为相同，为什么道德责任可能不同？", start: "误行、强迫、欲望与有意同意不能得到同一评价。", steps: ["区分倾向或诱惑与同意", "把罪定位为明知违背所信的神圣要求", "用意图解释行为的道德性质", "保留无知本身可能有责的复杂情况"], conclusion: "伦理判断应穿过外在结果考察主体同意和意图，但这不等于现代主观主义。" },
     ],
     concepts: [
       { zh: "是与否", en: "Sic et Non", definition: "并列教父权威的表面矛盾，训练学生通过词义、作者、语境和证据层级解决冲突。" },
@@ -364,7 +345,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1140", place: "桑斯", title: "推动审查阿伯拉尔", detail: "将若干神学命题提交谴责，双方程序与动机仍有争论。", certainty: "较可靠" },
       { date: "1146—1149", place: "法国／德意志", title: "鼓动第二次十字军", detail: "远征失败使其声誉与神学解释承受压力。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "知识与爱", question: "知道上帝的命题，与真正认识上帝有什么差别？", start: "技术论证可以增加信息和名声，却不必改变骄傲的欲望。", steps: ["以自知和谦卑拆除自我夸耀", "区分为好奇、功利、教导和爱而求知", "让默想从自身贫乏转向神圣恩典", "把爱理解为意志与最高善的日益一致"], conclusion: "完整认识包含爱与人格转化；理性有位置，但不能把奥秘只变成可操纵的论题。" }],
     concepts: [
       { zh: "爱的四阶段", en: "four degrees of love", definition: "由为自己爱自己、为自己爱上帝，走向为上帝爱上帝，并在罕见时刻为上帝而爱自己。" },
       { zh: "谦卑", en: "humility", definition: "如实认识自身有限与依赖，是默观和正确求知的条件，不只是降低自我评价。" },
@@ -390,10 +370,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 997", place: "布哈拉", title: "进入宫廷藏书与医疗实践", detail: "据自传，他治愈统治者后获准使用王室图书馆。", certainty: "传统记载" },
       { date: "约 1015—1024", place: "哈马丹", title: "任医师与维齐尔", detail: "政治任职、监禁和写作交织。", certainty: "较可靠" },
       { date: "1024—1037", place: "伊斯法罕／哈马丹", title: "完成晚期著作并去世", detail: "在阿拉乌丁宫廷继续写作，行军途中病逝。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "本质与存在", question: "理解一件事是什么，是否已说明它现实存在？", start: "我们能理解马、三角形或凤凰的本质，却不能只凭定义知道它们是否存在。", steps: ["在概念上区分本质与存在", "把普通事物归为自身可能存在", "要求其现实存在由原因说明", "拒绝可能原因无限倒退，归结为必然存在者"], conclusion: "受造物的存在是被赋予的，必然存在者则不从别处取得存在；这一结构深刻改变拉丁经院形而上学。" },
-      { object: "自我意识", question: "不依赖身体感觉时，人是否仍直接把握自己的存在？", start: "设想一个突然完整受造、悬浮空中且无任何感官接触的人。", steps: ["移除对身体和外物的感觉", "检验他是否仍肯定‘我存在’", "区分自我觉知与身体表象", "由此讨论灵魂的非物质性"], conclusion: "‘悬浮人’会意识到自身存在而不意识到身体；它是思想实验，不是经验实验或笛卡尔怀疑的原样前身。" },
     ],
     concepts: [
       { zh: "本质与存在", en: "essence and existence", definition: "事物是什么与它是否现实存在在可能者中可概念区分。" },
@@ -422,7 +398,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1095", place: "巴格达", title: "精神危机并离职", detail: "自述失语、无法进食，最终放弃职位；动机兼有宗教与政治环境。", certainty: "较可靠" },
       { date: "约 1106", place: "内沙布尔／图斯", title: "短暂复教并退居", detail: "完成自传与晚期教学，1111 年去世。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "因果性", question: "火接触棉花后燃烧，是逻辑必然，还是上帝通常创造的稳定并行？", start: "经验显示火与燃烧恒常相随，却没有直接观察到一个不可分离的必然纽带。", steps: ["区分事件相继与逻辑必然", "保留上帝在每一事件中的自由创造", "承认稳定习惯使科学预测可能", "用可能例外为奇迹留下空间"], conclusion: "自然因果不拥有独立强制上帝的必然性；但安萨里是否完全否认受造因，现代解释仍有分歧。" }],
     concepts: [
       { zh: "哲学家的不一致", en: "Incoherence of the Philosophers", definition: "针对法拉比—阿维森纳传统二十项形而上学主张的技术批评，不是反对一切理性学科。" },
       { zh: "偶因论问题", en: "occasionalism", definition: "事件联系是否完全由上帝每次直接创造；安萨里文本也容纳二级因解释，标签需谨慎。" },
@@ -448,10 +423,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1169", place: "塞维利亚", title: "任法官并开始系统注释", detail: "受伊本·图斐利引荐进入穆瓦希德宫廷学术圈。", certainty: "较可靠" },
       { date: "1182", place: "马拉喀什", title: "任宫廷医师", detail: "继承伊本·图斐利职位，并继续司法任职。", certainty: "较可靠" },
       { date: "1195—1198", place: "卢塞纳／马拉喀什", title: "失宠、复职与去世", detail: "政治与宗教原因交织，不能只解释为单纯‘哲学受迫害’。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "哲学与经文", question: "严格证明若与经文字面意义不同，信徒必须放弃哪一方？", start: "真理不可能反对真理，但经文面向不同理解能力的共同体。", steps: ["由经文要求思考受造物推出哲学研究的合法性", "区分示范、辩证和修辞论证", "仅在证明成立时解释表面冲突的经文", "限制高难解释向不具训练者传播"], conclusion: "哲学和启示在真理上统一，在表达与受众上分层；这不是两个互相矛盾的真理。" },
-      { object: "理智", question: "抽象普遍知识如何既具有共同有效性，又被具体个人思考？", start: "若理智完全是个体身体形式，普遍对象似乎随个体化；若完全共同，个人认识又难解释。", steps: ["区分质料理智、能动理智与想象表象", "把可理解形式从个体表象中抽象", "让共同理智保证知识普遍性", "以个人想象和认知活动解释‘我的思考’"], conclusion: "理智统一论试图兼顾普遍知识与个人活动，却引发拉丁世界关于个人不朽和责任的巨大争论。" },
     ],
     concepts: [
       { zh: "决定性论述", en: "Decisive Treatise", definition: "以伊斯兰法学方式论证哲学研究的宗教合法性及解释经文的条件。" },
@@ -479,7 +450,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1168", place: "福斯塔特", title: "完成《密西拿托拉》前期工作", detail: "逐渐成为埃及犹太社群的法律权威。", certainty: "较可靠" },
       { date: "约 1190", place: "福斯塔特", title: "完成《迷途指津》", detail: "以阿拉伯语写给受哲学困惑的学生约瑟夫。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "神圣属性", question: "说上帝‘智慧、强大、良善’，会不会把多个性质加到绝对统一者身上？", start: "普通肯定谓词把主词归入共同类别，似乎令上帝与受造物共享性质。", steps: ["拒绝把属性当作上帝内部附加成分", "把部分肯定语句解释为行动属性", "以否定逐步排除身体、有限和缺陷", "承认认识增长常表现为知道哪些说法不适用"], conclusion: "关于神本质，否定语言比同义肯定更安全；人的最高知识包含对自身认识限度的认识。" }],
     concepts: [
       { zh: "否定属性", en: "negative attributes", definition: "通过否认缺陷和受造分类谈论上帝，避免把共同谓词当作神人同义。" },
       { zh: "迷途者", en: "the perplexed", definition: "既忠于律法又接受哲学证明，因二者表面冲突而困惑的受教育读者。" },
@@ -506,7 +476,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1248", place: "科隆", title: "建立多明我会学术中心", detail: "阿奎那随行学习。", certainty: "较可靠" },
       { date: "1260—1262", place: "雷根斯堡", title: "任主教后辞职", detail: "短期承担教区治理，之后重返教学与调解。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "自然哲学的自主性", question: "基督教学者应怎样面对来自异教和伊斯兰传统、却带有强大解释力的自然知识？", start: "简单禁止会失去论证工具，照单全收又可能与创造和灵魂教义冲突。", steps: ["先按学科完整陈述亚里士多德", "区分哲学证明与神学启示的方法", "比较阿维森纳、阿威罗伊等注释", "以观察和论证修正具体自然主张"], conclusion: "哲学各学科有相对自主的方法，神学仍提供更高目的与不能由自然理性独立获得的真理。" }],
     concepts: [
       { zh: "亚里士多德释义", en: "Aristotelian paraphrase", definition: "不只逐句注释，而是按拉丁读者需要重述学科整体并加入阿拉伯材料与本人判断。" },
       { zh: "学科区分", en: "distinction of sciences", definition: "自然学、形而上学与神学按对象和证明原则区分，避免每个问题直接诉诸经文。" },
@@ -533,10 +502,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1252—1259", place: "巴黎", title: "首度执教", detail: "卷入托钵修会在大学的地位争论。", certainty: "较可靠" },
       { date: "1265—1273", place: "罗马／巴黎／那不勒斯", title: "写作《神学大全》", detail: "作品未完成，于 1273 年底停止写作。", certainty: "较可靠" },
       { date: "1274", place: "福萨诺瓦", title: "赴里昂会议途中去世", detail: "享年约四十九岁。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "从运动到第一原因", question: "世界中的变化是否要求一个不以同样方式被推动的第一根源？", start: "变化是潜能在已实现者作用下成为现实，同一事物不能在同一方面同时以同一方式既潜在又现实。", steps: ["从实际变化而非抽象定义出发", "分析推动者与被推动者的依赖", "拒绝此刻依赖的本质序列无限后退", "指向不受推动的第一推动者"], conclusion: "五路不是五种竞争神话，而是由不同依赖结构指向第一原因；从第一原因到基督教上帝仍需后续论证。" },
-      { object: "自然法", question: "普遍善怎样进入具体人的实践判断？", start: "人具有共同倾向，却在可变情境中行动。", steps: ["以‘行善避恶’为实践理性的首要原则", "从生命、家庭、真理与社会倾向展开一般规范", "用审慎把一般原则应用于个别处境", "承认人为法需服务共同善并受更高法衡量"], conclusion: "自然法是理性受造者参与永恒法，不是一张无需判断即可机械执行的规则表。" },
     ],
     concepts: [
       { zh: "五路", en: "Five Ways", definition: "从运动、有效因、可能与必然、程度和目的秩序出发的五种后验论证。" },
@@ -565,7 +530,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1266—1268", place: "巴黎", title: "为教皇写三部改革著作", detail: "在修会限制下完成庞大知识计划。", certainty: "较可靠" },
       { date: "1270—1280 年代", place: "方济各会机构", title: "争议与可能监禁", detail: "确有纪律处分线索，但‘因科学被囚十年’过于简化。", certainty: "推定" },
     ],
-    inquiries: [{ object: "知识纠错", question: "学术传统为何会在人人引用权威时持续积累错误？", start: "劣质翻译、盲从习惯、公众偏见和假装知道会彼此强化。", steps: ["识别权威、习惯、偏见、伪知识四类障碍", "学习希伯来语、希腊语和阿拉伯语核对文本", "以数学保证数量和光学推理", "以经验确认、制造和纠正论证"], conclusion: "知识改革不是一句‘做实验’，而是语言、数学、仪器、观察与道德目的协同。" }],
     concepts: [
       { zh: "经验科学", en: "scientia experimentalis", definition: "验证其他科学结论、发现仅凭推理未知之事并制造实际效果的知识。" },
       { zh: "知识四障碍", en: "four causes of error", definition: "脆弱权威、长期习惯、无知大众意见与用智慧外表掩盖无知。" },
@@ -592,7 +556,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1257", place: "巴黎", title: "获神学教席并任总会长", detail: "与阿奎那一同得到大学承认。", certainty: "较可靠" },
       { date: "1274", place: "里昂", title: "参加大公会议并去世", detail: "此前被任命为枢机。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "心灵上升", question: "有限心灵如何由世界中的多样事物走向不可把握的上帝？", start: "受造物既不是上帝，又在秩序、美和能力中留下源头痕迹。", steps: ["在外部世界阅读神的痕迹", "进入感官与心灵能力的映像", "在记忆、理解、意志中辨认三一结构", "超越概念，在爱与黑暗中安息"], conclusion: "哲学知识是旅程中的必要阶段，却只有在爱和自我超越中完成。" }],
     concepts: [
       { zh: "痕迹与形象", en: "vestige and image", definition: "万物以因果秩序留下上帝痕迹，理性心灵则以记忆、理解、意志更直接地成为形象。" },
       { zh: "神圣照明", en: "divine illumination", definition: "确定真理依赖心灵参与不变的神圣规则，不只是自然抽象。" },
@@ -618,10 +581,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 1290 年代", place: "牛津", title: "讲授《命题集》", detail: "形成《牛津著作》的多层修订文本。", certainty: "较可靠" },
       { date: "1303", place: "巴黎", title: "因政治忠诚离开", detail: "拒绝签署支持腓力四世反教皇立场，后获准返回。", certainty: "较可靠" },
       { date: "1307—1308", place: "科隆", title: "教学并去世", detail: "死因不明，活埋传说没有可靠依据。", certainty: "较可靠" },
-    ],
-    inquiries: [
-      { object: "个体化", question: "两个同属一种的人为何不只是同一形式的可互换副本？", start: "共同人性说明相似，却不说明这个苏格拉底为何就是不可重复的这个人。", steps: ["拒绝以共同本性自身说明个体", "承认共同本性在自身不普遍也不个别", "加入收缩本性的最终个体差异", "把它称为此性而非可分离的另一物"], conclusion: "此性使共同本性成为这个不可重复个体；个体性具有正面形而上学地位。" },
-      { object: "自由意志", question: "自由是否只是在已判断为最好的选项面前自动行动？", start: "若理智判断必然决定选择，意志就只是认知结果的执行器。", steps: ["区分自然倾向与意志能力", "主张意志可对相反方案保持同步可能", "让理智提供对象而不完全决定选择", "以自我决定解释责任和偶然性"], conclusion: "自由包含当下选择相反项的真实能力，意志不是理智判断的被动终点。" },
     ],
     concepts: [
       { zh: "存在的单义性", en: "univocity of being", definition: "至少一个共同概念核心可同样用于神与受造物，使形而上学推理不在中途换义。" },
@@ -651,10 +610,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1328", place: "阿维尼翁—比萨", title: "逃离教廷", detail: "与方济各会总会长同行，转而寻求皇帝保护。", certainty: "较可靠" },
       { date: "约 1347", place: "慕尼黑", title: "去世", detail: "可能死于黑死病前后，年份仍有小幅争议。", certainty: "推定" },
     ],
-    inquiries: [
-      { object: "共相与符号", question: "一个概念怎样代表许多个体，却不需要共同实体？", start: "若假设现实共相，会增加难以说明的实体和个体化问题。", steps: ["只承认苏格拉底等个体在世界中存在", "把概念理解为心灵语言中的自然符号", "用指代理论说明同一概念可站在多个对象位置", "按解释需要拒绝多余的种属实体"], conclusion: "普遍性属于符号的可指称方式，而不属于一个额外的普遍物；逻辑分析替代本体增殖。" },
-      { object: "政治权威", question: "教皇是否拥有不受限制的属灵与世俗权力？", start: "绝对权力会威胁福音自由、财产权争论中的良心和世俗共同体秩序。", steps: ["区分正常管辖与紧急权力主张", "允许教皇可能陷入异端和错误", "让教会共同体、会议或世俗权威在危机中纠正", "以信徒自由限制纯粹专断"], conclusion: "教皇权威不是无限的；异端与暴政情况下存在纠正和抵抗空间。" },
-    ],
     concepts: [
       { zh: "奥卡姆剃刀", en: "Ockham's razor", definition: "在解释充分时不无必要增加实体或假设；是方法约束，不保证最简单理论必真。" },
       { zh: "心灵语言", en: "mental language", definition: "先于约定口语的概念符号系统，其项自然指称世界中的个体。" },
@@ -683,7 +638,6 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "1326", place: "巴黎—纽伦堡", title: "逃往路易四世宫廷", detail: "与让丹的约翰一同遭教皇谴责。", certainty: "较可靠" },
       { date: "1328", place: "罗马", title: "参与皇帝意大利行动", detail: "在废立教皇的政治实验中承担宣传与教会安排角色。", certainty: "较可靠" },
     ],
-    inquiries: [{ object: "法律与和平", question: "谁有权制定可强制执行的政治法律，才能避免相互竞争的最高权威破坏和平？", start: "教皇若主张独立且最高的强制权，便与城市、王国和帝国法律产生双重主权冲突。", steps: ["把共同体自足生活与和平设为政治目的", "将立法者定义为公民整体或其较有分量部分", "让政府执行由立法者授权的法律", "把教士职能限制为教导、圣礼和无强制裁判"], conclusion: "世俗政治共同体是强制法的来源；教会争议应由代表信徒的普遍会议处理。" }],
     concepts: [
       { zh: "人类立法者", en: "human legislator", definition: "公民整体或其较有分量部分，是政治强制法的直接有效原因。" },
       { zh: "和平", en: "peace / tranquillity", definition: "各社会部分按其职能协调运作的秩序，是政治共同体充分生活的条件。" },
