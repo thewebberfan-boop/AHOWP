@@ -48,13 +48,18 @@ problemMaps.forEach((map) => {
   const nodes = map.phases.flatMap((phase) => phase.nodes);
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
+  duplicates(nodes.map((node) => node.title)).forEach((title) => error(`问题图谱“${map.title}”存在重复节点标题：${title}`));
+  (["summary", "pressure", "consequence"] as const).forEach((field) => duplicates(nodes.map((node) => node[field])).forEach((text) => warn(`问题图谱“${map.title}”的 ${field} 重复，请确认是共享表述而非重复节点：${text}`)));
   duplicates(map.edges.map((edge) => edge.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复连线 ID：${id}`));
   duplicates(map.edges.map((edge) => `${edge.from}:${edge.to}`)).forEach((id) => error(`问题图谱存在重复端点关系：${id}`));
   duplicates(map.sources.map((source) => source.label)).forEach((label) => error(`问题图谱“${map.title}”存在重复来源标签：${label}`));
   map.phases.forEach((phase) => {
     if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
     phase.nodes.forEach((node) => {
+      if (!node.title || !node.summary) error(`问题节点 ${node.id} 缺少标题或摘要`);
       if (!node.pressure || !node.consequence) error(`问题节点“${node.title}”缺少推进压力或后续问题`);
+      if (node.kind === "问题" && !/[?？]$/u.test(node.title)) error(`问题节点“${node.title}”的标题未使用疑问句`);
+      if (node.kind !== "问题" && /[?？]$/u.test(node.title)) error(`非问题节点“${node.title}”的标题误使用疑问句`);
       if (node.kind === "答案" && !node.answerRole) error(`答案节点“${node.title}”缺少作用标签`);
       if (node.kind !== "答案" && node.answerRole) error(`非答案节点“${node.title}”错误使用答案作用标签`);
       if (node.kind === "观察" && !node.observation) error(`观察节点“${node.title}”缺少观察范围与说明`);

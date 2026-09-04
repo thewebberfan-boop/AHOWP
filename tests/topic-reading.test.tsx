@@ -166,3 +166,41 @@ test("rendered launches use the requested topic, and multi-topic summaries keep 
   assert.match(html, /<rect x="[^"]+" y="8" width="[^"]+" height="32" rx="3"/);
   assert.ok(groupRects[0].y > 40, "topic headers must end before the first history background begins");
 });
+
+test("problem graph prose and summary details use the shared terminology renderer", () => {
+  const noop = () => {};
+  const nodeId = "what-makes-one-person-same-over-time";
+  const renderText = (text: string) => <mark data-terminology-text="true">{text}</mark>;
+  const atomicHtml = renderToStaticMarkup(<ProblemMapView activeNodeId={nodeId} activePhaseId={knowledgePhaseByNodeId.get(nodeId)!.id} onNodeChange={noop} onPhaseChange={noop} onPhilosopher={noop} onSchool={noop} onHistory={noop} onChapter={noop} showEnglish={false} renderText={renderText} initialReadingTarget={{ topicId: "self", unitId: "self-20-personal-identity-critique", nodeId, level: "all" }} />);
+  assert.ok((atomicHtml.match(/data-terminology-text="true"/g) || []).length >= 6);
+  assert.match(atomicHtml, /<h3><mark data-terminology-text="true">/);
+
+  const summaryHtml = renderToStaticMarkup(<SelfSummaryGraph topicIds={["self"]} level="5" allNodes={[...knowledgeNodeById.values()]} phaseByNodeId={knowledgePhaseByNodeId} selectedUnitId="self-5-modern-subject" onUnitSelect={noop} onDrillDown={noop} onAtomicNode={noop} renderText={renderText} />);
+  assert.ok((summaryHtml.match(/data-terminology-text="true"/g) || []).length >= 4);
+});
+
+test("the problem sidebar separates direct attribution from nearby context", () => {
+  const noop = () => {};
+  const directNodeId = "definition-beyond-instance";
+  const directHtml = renderToStaticMarkup(<ProblemMapView activeNodeId={directNodeId} activePhaseId={knowledgePhaseByNodeId.get(directNodeId)!.id} onNodeChange={noop} onPhaseChange={noop} onPhilosopher={noop} onSchool={noop} onHistory={noop} onChapter={noop} showEnglish={false} initialReadingTarget={{ topicId: "method", unitId: "method-20-socratic-definition", nodeId: directNodeId, level: "all" }} />);
+  assert.match(directHtml, /回答动作 · 转向/);
+  assert.match(directHtml, /它回应什么困难/);
+  assert.match(directHtml, /本节点的思想家/);
+  assert.match(directHtml, /人物与章节共同指向的传统/);
+  assert.match(directHtml, /智者与苏格拉底转向/);
+  assert.doesNotMatch(directHtml, /犬儒主义/);
+
+  const inferredNodeId = "what-makes-one-person-same-over-time";
+  const inferredHtml = renderToStaticMarkup(<ProblemMapView activeNodeId={inferredNodeId} activePhaseId={knowledgePhaseByNodeId.get(inferredNodeId)!.id} onNodeChange={noop} onPhaseChange={noop} onPhilosopher={noop} onSchool={noop} onHistory={noop} onChapter={noop} showEnglish={false} initialReadingTarget={{ topicId: "self", unitId: "self-20-personal-identity-critique", nodeId: inferredNodeId, level: "all" }} />);
+  assert.match(inferredHtml, /问题为何出现/);
+  assert.match(inferredHtml, /相邻论证的思想家/);
+  assert.match(inferredHtml, /当前节点没有可核验的直接人物归属/);
+  assert.doesNotMatch(inferredHtml, /人物与章节共同指向的传统/);
+
+  const observationNodeId = "public-disagreement-observation";
+  const observationHtml = renderToStaticMarkup(<ProblemMapView activeNodeId={observationNodeId} activePhaseId={knowledgePhaseByNodeId.get(observationNodeId)!.id} onNodeChange={noop} onPhaseChange={noop} onPhilosopher={noop} onSchool={noop} onHistory={noop} onChapter={noop} showEnglish={false} initialReadingTarget={{ topicId: "society", unitId: "society-20-public-judgment", nodeId: observationNodeId, level: "all" }} />);
+  assert.match(observationHtml, /这项观察揭示什么/);
+  assert.match(observationHtml, /观察口径/);
+  assert.doesNotMatch(observationHtml, /两步内的背景人物/);
+  assert.doesNotMatch(observationHtml, /相邻论证的思想家/);
+});

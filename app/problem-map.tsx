@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { chapters } from "./book-data";
 import { historyStages, stageDetailPanels } from "./history-data";
 import { philosopherProfiles } from "./philosopher-data";
@@ -68,6 +68,21 @@ const connectionClass: Record<ProblemConnectionKind, string> = {
   同题并列: "parallel",
   本站推演: "reconstruction",
   后世重构: "retrospective",
+};
+
+const nodeDetailLogicLabels: Record<ProblemNode["kind"], { pressure: string; consequence: string }> = {
+  观察: { pressure: "这项观察揭示什么", consequence: "它引出什么问题" },
+  问题: { pressure: "问题为何出现", consequence: "它把追问推向哪里" },
+  答案: { pressure: "它回应什么困难", consequence: "它又引出什么" },
+};
+
+const answerRoleExplanations: Record<NonNullable<ProblemNode["answerRole"]>, string> = {
+  提出: "直接给出一个可供检验的主张。",
+  区分: "通过分开原先混同的概念来回答。",
+  反驳: "指出既有回答的矛盾、反例或无法承担的后果。",
+  修复: "保留原回答的核心，同时补上它没有解决的缺口。",
+  转向: "改变问题的对象、语言或判准，重组回答路线。",
+  综合: "把多条答案线索组织为一个更完整的解释。",
 };
 
 type ChainGroup = {
@@ -501,7 +516,7 @@ export function ScopedProblemGraph({ nodeIds, topicIds = [], selectedNodeId, onN
   return <ProblemGraphCanvas allNodes={allNodes} displayNodes={displayNodes} displayEdges={displayEdges} graphPoints={graphPoints} graphHeight={graphHeight} historyBands={historyBands} selectedHistoryStageId={problemPhaseHistoryStageIds[phaseByNodeId.get(activeNode.id)?.id || ""]} selectedNodeId={activeNode.id} connectedEdgeIds={connectedEdgeIds} connectedNodeIds={connectedNodeIds} collapsedChainByLeaderId={emptyChains} density="complete" ariaLabel={ariaLabel} className="knowledge-problem-graph" topicColumns={graphLayout.columns} topicByNodeId={graphLayout.topicByNodeId} onSelectNode={(node) => onNodeSelect(node.id)} />;
 }
 
-export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish, initialReadingTarget, onReadingTargetConsumed, originLabel, onBack }: {
+export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onNodeChange, onPhilosopher, onSchool, onHistory, onChapter, showEnglish, renderText = (text) => text, initialReadingTarget, onReadingTargetConsumed, originLabel, onBack }: {
   initialReadingTarget?: import("./knowledge-paths").ReadingTarget | null;
   onReadingTargetConsumed?: () => void;
   originLabel?: string;
@@ -515,6 +530,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   onHistory: (link: ProblemHistoryLink, nodeId: string) => void;
   onChapter: (id: string) => void;
   showEnglish: boolean;
+  renderText?: (text: string) => ReactNode;
 }) {
   const map = ancientDifferenceProblemMap;
   const [launch] = useState(initialReadingTarget);
@@ -526,6 +542,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const [compressionLevel, setCompressionLevel] = useState<ProblemCompressionLevel>(launch?.level || "5");
   const [summaryUnitId, setSummaryUnitId] = useState(launch?.unitId || resolveTopicUnit(launchTopic, "5").id);
   const [pendingTopicTargetId, setPendingTopicTargetId] = useState<string | null>(launch ? launch.level === "all" ? `problem-node-${launch.nodeId}` : `self-summary-${resolveTopicUnit(launchTopic, launch.level, launch.unitId, launch.nodeId).id}` : null);
+  const detailPanelRef = useRef<HTMLElement>(null);
   const allNodes = useMemo(() => map.phases.flatMap((phase) => phase.nodes), [map.phases]);
   const nodesById = useMemo(() => new Map(allNodes.map((node) => [node.id, node])), [allNodes]);
   const phaseByNodeId = useMemo(() => new Map(map.phases.flatMap((phase) => phase.nodes.map((node) => [node.id, phase]))), [map.phases]);
@@ -547,6 +564,13 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
     ? allNodes.find((node) => topicAtomicNodeIdSet.has(node.id)) || allNodes[0]
     : requestedNode || allNodes[0];
   const selectedPhase = phaseByNodeId.get(selectedNode.id) || map.phases[0];
+
+  useEffect(() => {
+    const panel = detailPanelRef.current;
+    if (!panel) return;
+    panel.scrollTop = 0;
+    panel.querySelectorAll<HTMLDetailsElement>("details[open]").forEach((details) => { details.open = false; });
+  }, [selectedNode.id]);
   const selectedChain = chainByNodeId.get(selectedNode.id);
   const incomingEdges = incomingByNodeId.get(selectedNode.id) || [];
   const outgoingEdges = outgoingByNodeId.get(selectedNode.id) || [];
@@ -622,30 +646,34 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const connectedEdgeIds = new Set(connectedDisplayEdges.map((edge) => edge.id));
   const connectedNodeIds = new Set([selectedNode.id, ...connectedDisplayEdges.flatMap((edge) => [edge.from, edge.to]), ...comparisonNodeIds]);
 
-  const relatedParticipants = useMemo(() => {
+  const relatedParticipantContext = useMemo(() => {
     const oneHopIds = new Set(map.edges.flatMap((edge) => edge.from === selectedNode.id ? [edge.to] : edge.to === selectedNode.id ? [edge.from] : []));
-    let sourceNodes = selectedNode.participants.length > 0
-      ? [selectedNode]
-      : [...oneHopIds].map((id) => nodesById.get(id)).filter((node): node is ProblemNode => Boolean(node?.participants.length));
+    let scope: "direct" | "one-hop" = "direct";
+    let sourceNodes = selectedNode.participants.length > 0 ? [selectedNode] : [];
     if (!sourceNodes.length) {
-      const twoHopIds = new Set(map.edges.flatMap((edge) => oneHopIds.has(edge.from) ? [edge.to] : oneHopIds.has(edge.to) ? [edge.from] : []));
-      sourceNodes = [...twoHopIds].map((id) => nodesById.get(id)).filter((node): node is ProblemNode => Boolean(node?.participants.length));
+      scope = "one-hop";
+      sourceNodes = [...oneHopIds].map((id) => nodesById.get(id)).filter((node): node is ProblemNode => Boolean(node?.participants.length));
     }
     const unique = new Map<string, ProblemNode["participants"][number]>();
     sourceNodes.flatMap((node) => node.participants).forEach((participant) => {
       const key = participant.philosopherId || participant.name;
       if (!unique.has(key)) unique.set(key, participant);
     });
-    return [...unique.values()];
+    return { scope, participants: [...unique.values()] };
   }, [map.edges, nodesById, selectedNode]);
+  const relatedParticipants = relatedParticipantContext.participants;
+  const participantSectionLabel = relatedParticipantContext.scope === "direct" ? "本节点的思想家" : "相邻论证的思想家";
   const relatedSchools = useMemo(() => {
+    if (relatedParticipantContext.scope !== "direct") return [];
     const unique = new Map<string, ReturnType<typeof findSchoolProfilesByPhilosopher>[number]>();
     relatedParticipants.forEach((participant) => {
       if (!participant.philosopherId) return;
-      findSchoolProfilesByPhilosopher(participant.philosopherId).forEach((school) => unique.set(school.id, school));
+      findSchoolProfilesByPhilosopher(participant.philosopherId)
+        .filter((school) => school.chapterIds.some((chapterId) => selectedNode.chapterIds.includes(chapterId)))
+        .forEach((school) => unique.set(school.id, school));
     });
     return [...unique.values()].sort((left, right) => left.order - right.order);
-  }, [relatedParticipants]);
+  }, [relatedParticipantContext.scope, relatedParticipants, selectedNode.chapterIds]);
 
   const selectNode = (id: string) => {
     if (topicMode && topicAtomicNodeIdSet.has(id)) {
@@ -853,9 +881,9 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       <div className="problem-map-mark"><span>?</span><small>PROBLEM<br />GENEALOGY</small></div>
       <div className="problem-map-title">
         <p className="eyebrow">{map.period}</p>
-        <h2>{map.title}</h2>
+        <h2>{renderText(map.title)}</h2>
         <p className="problem-map-english">{map.english}</p>
-        <blockquote>{map.thesis}</blockquote>
+        <blockquote>{renderText(map.thesis)}</blockquote>
       </div>
       <aside className="problem-map-facts">
         <div><span>当前范围</span><b>泰勒斯 → 罗素</b></div>
@@ -865,7 +893,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
       </aside>
     </header>
 
-    <aside className="problem-map-boundary"><span>阅读边界</span><p>{map.scopeNote}</p></aside>
+    <aside className="problem-map-boundary"><span>阅读边界</span><p>{renderText(map.scopeNote)}</p></aside>
 
     <ProblemGraphControls selectedTopicIds={selectedTopics} compressionLevel={topicMode ? compressionLevel : undefined} onToggleTopic={toggleFacet} onClearTopics={clearFacets} onCompressionChange={changeCompression} onCompressionBack={() => { if (parentSummaryLevel) showTopicSummary(parentSummaryLevel, topicSummaryLevel ? summaryUnitId : undefined); }} compressionBackDisabled={!parentSummaryLevel} compressionBackLabel={summaryBackLabel} topicCountForLabel={selectedTopics.length} mode={topicMode ? "topic" : "full"}>
       {!topicMode && <>
@@ -885,7 +913,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
     {!topicMode && density === "guide" && <section className="problem-family-legend" aria-label="导览问题家族">{problemFamilies.map((family) => <article key={family.id} data-tooltip={family.description}><i style={{ "--family-lane": family.lane } as CSSProperties} /><b>{family.label}</b><small>{family.english}</small></article>)}</section>}
 
-    {topicSummaryLevel ? <SelfSummaryGraph topicIds={selectedTopics} level={topicSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} selectedUnitId={summaryUnitId} onUnitSelect={selectSummaryUnit} onDrillDown={(unit) => changeCompression(nextSelfSummaryLevel(topicSummaryLevel), unit.id)} onAtomicNode={openTopicAtomicNode} /> : <section className="problem-graph-workspace" id="problem-graph">
+    {topicSummaryLevel ? <SelfSummaryGraph topicIds={selectedTopics} level={topicSummaryLevel} allNodes={allNodes} phaseByNodeId={phaseByNodeId} selectedUnitId={summaryUnitId} onUnitSelect={selectSummaryUnit} onDrillDown={(unit) => changeCompression(nextSelfSummaryLevel(topicSummaryLevel), unit.id)} onAtomicNode={openTopicAtomicNode} renderText={renderText} /> : <section className="problem-graph-workspace" id="problem-graph">
       <div className="problem-graph-panel">
         <header className="problem-graph-toolbar">
           <div><p className="section-label">DIRECTED PROBLEM GRAPH</p><h3>{topicMode ? `${topicsLabel} · ${displayNodes.length} 个相关原子节点` : focusDepth ? `局部聚焦 · 前后 ${focusDepth} 跳` : "观察提出问题，答案又产生问题"}</h3></div>
@@ -895,61 +923,65 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
         <ProblemGraphCanvas allNodes={allNodes} displayNodes={displayNodes} displayEdges={displayEdges} graphPoints={graphPoints} graphHeight={graphHeight} historyBands={historyBands} selectedHistoryStageId={selectedHistoryStageId} selectedNodeId={selectedNode.id} connectedEdgeIds={connectedEdgeIds} connectedNodeIds={connectedNodeIds} comparisonNodeIds={comparisonNodeIds} collapsedChainByLeaderId={collapsedChainByLeaderId} density={density} ariaLabel="观察、问题与答案的有向关系图" topicColumns={graphLayout.columns} topicByNodeId={graphLayout.topicByNodeId} onSelectNode={(node, collapsedChain) => { if (collapsedChain) toggleChain(collapsedChain); selectNode(node.id); }} onHistoryStage={(stage) => onHistory({ stageId: stage.id, label: stage.title, note: "从问题图谱的历史时期标签进入历史概览。" }, selectedNode.id)} />
       </div>
 
-      <aside className={`problem-node-detail kind-${selectedNode.kind}`} aria-live="polite">
+      <aside ref={detailPanelRef} className={`problem-node-detail kind-${selectedNode.kind}`} aria-live="polite">
         <header>
-          <div><span>{selectedNode.kind}</span>{selectedNode.answerRole && <em>{selectedNode.answerRole}型答案</em>}</div>
-          <small>{kindEnglish[selectedNode.kind]} · {incomingEdges.length} 条进入 / {outgoingEdges.length} 条发出</small>
-          <h3>{selectedNode.title}</h3>
+          <div><span>{selectedNode.kind}</span>{selectedNode.answerRole && <em title={answerRoleExplanations[selectedNode.answerRole]}>回答动作 · {selectedNode.answerRole}</em>}</div>
+          <small>{kindEnglish[selectedNode.kind]} · {incomingEdges.length} 条来路 / {outgoingEdges.length} 条后续</small>
+          <h3>{renderText(selectedNode.title)}</h3>
           {topicMode && <small>相接维度 · {selfNodeTopics(selectedNode.id).join(" / ")}</small>}
-          <p>{selectedNode.summary}</p>
+          <p>{renderText(selectedNode.summary)}</p>
         </header>
 
         <div className="problem-node-detail-logic">
-          <section><span>为什么进入图谱</span><p>{selectedNode.pressure}</p></section>
-          <section><span>它又留下什么</span><p>{selectedNode.consequence}</p></section>
+          <section><span>{nodeDetailLogicLabels[selectedNode.kind].pressure}</span><p>{renderText(selectedNode.pressure)}</p></section>
+          <section><span>{nodeDetailLogicLabels[selectedNode.kind].consequence}</span><p>{renderText(selectedNode.consequence)}</p></section>
         </div>
 
         <div className="problem-node-detail-links">
-          {nodeReadingTopics(selectedNode.id).length > 0 && <section className="problem-history-links"><span>从其他角度看同一论证</span>{nodeReadingTopics(selectedNode.id).map((topic) => <button type="button" key={topic} onClick={() => locateNodeInTopic(topic, selectedNode.id)}>在{topicLabel(topic)}主线定位 →</button>)}</section>}
-          {topicMode && <section className="problem-history-links"><span>在历史中定位</span><button type="button" onClick={() => onHistory({
-            stageId: problemPhaseHistoryStageIds[selectedPhase.id],
-            label: selectedPhase.title,
-            note: "这是论证所在的历史阶段，不把历史背景当作观点的充分原因。",
-          }, selectedNode.id)}><b>{historyStages.find((stage) => stage.id === problemPhaseHistoryStageIds[selectedPhase.id])?.title}</b><em>{selectedPhase.title}</em></button></section>}
-          {selectedBoundaryNotes.length > 0 && <section className="problem-explanation-boundary"><span>解释边界</span>{selectedBoundaryNotes.map((boundary) => <article key={`${selectedNode.id}-${boundary.label}`}><b>{boundary.label}</b><p>{boundary.note}</p></article>)}</section>}
-          {selectedFamily && <section className="problem-family-context"><span>问题家族</span><b>{selectedFamily.label}</b><small>{selectedFamily.english}</small><p>{selectedFamily.description}</p></section>}
+          {selectedBoundaryNotes.length > 0 && <section className="problem-explanation-boundary"><span>解释边界</span>{selectedBoundaryNotes.map((boundary) => <article key={`${selectedNode.id}-${boundary.label}`}><b>{renderText(boundary.label)}</b><p>{renderText(boundary.note)}</p></article>)}</section>}
+          {selectedFamily && <section className="problem-family-context"><span>问题家族</span><b>{renderText(selectedFamily.label)}</b><small>{selectedFamily.english}</small><p>{renderText(selectedFamily.description)}</p></section>}
+          {selectedNode.observation && <section className="problem-observation-context">
+            <span>观察口径</span>
+            <div className="problem-observation-domain"><b>{renderText(selectedNode.observation.domain)}</b><p>{renderText(selectedNode.observation.note)}</p></div>
+            {(selectedNode.observation.historyLinks?.length || 0) > 0 && <div className="problem-history-links"><small>可核对的历史背景</small>{selectedNode.observation.historyLinks?.map((link) => {
+              const stage = historyStages.find((item) => item.id === link.stageId);
+              const event = stageDetailPanels[link.stageId]?.events.find((item) => item.id === link.eventId);
+              return stage ? <article className="problem-history-card" key={`${selectedNode.id}-${link.stageId}-${link.eventId || link.responseId || "stage"}`}><small>{stage.years} · {stage.title}</small><b>{renderText(event?.title || link.label)}</b><p>{renderText(link.note)}</p><button type="button" onClick={() => onHistory(link, selectedNode.id)}>进入历史概览 ↗</button></article> : null;
+            })}</div>}
+          </section>}
           {selectedChain && <section className="problem-chain-detail"><span>连续论证链</span><p>这一链包含 {selectedChain.nodeIds.length} 个原子节点；折叠只改变显示，不改变节点 ID 与关系。</p><div>{selectedChain.nodeIds.map((nodeId, index) => {
             const node = nodesById.get(nodeId);
             return node ? <button type="button" className={node.id === selectedNode.id ? "active" : ""} onClick={() => selectNode(node.id)} key={node.id}><small>{String(index + 1).padStart(2, "0")} · {node.kind}</small><b>{node.title}</b></button> : null;
           })}</div><button type="button" className="problem-chain-toggle" onClick={() => expandedChainIds.has(selectedChain.id) || selectedNode.id !== selectedChain.leaderId ? collapseSelectedChain(selectedChain) : toggleChain(selectedChain)}>{expandedChainIds.has(selectedChain.id) || selectedNode.id !== selectedChain.leaderId ? "收起为论证链" : "在图中展开全部步骤"}</button></section>}
-          {selectedComparisonFan && <section className="problem-comparison-fan"><span>并行答案扇面</span><b>{selectedComparisonFan.label}</b><p>{selectedComparisonFan.note}</p><div><button type="button" className={selectedNode.id === selectedComparisonFan.questionId ? "active" : ""} onClick={() => selectNode(selectedComparisonFan.questionId)}>共同问题</button>{selectedComparisonFan.answerIds.map((answerId) => {
+          {selectedComparisonFan && <section className="problem-comparison-fan"><span>并行答案扇面</span><b>{renderText(selectedComparisonFan.label)}</b><p>{renderText(selectedComparisonFan.note)}</p><div><button type="button" className={selectedNode.id === selectedComparisonFan.questionId ? "active" : ""} onClick={() => selectNode(selectedComparisonFan.questionId)}>共同问题</button>{selectedComparisonFan.answerIds.map((answerId) => {
             const answer = nodesById.get(answerId);
             return answer ? <button type="button" className={selectedNode.id === answerId ? "active" : ""} onClick={() => selectNode(answerId)} key={answerId}>{answer.title}</button> : null;
           })}</div></section>}
-          {(topicMode || density === "research") && <section className="problem-edge-audit"><span>关系与证据</span><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "进入" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "发出" }))].map(({ edge, adjacentId, direction }) => {
+          {(topicMode || density === "research") && <details className="problem-edge-audit"><summary><span>关系与证据</span><small>{incomingEdges.length + outgoingEdges.length} 条直接关系</small></summary><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "来路" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "后续" }))].map(({ edge, adjacentId, direction }) => {
             const adjacent = nodesById.get(adjacentId);
-            return <button type="button" onClick={() => selectNode(adjacentId)} key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{adjacent?.title}</b><em>{edge.label}</em></button>;
-          })}</div></section>}
-          {selectedNode.observation && <section className="problem-observation-context">
-            <span>观察范围</span>
-            <div className="problem-observation-domain"><b>{selectedNode.observation.domain}</b><p>{selectedNode.observation.note}</p></div>
-            {(selectedNode.observation.historyLinks?.length || 0) > 0 && <div className="problem-history-links"><small>关联历史概览</small>{selectedNode.observation.historyLinks?.map((link) => {
-              const stage = historyStages.find((item) => item.id === link.stageId);
-              const event = stageDetailPanels[link.stageId]?.events.find((item) => item.id === link.eventId);
-              return stage ? <button type="button" key={`${selectedNode.id}-${link.stageId}-${link.eventId || link.responseId || "stage"}`} onClick={() => onHistory(link, selectedNode.id)}><small>{stage.years} · {stage.title}</small><b>{event?.title || link.label}</b><em>{link.note}</em><i aria-hidden="true">↗</i></button> : null;
-            })}</div>}
-          </section>}
-          <section className="problem-participants"><span>对应哲学家</span><div>{relatedParticipants.length > 0 ? relatedParticipants.map((participant) => {
+            return <article className="problem-edge-entry" key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{renderText(adjacent?.title || "未知节点")}</b><p>{renderText(edge.label)}</p><button type="button" onClick={() => selectNode(adjacentId)}>定位相邻节点 →</button></article>;
+          })}</div></details>}
+
+          <section className="problem-history-links"><span>跨层定位</span>
+            {nodeReadingTopics(selectedNode.id).length > 0 && <div className="problem-topic-locations">{nodeReadingTopics(selectedNode.id).map((topic) => <button type="button" key={topic} onClick={() => locateNodeInTopic(topic, selectedNode.id)}>在{topicLabel(topic)}主线定位 →</button>)}</div>}
+            {topicMode && <button type="button" onClick={() => onHistory({
+              stageId: problemPhaseHistoryStageIds[selectedPhase.id],
+              label: selectedPhase.title,
+              note: "这是论证所在的历史阶段，不把历史背景当作观点的充分原因。",
+            }, selectedNode.id)}><small>进入历史概览</small><b>{historyStages.find((stage) => stage.id === problemPhaseHistoryStageIds[selectedPhase.id])?.title}</b><em>{selectedPhase.title}</em></button>}
+          </section>
+
+          {relatedParticipants.length > 0 && <section className="problem-participants"><span>{participantSectionLabel}</span>{relatedParticipantContext.scope !== "direct" && <p className="problem-attribution-note">当前节点没有可核验的直接人物归属；以下人物来自相邻节点，只用于继续追踪，不把当前表述归给他们。</p>}<div>{relatedParticipants.map((participant) => {
             const profile = participant.philosopherId ? philosopherProfiles.find((item) => item.id === participant.philosopherId) : undefined;
             return participant.philosopherId && profile
-              ? <button key={`${selectedNode.id}-${participant.name}`} onClick={() => onPhilosopher(participant.philosopherId!)}><b>{participant.name}</b>{showEnglish && <small>{profile.nameEn}</small>}<em>{participant.role}</em><i aria-hidden="true">↗</i></button>
-              : <span className="problem-participant-pending" key={`${selectedNode.id}-${participant.name}`}><b>{participant.name}</b><em>{participant.role}</em><small>人物页待补</small></span>;
-          }) : <p>这一节点暂未连接到可核验的人物页面。</p>}</div></section>
-          <section className="problem-school-links"><span>对应哲学流派与传统</span><div>{relatedSchools.length > 0 ? relatedSchools.map((school) => <button key={`${selectedNode.id}-${school.id}`} onClick={() => onSchool(school.id)}><b>{school.nameZh}</b>{showEnglish && <small>{school.nameEn}</small>}<em>{school.kind}</em><i aria-hidden="true">↗</i></button>) : <p>现有流派页面中尚无可直接对应的规范分类。</p>}</div></section>
-          <section className="problem-chapter-links"><span>回到原书</span><div>{selectedNode.chapterIds.map((id) => {
+              ? <article className="problem-participant-card" key={`${selectedNode.id}-${participant.name}`}><button onClick={() => onPhilosopher(participant.philosopherId!)}><b>{participant.name}</b>{showEnglish && <small>{profile.nameEn}</small>}<i aria-hidden="true">↗</i></button><p>{renderText(participant.role)}</p></article>
+              : <article className="problem-participant-pending" key={`${selectedNode.id}-${participant.name}`}><b>{participant.name}</b><p>{renderText(participant.role)}</p><small>人物页待补</small></article>;
+          })}</div></section>}
+          <section className="problem-chapter-links"><span>原书依据</span><div>{selectedNode.chapterIds.map((id) => {
             const chapter = chapters.find((item) => item.id === id);
             return chapter ? <button key={`${selectedNode.id}-${id}`} onClick={() => onChapter(id)}><small>{chapter.roman}</small><b>{chapter.title}</b></button> : null;
           })}</div></section>
+          {relatedParticipantContext.scope === "direct" && <details className="problem-school-links"><summary><span>人物与章节共同指向的传统</span><small>{relatedSchools.length} 个</small></summary><p className="problem-attribution-note">这里同时要求“人物被归入该传统”和“传统页收录了本节点的原书章节”；用于交叉导航，不表示整个传统共同接受该观点。</p><div>{relatedSchools.length > 0 ? relatedSchools.map((school) => <button key={`${selectedNode.id}-${school.id}`} onClick={() => onSchool(school.id)}><b>{school.nameZh}</b>{showEnglish && <small>{school.nameEn}</small>}<em>{school.kind}</em><i aria-hidden="true">↗</i></button>) : <p>现有流派页中，暂无同时匹配人物与本节点章节的规范分类。</p>}</div></details>}
         </div>
       </aside>
     </section>}

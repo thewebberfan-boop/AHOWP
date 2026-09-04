@@ -106,7 +106,7 @@ npm run audit:content
 - `app/philosopher-data-modern.ts`：第三卷 29 位人物的结构化资料、关系、星级和来源。
 - `app/d3-force-graph.tsx`：可复用的 D3.js 力导向图、拖拽、缩放、复位与节点聚焦。
 - `app/philosopher-graph.tsx`、`app/school-graph.tsx`：各自的关系数据适配、历史分组图谱和详情下钻。
-- `app/terminology-data.ts`：由人物、流派、概念和活动地点主数据汇总的知识卡与行内识别。
+- `app/terminology-data.ts`：由人物、流派、概念和活动地点主数据汇总的知识卡、别名与人物语境义项。
 - `app/geography-data.ts`：地点、历史语境和地图数据。
 - `docs/CONTENT_STYLE_GUIDE.md`：自然汉语、规范译名、星级篇幅、关系证据和知识卡的全站内容规范。
 - `docs/PROBLEM_MAP_GUIDE.md`：问题图谱的内容模型、首条谱系基线、代码接点、续写方式、多谱系改造和跨电脑接手清单。

@@ -585,8 +585,9 @@ const ancientSchoolProfiles: SchoolProfile[] = [
 ];
 
 const schoolStarsById: Record<string, SchoolStarRating> = {
-  // A logarithmic learning pyramid: 12 × 1★, 9 × 2★, 5 × 3★, 4 × 4★, 2 × 5★.
-  // Stars mark explanatory reach and route-setting value, not philosophical worth.
+  // Project-wide learning priority, reassessed from chapter and problem coverage,
+  // relation reach, representative figures, and cross-era explanatory reuse.
+  // Ratings are assigned by evidence thresholds rather than a fixed headcount.
   // 5★: the two enduring reference systems for the whole historical map.
   platonism: 5,
   aristotelianism: 5,
@@ -595,39 +596,39 @@ const schoolStarsById: Record<string, SchoolStarRating> = {
   "presocratic-traditions": 4,
   stoicism: 4,
   "continental-rationalism": 4,
+  "british-empiricism-liberalism": 4,
   "critical-idealism": 4,
 
   // 3★: prominent routes that organise a distinctive recurring problem.
   "sophists-socratic-turn": 3,
-  epicureanism: 3,
   "patristic-christian-tradition": 3,
-  "british-empiricism-liberalism": 3,
+  "dominican-aristotelian-synthesis": 3,
+  "scientific-revolution-method": 3,
+  "historical-materialism": 3,
   "logical-analysis": 3,
 
   // 2★: important branches, transitions, or focused methodological programs.
   cynicism: 2,
   "ancient-skepticism": 2,
+  epicureanism: 2,
   "islamic-falsafa-kalam": 2,
-  "dominican-aristotelian-synthesis": 2,
+  "franciscan-scholastic-nominalism": 2,
   "protestant-reformation-thought": 2,
-  "scientific-revolution-method": 2,
   "mechanistic-political-philosophy": 2,
+  "will-value-philosophy": 2,
   utilitarianism: 2,
-  "historical-materialism": 2,
+  pragmatism: 2,
 
   // 1★: contextual, specialised, or supplementary traditions.
   "monastic-pastoral-tradition": 1,
   "medieval-christian-neoplatonism": 1,
   "medieval-jewish-philosophy": 1,
   "twelfth-century-dialectic": 1,
-  "franciscan-scholastic-nominalism": 1,
   "medieval-church-state-thought": 1,
   "renaissance-political-realism": 1,
   "christian-humanism": 1,
   "romanticism-republican-freedom": 1,
-  "will-value-philosophy": 1,
   "life-intuition-philosophy": 1,
-  pragmatism: 1,
 };
 
 export const schoolProfiles: SchoolProfile[] = [...ancientSchoolProfiles, ...medievalSchoolProfiles, ...modernSchoolProfiles]

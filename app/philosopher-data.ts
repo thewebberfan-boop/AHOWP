@@ -100,8 +100,8 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "本原", en: "archē", definition: "事物从何而来、由何构成并凭什么持续的第一原则。“本原”这一术语主要是亚里士多德用来整理早期思想的框架。" },
-      { zh: "水", en: "water as primary stuff", definition: "既是可观察的物质，又承担统一解释的角色；重点是用较少的自然假设解释较多现象。" },
-      { zh: "有灵的自然", en: "ensouled nature", definition: "自然物的运动不必总由外在人格神推动；动力可能属于事物自身。这个解释仍混合着早期神性语言。" },
+      { zh: "水", en: "water as primary stuff", definition: "据亚里士多德等后世记载，泰勒斯以水为万物的本原；水究竟只是生成来源，还是变化中持续存在的基础，无法完全确定。" },
+      { zh: "有灵的自然", en: "ensouled nature", definition: "对磁石能使铁运动等现象，古代证言把灵魂或神性归给自然物本身；“有灵的自然”是对这些残存说法的概括，而非完整学说。" },
     ],
     lineage: {
       inherited: "继承的是爱奥尼亚的航海测量、巴比伦天文周期与埃及实用几何，而不是一套已经成形的哲学体系。",
@@ -144,9 +144,9 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "约前 546", place: "米利都", title: "《论自然》与生命末期", detail: "据推定曾以散文讨论宇宙、地理和生命起源；只有经辛普里丘转述的一段残句留存。", certainty: "推定" },
     ],
     concepts: [
-      { zh: "无限者", en: "apeiron", definition: "没有边界或确定性质、不会衰老耗尽的本原。它既避免某一元素垄断，又为无数生成过程保留来源。" },
+      { zh: "无限者", en: "apeiron", definition: "不是水、气等已知元素的无界或无定本原，万物由之生成；它的无界性究竟主要指数量、时间还是性质，解释仍有分歧。" },
       { zh: "对立者", en: "opposites", definition: "热与冷、干与湿等具有作用力的性质；可见世界由它们的分离、侵占与转化构成。" },
-      { zh: "宇宙正义", en: "cosmic justice", definition: "对立力量依时间秩序为越界付出补偿。它把政治—伦理词汇转化为非人格化的自然规律。" },
+      { zh: "宇宙正义", en: "cosmic justice", definition: "残篇以不义与补偿比喻生成、消亡及对立力量的秩序；补偿的主体和范围仍有解释分歧，不能把它直接等同于现代物理定律。" },
       { zh: "无支撑地球", en: "unsupported earth", definition: "地球因与各方向等距而保持原位，不再需要海、柱或巨兽支撑；这是用对称性终止解释倒退。" },
     ],
     lineage: {
@@ -190,10 +190,10 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "前 528 前后", place: "米利都", title: "去世", detail: "常见年代来自后世编年；可以确认的相对关系是其活动早于前 494 年米利都毁灭。", certainty: "推定" },
     ],
     concepts: [
-      { zh: "气", en: "aēr", definition: "无处不在、通常不可见又能成为呼吸的基本材料；兼有可观察性与近似无限的范围。" },
+      { zh: "气", en: "aēr", definition: "在阿那克西美尼的自然学中，气是生成其他材料的本原；它与呼吸和生命相关，不能等同于现代化学所定义的空气。" },
       { zh: "稀释", en: "rarefaction", definition: "气变得更疏、更热并趋向火的过程；把质的变化解释为密度下降。" },
       { zh: "凝聚", en: "condensation", definition: "气依次成为风、云、水、土、石的连续压缩过程；把多种材料排列在同一尺度上。" },
-      { zh: "呼吸类比", en: "breath analogy", definition: "人的灵魂作为气维持身体，宇宙之气也包围并维持世界。它连接个体生命经验与整体宇宙论。" },
+      { zh: "呼吸类比", en: "breath analogy", definition: "古代证言以人的灵魂如气维系身体，类比气包围并维系世界；这是生命与宇宙的类比，不是由人体呼吸证明宇宙机制。" },
     ],
     lineage: {
       inherited: "接受泰勒斯的物质一元论和阿那克西曼德的宇宙生成问题；其气同时吸收了“具体元素”与“范围无定”两种要求。",
@@ -236,12 +236,12 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "约前 500—490", place: "克罗顿／梅塔蓬图姆", title: "政治反扑与去世", detail: "南意大利发生反毕达哥拉斯运动；个人逃亡与死亡细节来自较晚传统。", certainty: "传统记载" },
     ],
     concepts: [
-      { zh: "灵魂轮回", en: "metempsychosis", definition: "灵魂在不同生命形态中迁移；生命共同亲缘、饮食禁忌与净化实践由此获得统一理由。" },
+      { zh: "灵魂轮回", en: "metempsychosis", definition: "灵魂在不同生命中再度体现的信念，是较早证言可支持的毕达哥拉斯主张；它与生命亲缘及生活禁忌相关，但禁忌细节的记载不一致。" },
       { zh: "毕达哥拉斯式生活", en: "Pythagorean way of life", definition: "由共同体、仪式、饮食、自律和学习构成的生活方案；比任何单条数学命题更可靠地属于早期传统。" },
-      { zh: "和谐", en: "harmonia", definition: "不同部分依比例结合形成秩序。音乐中的整数关系使“可听见的美”与“可理解的数”发生连接。" },
-      { zh: "理论／沉思", en: "theōria", definition: "以理解而非利益或竞争为目的的观看生活。罗素把它视为数学、哲学和后来神学共同抬高的理想。" },
+      { zh: "和谐", en: "harmonia", definition: "在毕达哥拉斯传统中，不同部分按比例配合形成秩序，音乐音程是重要例子；其数学化发展不能全部归给毕达哥拉斯本人。" },
+      { zh: "理论／沉思", en: "theōria", definition: "后世传统把不求利益、专注理解的沉思生活与毕达哥拉斯联系起来；这是理解其接受史的线索，不能当作本人留下的完整定义。" },
       { zh: "数与比例", en: "number and ratio", definition: "用离散数及其比例理解音程、形状与宇宙秩序；可靠证据更多属于早期毕达哥拉斯传统，而非都能归给本人。" },
-      { zh: "净化", en: "katharsis / purification", definition: "通过节制、音乐、仪式与学习整顿灵魂，使知识活动同时成为生活和宗教实践。" },
+      { zh: "净化", en: "katharsis / purification", definition: "以饮食禁忌、仪式和自律整顿灵魂的宗教实践；后世毕达哥拉斯传统又把音乐与学习纳入其中，具体形式须区分时代。" },
     ],
     lineage: {
       inherited: "罗素强调俄耳甫斯宗教的净化、轮回和共同体传统；也提到南意大利与爱奥尼亚知识交流。现代研究对具体借用关系更谨慎。",
@@ -284,11 +284,11 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "5 世纪初", place: "以弗所 → 雅典（思想传播）", title: "克拉底鲁传播其思想", detail: "克拉底鲁把极端流变解释带到雅典，影响青年柏拉图；这已是接受史而非赫拉克利特本人生平。", certainty: "传统记载" },
     ],
     concepts: [
-      { zh: "逻各斯", en: "logos", definition: "兼有言说、说明、比例和共同秩序之意。它不是赫拉克利特私人意见，而是人可能理解却经常忽略的世界结构。" },
+      { zh: "逻各斯", en: "logos", definition: "兼有言说、说明、比例等意思；赫拉克利特要求人理解一种共同的说明或秩序。它与世界结构的关系如何理解，学界仍有分歧。" },
       { zh: "流变", en: "flux", definition: "事物材料与状态持续转化。现代解释强调：变化并非摧毁一切稳定，有些稳定正由规律更新维持。" },
-      { zh: "对立统一", en: "unity of opposites", definition: "对立状态在时间、关系和功能系统中互相依存，不等于同一事物在同一方面同时具有矛盾性质。" },
-      { zh: "火与交换", en: "fire and exchange", definition: "火既是元素意象，也是转化过程的模型；万物按尺度交换，整体数量和秩序在变化中保持。" },
-      { zh: "争斗", en: "strife", definition: "差异力量的张力与轮替，是生成多样性和功能秩序的条件。罗素把它连接到黑格尔辩证法的远源。" },
+      { zh: "对立统一", en: "unity of opposites", definition: "对立状态在变化、关系或整体秩序中相互关联；许多解释强调其依存关系，但这些说法是否容许真正的逻辑矛盾，仍有争论。" },
+      { zh: "火与交换", en: "fire and exchange", definition: "火在宇宙描述中按尺度燃起、熄灭，并与其他材料交换；这强调变化中的比例与秩序，不等于已经提出现代守恒定律。" },
+      { zh: "争斗", en: "strife", definition: "争斗或冲突被用来说明差异、对立和秩序的生成；这是宇宙与人事的多义表达，不等于赞成一切现实战争。" },
     ],
     lineage: {
       inherited: "延续米利都学派对自然内部秩序的追问，也继承阿那克西曼德的对立与宇宙正义语言；但他把讨论扩展到知识、伦理和政治。",
@@ -332,7 +332,7 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "约前 450", place: "雅典（柏拉图叙事）", title: "与青年苏格拉底论辩", detail: "柏拉图让年老的巴门尼德与埃利亚的芝诺访问雅典；这一场景首先服务于理念论批判，不宜直接当作旅行事实。", certainty: "传统记载" },
     ],
     concepts: [
-      { zh: "存在者", en: "what-is / to eon", definition: "能够被思想和言说的对象；在真理之路上表现为不生不灭、连续、均一、完整而不动。" },
+      { zh: "存在者", en: "what-is / to eon", definition: "诗中真理之路所揭示的“是者”：不生不灭、连续、完整而不动；这些规定的对象和范围存在解释分歧，不等于凡可想象者都真实存在。" },
       { zh: "非存在", en: "what-is-not", definition: "不能被认识、陈述或充当生成来源的“不是”。巴门尼德用它检验解释是否偷偷依赖虚无。" },
       { zh: "真理之路", en: "Way of Truth", definition: "从“存在必定是，非存在不是”出发，以必要推论限定真实结构的探究道路。" },
       { zh: "凡人意见", en: "Opinions of Mortals / doxa", definition: "以光与夜等对立原则解释经验宇宙的部分；它与真理的关系可能是错误、次级模型或对现象的最佳说明。" },
@@ -430,8 +430,8 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "努斯", en: "Nous / Mind", definition: "唯一不与其他成分混合、具有知识与力量并启动宇宙旋转的原则；可译“心灵”或“理智”。" },
-      { zh: "万物混合", en: "everything in everything", definition: "每个可分混合物中都含有各种类型的成分，没有绝对纯物；差异来自比例而非某种性质凭空出现。" },
-      { zh: "优势原则", en: "predominance", definition: "一个对象按其中占优势的成分被感知和命名，因此少量其他成分可以存在而不改变其日常分类。" },
+      { zh: "万物混合", en: "everything in everything", definition: "每一份材料都含有各种基本成分，差别来自混合比例；努斯是不参与这种混合的例外。“各种成分”具体包括什么，解释仍有分歧。" },
+      { zh: "优势原则", en: "predominance", definition: "混合物按其中相对占优势的成分呈现为某种材料；优势不必超过总量的一半，只须超过任一其他单种成分。" },
       { zh: "无限可分", en: "infinite divisibility", definition: "没有最小部分；无论取多小的量仍含有多种成分。这与原子论的不可分单位形成直接对照。" },
       { zh: "旋转", en: "cosmic rotation", definition: "由努斯启动、范围不断扩大的涡旋运动，使冷热、稀密等成分分离并形成天体和世界。" },
     ],
@@ -521,9 +521,9 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "约前 370", place: "阿布德拉", title: "去世与接受史", detail: "长寿、公众尊崇及“笑的哲学家”故事主要塑造后世形象；确切卒年未知。", certainty: "推定" },
     ],
     concepts: [
-      { zh: "原子", en: "atoms", definition: "实在、坚实、不可切分且不生不灭的单位；彼此主要以形状、大小、次序和位置区分。" },
+      { zh: "原子", en: "atoms", definition: "不生不灭、坚实且不可切分的基本实体；原子有形状、大小等差异，组合的次序与位置则解释复合物的差别。" },
       { zh: "虚空", en: "void", definition: "原子运动和彼此分离所需的空无空间；与原子共同构成现实的两个基本方面。" },
-      { zh: "约定性质", en: "qualities by convention", definition: "颜色、声音、冷热、甜苦不是孤立原子自带的性质，而在原子结构与感知者身体互动时出现。" },
+      { zh: "约定性质", en: "qualities by convention", definition: "颜色、甜苦等不属于原子自身；这些感受与原子组合及感官作用相关。所谓“依约定”是否把感性性质判为不真实，解释者有分歧。" },
       { zh: "必然性", en: "necessity", definition: "自然事件由原子运动及先行条件产生，无须诉诸为人安排的目的；它不是宿命预言，而是因果连续性。" },
       { zh: "心灵安宁", en: "euthymia / cheerfulness", definition: "通过节制、衡量、知识和稳定判断获得的平衡愉悦；与后来伊壁鸠鲁的宁静相近但不能完全等同。" },
       { zh: "物象", en: "eidōla / images", definition: "物体发出的细微原子结构作用于感官，用以说明视觉、梦与表象如何从外物到达身体。" },
@@ -572,10 +572,10 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "人是尺度", en: "man-measure thesis", definition: "人是事物如何对其显现和被评价的尺度；“人”可指具体个人，也可能包含共享经验形成的共同体。" },
-      { zh: "相反论证", en: "antilogiai / opposing arguments", definition: "同一问题可以形成彼此对立的论证。训练目标不只是获胜，也包括暴露判断对前提和处境的依赖。" },
-      { zh: "善于谋划", en: "euboulia / good deliberation", definition: "在家庭和城邦事务中判断行动、语言及其后果的实践能力，是普罗泰戈拉自述的教学目标。" },
+      { zh: "相反论证", en: "antilogiai / opposing arguments", definition: "同一问题可以提出彼此相反的论证；古代材料将这种训练与普罗泰戈拉联系起来，但其著作已失传，不能据此断定完整的方法和目的。" },
+      { zh: "善于谋划", en: "euboulia / good deliberation", definition: "柏拉图对话中的普罗泰戈拉把教学目标说成：善于处理家庭事务，并在城邦事务中有效行动和言说；不能把对话逐字当作历史实录。" },
       { zh: "诸神不可知", en: "agnosticism about the gods", definition: "由于问题晦暗且人生短暂，无法确定诸神存在、不存在或形貌；这是知识限度声明，不等于证明无神。" },
-      { zh: "政治德性", en: "political virtue", definition: "参与共同生活所需的正义感、羞耻感和判断能力；它被广泛分配，却仍须通过法律、教育与讨论训练。" },
+      { zh: "政治德性", en: "political virtue", definition: "柏拉图对话中的普罗泰戈拉以正义和羞耻的普遍分配解释共同生活，并以教育与法律培养政治能力；这是对话保存的思想形象。" },
       { zh: "使弱论证变强", en: "making the weaker argument stronger", definition: "古代争议性标签，可指训练从不利立场提出更有效论证；它既可能服务审辨，也可能被批评为修辞胜过真理。" },
     ],
     lineage: {
@@ -624,11 +624,11 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { zh: "反诘", en: "elenchus", definition: "从对话者自己的主张出发，通过问题检验其一致性；目标首先是揭露错误自信，不必每次给出正面学说。" },
       { zh: "承认无知", en: "Socratic ignorance", definition: "知道自己不具有所声称的智慧。它不是全面怀疑，而是区分可继续探究的问题与未经证明的自信。" },
       { zh: "灵魂照料", en: "care of the soul", definition: "使人的判断、欲望与行动趋向正义和善，优先于财富、名望及身体利益。" },
-      { zh: "助产术", en: "maieutic method", definition: "柏拉图以其母亲职业作比喻：教师不把答案灌入学生，而协助其产出、检验并淘汰思想。" },
-      { zh: "神灵征兆", en: "daimonion", definition: "苏格拉底自称从童年起出现、通常阻止某些行动的内在神圣信号；它不是一套可供他人服从的新宗教。" },
-      { zh: "德性即知识", en: "virtue is knowledge", definition: "把正确行动连接到对善与真正利益的认识；它强调伦理可受理性检验，却可能低估欲望冲突与意志软弱。" },
+      { zh: "助产术", en: "maieutic method", definition: "柏拉图《泰阿泰德》中的苏格拉底以自己母亲的接生职业为喻：他帮助对话者形成并检验思想，而非直接灌输答案。这是对话中的方法形象，不能无条件当作历史苏格拉底的原话。" },
+      { zh: "神灵征兆", en: "daimonion", definition: "在柏拉图《申辩》中，苏格拉底称自己从童年起听到神圣的劝止信号：它阻止某些行动，并不指示应当做什么。色诺芬的记述不完全相同。" },
+      { zh: "德性即知识", en: "virtue is knowledge", definition: "柏拉图若干苏格拉底对话把德性视为关于善的知识，并认为真正知道善便不会选择恶；这里的知识不是零散信息。这一立场通常称为苏格拉底式伦理理智主义。" },
       { zh: "无人自愿作恶", en: "no one errs willingly", definition: "作恶者是在善与利益上发生误认，而非清楚把坏当坏仍纯粹选择它；其准确范围取决于我们怎样区分苏格拉底与柏拉图。" },
-      { zh: "未经审视的生活", en: "the unexamined life", definition: "生活若不持续检查自身理由、价值排序和公共责任，便不能仅凭生存、财富或名声证明其值得。" },
+      { zh: "未经审视的生活", en: "the unexamined life", definition: "《申辩》中苏格拉底为不断检验自身与他人的信念和生活辩护，主张未经审视的生活不值得过。这是其哲学生活的价值主张，不是对他人生命价值的事实判定。" },
     ],
     lineage: {
       inherited: "继承智者把语言、教育和城邦放到哲学中心的转向，也吸收自然哲学知识；但拒绝把论辩缩成可出售的成功工具。",
@@ -675,12 +675,12 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "理念", en: "Forms / Ideas", definition: "使多个个例可被共同定义和评价的稳定、可理解对象，如美本身、正义本身；不同对话对其地位与范围并不完全一致。" },
       { zh: "善的理念", en: "Form of the Good", definition: "知识、价值和可理解秩序的最高条件；《理想国》以太阳比喻它，却没有给出一套简单定义。" },
-      { zh: "辩证法", en: "dialectic", definition: "通过问答、假设上升与概念区分寻找第一原则的活动；不是后世黑格尔式历史辩证法。" },
-      { zh: "灵魂三分", en: "tripartite soul", definition: "理性、意气、欲望三种动力的结构模型，用以连接个人冲突、教育和城邦阶层。" },
-      { zh: "哲学王", en: "philosopher-ruler", definition: "掌握善与整体秩序、因而被要求统治的哲学家；它把认识论与政治权威相连，也承受罗素最强烈的批评。" },
+      { zh: "辩证法", en: "dialectic", definition: "通过问答、检验假设及概念划分寻求理解的方法。在《理想国》中，它从假设上溯到非假设的原则；不同对话的用法不尽相同，也不是黑格尔意义的辩证法。" },
+      { zh: "灵魂三分", en: "tripartite soul", definition: "《理想国》把灵魂的动力区分为理性、意气与欲望，以解释内在冲突，并与城邦的统治者、护卫者和生产者作类比。" },
+      { zh: "哲学王", en: "philosopher-ruler", definition: "《理想国》主张哲学家经长期教育认识善，并承担治理城邦的义务。这里把知识与正当统治相联，不是泛指聪明或爱读书的君主。" },
       { zh: "分有", en: "participation / methexis", definition: "个别事物以某种方式具有或呈现理念，由此成为可定义和评价的对象；这种关系如何成立正是理念论的内部难题。" },
-      { zh: "回忆说", en: "recollection / anamnēsis", definition: "学习被描述为灵魂在提问引导下重新把握先前可知结构，用以说明感官经验为何能引出普遍知识。" },
-      { zh: "线喻与洞穴", en: "divided line and cave", definition: "把影像、可见物、数学对象与理念排列为认识层级，同时展示教育是灵魂整体转向，而非简单灌输信息。" },
+      { zh: "回忆说", en: "recollection / anamnēsis", definition: "《美诺》《斐多》把学习解释为灵魂重新获得出生前已具有的知识；提问或感官经验可触发这一过程。它服务于先在知识及灵魂先存的论证，不只是回想今生学过的内容。" },
+      { zh: "线喻与洞穴", en: "divided line and cave", definition: "线喻区分想象、信念、推理与理智把握等认识层次；洞穴比喻描写灵魂从影像转向理解，以及受教育者返回共同体的责任。两者相联，却不是同一张严格一一对应的对象分类表。" },
       { zh: "模仿", en: "mimēsis / imitation", definition: "艺术、语言或可见事物对对象和形式的再现关系；柏拉图既警惕其远离真理，也在对话和神话中主动使用它。" },
     ],
     lineage: {
@@ -727,14 +727,14 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "前 322", place: "卡尔基斯", title: "离开雅典并去世", detail: "亚历山大死后反马其顿情绪激化，他因宗教指控风险离城，在优卑亚岛自然死亡。", certainty: "较可靠" },
     ],
     concepts: [
-      { zh: "质料与形式", en: "matter and form / hylomorphism", definition: "具体实体的两个解释面向：质料提供可被组织的材料，形式使其成为这一种事物并具有相应活动能力。" },
+      { zh: "质料与形式", en: "matter and form / hylomorphism", definition: "自然物及许多人造物由质料和形式共同说明：质料是构成材料，形式使其成为特定种类的事物并具有相应能力。这不是把一切存在者都说成物质组合。" },
       { zh: "潜能与现实", en: "potentiality and actuality", definition: "变化不是无中生有，而是某种能力在合适条件下实现；现实在解释上通常优先于潜能。" },
       { zh: "四因", en: "four causes", definition: "材料、形式、动力和目的四类“为什么”。它们不是互相竞争的四个事件，而是不同层次的解释问题。" },
       { zh: "实体", en: "substance / ousia", definition: "首要存在者和属性承担者。亚里士多德不同著作在具体个体、形式与本质之间调整重心。" },
-      { zh: "中道", en: "doctrine of the mean", definition: "实践德性在相对于行动者和情境的过度与不足之间作合理由选择，不是机械平均或永远温和。" },
-      { zh: "三段论", en: "syllogism", definition: "若干前提按一定形式推出结论的论证结构；科学三段论还要求前提真实、首要并说明对象的原因。" },
+      { zh: "中道", en: "doctrine of the mean", definition: "品格德性是在相对于行动者与情境的过度和不足之间，依正确理性作合宜选择的稳定品质。中道不是算术平均；谋杀等本已错误的行为也不会因适量而成为德性。" },
+      { zh: "三段论", en: "syllogism", definition: "从所设前提必然推出不同于前提的结论的论证。科学证明还要求前提真实、首要，并揭示结论成立的原因；前提听来可信并不足以构成证明。" },
       { zh: "幸福", en: "eudaimonia / flourishing", definition: "一生中依德性实现人的理性能力的活动，不是瞬间感受；友谊、政治共同体与一定外部条件也不可完全缺少。" },
-      { zh: "实践智慧", en: "phronēsis / practical wisdom", definition: "在具体处境中看出何者重要、怎样选择合宜手段的判断能力；它连接一般德性与不可重复的行动情境。" },
+      { zh: "实践智慧", en: "phronēsis / practical wisdom", definition: "与品格德性相配合、对具体处境中的好生活作正确思考和选择的理智能力。它判断此时何种行动真正有益，而不仅是高效实现任意目标的手段。" },
       { zh: "政治动物", en: "political animal", definition: "人的语言和正义判断在共同体中展开，城邦因此不只是安全契约，也是实践好生活的制度条件。" },
     ],
     lineage: {
@@ -783,7 +783,7 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { zh: "直言", en: "parrhēsia / frank speech", definition: "承担风险公开说真话；不是无代价的冒犯，而是只有不依附权势者较能实践的自由。" },
       { zh: "训练", en: "askēsis", definition: "以耐寒、简食、公开羞耻测试等反复练习重塑欲望，使哲学成为身体和习惯的能力。" },
       { zh: "世界公民", en: "kosmopolitēs / citizen of the world", definition: "拒绝把价值和归属完全锁定在出生城邦；它首先是对排他身份的否定，还不是现代国际法意义的公民权。" },
-      { zh: "依自然而活", en: "living according to nature", definition: "让身体的有限需要而非习俗制造的名望、奢侈和羞耻决定生活；‘自然’在这里首先是一种批判尺度。" },
+      { zh: "依自然而活", en: "living according to nature", definition: "犬儒传统以自然、理性和德性检验习俗，削减奢侈与对名望的依赖，质疑仅由礼俗规定的羞耻。它不是主张任何本能冲动都值得服从。" },
       { zh: "改铸通货", en: "defacing the currency / paracharattein to nomisma", definition: "既是流亡传说中的铸币事件，也是重新检验社会通行价值的犬儒比喻；历史事实与哲学象征须分开。" },
     ],
     lineage: {
@@ -828,12 +828,12 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { date: "约前 270", place: "埃利斯", title: "去世与地方荣誉", detail: "长寿和祭司荣誉来自传记传统；可以较稳妥确认他在故乡形成持续声望。", certainty: "推定" },
     ],
     concepts: [
-      { zh: "悬置判断", en: "epochē / suspension of judgment", definition: "在理由无法决定时不肯定也不否定事物本性；它不是停止感知、说话或采取日常行动。" },
-      { zh: "不动心", en: "ataraxia / tranquility", definition: "不被相反判断和对绝对得失的执着持续扰动；后期皮浪主义把它描述为悬置之后如影随形的结果。" },
-      { zh: "表象", en: "phainomena / appearances", definition: "事物当下如何呈现。怀疑者可以承认‘蜂蜜显得甜’，而不进一步断言蜂蜜本性绝对甜。" },
+      { zh: "悬置判断", en: "epochē / suspension of judgment", definition: "后期皮浪主义在对立理由势均力敌时既不肯定也不否定事物本性；皮浪本人是否已采用这种系统方法，现存证据不足。" },
+      { zh: "不动心", en: "ataraxia / tranquility", definition: "后期皮浪主义把不动心描述为悬置判断后如影随形的结果；关于皮浪本人，材料主要记述其生活态度，不能直接套用后世完整理论。" },
+      { zh: "表象", en: "phainomena / appearances", definition: "后期皮浪主义区分事物如何显现与事物本性如何：可以说“蜂蜜显得甜”，而不再断言它本性必然甜。这个术语框架不能无条件归给皮浪本人。" },
       { zh: "无定性", en: "indeterminacy", definition: "早期证言中事物被说成无差别、不稳定或不可判定；究竟是世界属性还是人的认识处境仍有争议。" },
-      { zh: "等力", en: "equipollence / isostheneia", definition: "对立说法在说服力上势均力敌，因而没有充分理由选择其中一方；该术语主要由后期皮浪主义系统化。" },
-      { zh: "依表象生活", en: "living by appearances", definition: "不判断事物终极本性，仍可依感觉、习惯、技艺和共同规则行动，从而回应怀疑会使人瘫痪的指控。" },
+      { zh: "等力", en: "equipollence / isostheneia", definition: "后期皮浪主义称对立说法在说服力上势均力敌，由此导向悬置判断；这是数百年后系统化的术语，不是皮浪留存的原话。" },
+      { zh: "依表象生活", en: "living by appearances", definition: "塞克斯都等后期皮浪主义者主张：不判断终极本性，仍可依自然能力、感受需要、习俗法律和技艺行动。它回应不行动反驳，不应直接算作皮浪本人的完整教义。" },
     ],
     lineage: {
       inherited: "可能受德谟克利特关于安宁、智者与苏格拉底对判断限度的讨论影响；东方旅行提供比较背景，但不能凭相似性直接证明佛教来源。",
@@ -879,10 +879,10 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "认知印象", en: "kataleptic impression", definition: "斯多葛派设想的真理印象：源自真实对象，并具有不可能来自虚假对象的呈现方式；阿尔克西劳攻击其可识别性。" },
       { zh: "全面悬置", en: "universal epochē", definition: "不对任何印象作确定真理的同意；它是否为阿尔克西劳的正面主张，还是辩证结果，仍有争议。" },
-      { zh: "合理者", en: "eulogon / the reasonable", definition: "在没有确定知识时指导行动的可辩护表象或方案，不等于已被断言为真实。" },
+      { zh: "合理者", en: "eulogon / the reasonable", definition: "古代材料说悬置者可依“合理者”行动，即行动能获得合理辩护；但这可能只是针对斯多葛派的辩证反驳，未必是阿尔克西劳自己的实践准则。" },
       { zh: "辩证反驳", en: "dialectical argument", definition: "暂取对手前提，展示其导致矛盾或无法达到目标；论证结论不必是怀疑者自己的教义。" },
       { zh: "不可区分论证", en: "indistinguishability argument", definition: "若真实印象总可能有一个在主观呈现上完全相同的虚假对应，便不存在仅凭呈现即可保证真理的认知标记。" },
-      { zh: "不行动反驳", en: "reply to the inactivity objection", definition: "悬置确定同意不等于无法行动；行动仍可跟随当下合理、可辩护的表象，而不宣称它不可错。" },
+      { zh: "不行动反驳", en: "reply to the inactivity objection", definition: "阿尔克西劳被记载为以自然冲动或“合理者”回应悬置会导致不行动的指控；这些回答究竟是其正面理论还是针对对手前提的反驳，仍有争议。" },
     ],
     lineage: {
       inherited: "重新突出柏拉图对话中的苏格拉底审问者，而非理念体系建构者；也继承学院内部对知识、意见和假设的长期区分。",
@@ -983,7 +983,7 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { zh: "互不伤害契约", en: "compact neither to harm nor be harmed", definition: "正义不是脱离共同体的永恒实体，而是在具体条件下保障相互安全的协议和制度。" },
       { zh: "四重药", en: "tetrapharmakos / four-part cure", definition: "神不足惧、死不足忧、善易获得、痛可忍受的后世格言式压缩，把自然学和欲望训练合为记忆工具。" },
       { zh: "死亡与我无关", en: "death is nothing to us", definition: "一切善恶经验依赖感觉；死亡发生时感觉主体已不存在，因此不能被想象成死者持续承受的状态。" },
-      { zh: "友谊", en: "philia / friendship", definition: "从互助安全开始并发展为自身可贵的共同生活关系，是花园学派把个人安宁变成可持续实践的社会条件。" },
+      { zh: "友谊", en: "philia / friendship", definition: "友谊提供安全、信任和共同生活，是伊壁鸠鲁幸福论的核心条件。它如何从有用关系发展为为朋友自身着想，古今解释并不一致。" },
     ],
     lineage: {
       inherited: "采用德谟克利特原子论，却让自然研究明确服务于解除恐惧；也在希腊伦理关于快乐、审慎和友谊的争论中形成独立方案。",
@@ -1034,7 +1034,7 @@ const earlierPhilosopherProfiles: PhilosopherProfile[] = [
       { zh: "死亡对称论证", en: "symmetry argument", definition: "出生前的无感觉并不使我们痛苦，死亡后的无感觉也不应被想象成主体持续承受的损失。" },
       { zh: "蜜糖与苦艾", en: "honeyed cup", definition: "诗歌如杯缘的蜜，使读者愿意服下起初苦涩的自然哲学；形式不是装饰，而是情绪治疗的技术。" },
       { zh: "灵魂有死", en: "mortality of the soul", definition: "灵魂由细微原子构成并依赖身体组织，身体解体后不能继续感受；这一自然学结论直接服务于消除死后惩罚恐惧。" },
-      { zh: "多重自然解释", en: "multiple explanations", definition: "当天体现象的具体成因无法由证据唯一决定时，可以保留多个彼此相容的自然原因，只要排除神意干预和逻辑不可能。" },
+      { zh: "多重自然解释", en: "multiple explanations", definition: "当天体现象的具体成因无法由证据唯一决定时，可以保留多个候选自然解释；每个候选都须与现象及原子论相容，但彼此不必同时为真。" },
       { zh: "文明发生史", en: "natural history of civilization", definition: "语言、火、家庭、法律和技术从需要、模仿与试错中逐步形成，无须预设神一次性授予完整制度。" },
     ],
     lineage: {
@@ -1177,10 +1177,14 @@ const culturalNoteSupplementsById: Record<string, PhilosopherCulturalNote[]> = {
   leibniz: [
     { kind: "生活印象", title: "让机器替人做枯燥的计算", text: "莱布尼茨设计能进行四则运算的“阶梯计算器”，并希望把机械劳动交给机器，以便人把精力留给判断。这种工程冲动与他的逻辑理想相连：推理若能清楚地符号化，争论也可能更可检验。", caveat: "样机与设计确有其事，但机器并未稳定承担他设想的实际计算工作；不能把它写成现代计算机的直接原型。" },
   ],
+  locke: [
+    { kind: "例子", title: "一张并非完全空白的白纸", text: "洛克用白纸比喻心灵在观念进入之前不已携带先天原则，再从感觉与反省追踪观念的来源。这个比喻适合记住他的反天赋观念起点，但不能替代他对心灵能力、注意、记忆与联想的分析。", caveat: "白板是后世最常用的缩写；《人类理解论》否定先天观念和先天原则，不是否认人具有天然的认知能力。" },
+  ],
   hume: [
     { kind: "生活印象", title: "一部“出生即夭折”的处女作", text: "休谟后来形容《人性论》出版后“出生即夭折”：它没有得到他期待的反响。此后他改写论证、调整文体，以更易进入公共讨论的方式发表《人类理解研究》等作品。", caveat: "“夭折”是休谟晚年自传的自我概括；作品并非无人阅读，而是早期反应远低于他的期待。" },
   ],
   kant: [
+    { kind: "例子", title: "让对象符合我们的认识方式", text: "康德把自己的认识论转向类比为哥白尼式假设：先不问认识如何被动复制已成的对象，而问对象若要成为可经验、可判断的对象，必须符合哪些感性与知性条件。这使主体参与经验构成变成一个可追问的逻辑问题。", caveat: "这是《纯粹理性批判》第二版序言中的方法类比，不表示康德认为个人心灵凭空创造外部世界。" },
     { kind: "生活印象", title: "一座城与广阔的课程", text: "康德一生大多在柯尼斯堡及其周边生活，却在大学讲授逻辑、形而上学、伦理、自然地理和人类学。他的世界性视野并不来自频繁旅行，而来自地图、报道、科学和课堂的交叉。", caveat: "他并非从未离开故乡；把康德简化成“从不出城的钟表人”会遮蔽其教学范围和时代信息网络。" },
   ],
   hegel: [
@@ -1196,23 +1200,27 @@ const culturalNoteSupplementsById: Record<string, PhilosopherCulturalNote[]> = {
 };
 
 const philosopherStarsById: Record<string, PhilosopherStarRating> = {
-  // A logarithmic learning pyramid: 34 × 1★, 24 × 2★, 14 × 3★, 7 × 4★, 3 × 5★.
-  // Stars identify route-setting learning nodes, not philosophical worth.
-  // 5★: the indispensable classical grammar of the whole map.
+  // Project-wide learning priority, reassessed from chapter coverage, problem-map
+  // participation, relation reach, school roles, and durable historical reuse.
+  // Ratings are assigned by evidence thresholds rather than a fixed headcount.
+  // 5★: indispensable grammar for several major routes across the whole map.
   socrates: 5,
   plato: 5,
   aristotle: 5,
+  kant: 5,
 
-  // 4★: cross-era hinges that repeatedly reorganize later questions.
-  pythagoras: 4,
+  // 4★: cross-era hinges that reorganize multiple problem domains.
   augustine: 4,
+  aquinas: 4,
   descartes: 4,
+  locke: 4,
   hume: 4,
-  kant: 4,
+  hegel: 4,
   marx: 4,
   russell: 4,
 
-  // 3★: an independent system or a decisive turn on one major route.
+  // 3★: a route-defining system or decisive turn with durable downstream reuse.
+  pythagoras: 3,
   heraclitus: 3,
   parmenides: 3,
   democritus: 3,
@@ -1220,53 +1228,57 @@ const philosopherStarsById: Record<string, PhilosopherStarRating> = {
   plotinus: 3,
   avicenna: 3,
   averroes: 3,
-  aquinas: 3,
   ockham: 3,
   machiavelli: 3,
   galileo: 3,
+  "francis-bacon": 3,
+  hobbes: 3,
   spinoza: 3,
   leibniz: 3,
-  hegel: 3,
+  rousseau: 3,
+  nietzsche: 3,
 
   // 2★: a substantial bridge, branch founder, or focused learning destination.
   thales: 2,
   anaximander: 2,
   empedocles: 2,
+  anaxagoras: 2,
   protagoras: 2,
+  pyrrho: 2,
+  lucretius: 2,
   zeno: 2,
   chrysippus: 2,
   seneca: 2,
   epictetus: 2,
+  aurelius: 2,
   origen: 2,
   boethius: 2,
   "al-ghazali": 2,
   maimonides: 2,
   anselm: 2,
   abelard: 2,
+  "albert-great": 2,
   "duns-scotus": 2,
   luther: 2,
   copernicus: 2,
-  "francis-bacon": 2,
-  hobbes: 2,
-  locke: 2,
-  rousseau: 2,
-  nietzsche: 2,
+  berkeley: 2,
+  schopenhauer: 2,
+  bentham: 2,
   mill: 2,
+  bergson: 2,
+  "william-james": 2,
+  dewey: 2,
   frege: 2,
 
   // 1★: contextual, specialist, or supplementary nodes; they remain fully readable.
   anaximenes: 1,
-  anaxagoras: 1,
   leucippus: 1,
   diogenes: 1,
-  pyrrho: 1,
   arcesilaus: 1,
   carneades: 1,
-  lucretius: 1,
   cleanthes: 1,
   panaetius: 1,
   posidonius: 1,
-  aurelius: 1,
   "philo-alexandria": 1,
   ambrose: 1,
   jerome: 1,
@@ -1275,20 +1287,13 @@ const philosopherStarsById: Record<string, PhilosopherStarRating> = {
   eriugena: 1,
   roscelin: 1,
   "bernard-clairvaux": 1,
-  "albert-great": 1,
   "roger-bacon": 1,
   bonaventure: 1,
   "marsilius-padua": 1,
   erasmus: 1,
   "thomas-more": 1,
   kepler: 1,
-  berkeley: 1,
   byron: 1,
-  schopenhauer: 1,
-  bentham: 1,
-  bergson: 1,
-  "william-james": 1,
-  dewey: 1,
 };
 
 export const philosopherProfiles: PhilosopherProfile[] = [...earlierPhilosopherProfiles, ...laterAncientProfiles, ...medievalProfiles, ...modernProfiles].map((profile) => ({

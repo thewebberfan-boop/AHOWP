@@ -4,6 +4,14 @@ import { geographyByAlias } from "./geography-data";
 
 export type TermCategory = "人物" | "地名" | "学派" | "概念" | "著作";
 
+export type TermSense = {
+  id: string;
+  ownerId: string;
+  ownerName: string;
+  en: string;
+  definition: string;
+};
+
 export type TermEntry = {
   id: string;
   zh: string;
@@ -14,6 +22,12 @@ export type TermEntry = {
   /** Alternate surface forms that should be recognised in running text. */
   aliases?: string[];
   note: string;
+  /** The general definition retained when a profile card opens a person-specific sense. */
+  generalNote?: string;
+  /** Audited person-specific senses for the same Chinese surface form. */
+  senses?: TermSense[];
+  /** The sense currently opened from a philosopher's own concept card. */
+  activeSenseId?: string;
   context?: string;
   distinction?: string;
   related?: string[];
@@ -58,8 +72,8 @@ const seedTerminology: TermEntry[] = [
   { id: "benedict", zh: "本尼狄克", en: "Saint Benedict", category: "人物", note: "其修道规则成为西欧修道共同生活和知识保存的重要制度基础。" },
   { id: "gregory-great", zh: "大格列高利", en: "Gregory the Great", category: "人物", note: "教皇、行政者和传教组织者，体现罗马制度向中世纪教会的转移。" },
   { id: "eriugena", zh: "约翰·司各脱·爱留根纳", en: "John Scottus Eriugena", category: "人物", alternatives: ["约翰·司各脱", "爱留根纳"], aliases: ["约翰·司各脱", "爱留根纳"], note: "九世纪哲学家与译者，强调真正理性与真正启示不会冲突。" },
-  { id: "avicenna", zh: "阿维森纳", en: "Avicenna (Ibn Sina)", category: "人物", alternatives: ["伊本·西那"], note: "伊斯兰哲学家和医学家，以存在、必然者和灵魂论重释亚里士多德。" },
-  { id: "averroes", zh: "阿威罗伊", en: "Averroes (Ibn Rushd)", category: "人物", alternatives: ["伊本·鲁世德"], note: "安达卢西亚哲学家，其亚里士多德注释深刻影响拉丁经院哲学。" },
+  { id: "avicenna", zh: "阿维森纳", en: "Avicenna (Ibn Sina)", category: "人物", alternatives: ["伊本·西那"], aliases: ["伊本·西那"], note: "伊斯兰哲学家和医学家，以存在、必然者和灵魂论重释亚里士多德。" },
+  { id: "averroes", zh: "阿威罗伊", en: "Averroes (Ibn Rushd)", category: "人物", alternatives: ["伊本·鲁世德"], aliases: ["伊本·鲁世德"], note: "安达卢西亚哲学家，其亚里士多德注释深刻影响拉丁经院哲学。" },
   { id: "maimonides", zh: "迈蒙尼德", en: "Maimonides", category: "人物", note: "犹太哲学家，以哲学解释协调摩西传统与亚里士多德思想。" },
   { id: "aquinas", zh: "托马斯·阿奎那", en: "Thomas Aquinas", category: "人物", note: "经院哲学综合者，系统划分自然理性与启示神学的范围。" },
   { id: "roger-bacon", zh: "罗杰·培根", en: "Roger Bacon", category: "人物", alternatives: ["罗吉尔·培根"], aliases: ["罗吉尔·培根"], note: "方济各会学者，强调语言、数学、观察与实验的重要性。" },
@@ -102,14 +116,14 @@ const seedTerminology: TermEntry[] = [
   { id: "miletus", zh: "米利都", en: "Miletus", category: "地名", note: "小亚细亚爱奥尼亚商业城邦，米利都学派的思想中心。" },
   { id: "ionia", zh: "爱奥尼亚", en: "Ionia", category: "地名", note: "小亚细亚西岸希腊地区，连接爱琴海与近东知识网络。" },
   { id: "athens-place", zh: "雅典", en: "Athens", category: "地名", note: "古典时期民主、修辞、戏剧和哲学学园的主要中心。" },
-  { id: "alexandria", zh: "亚历山大里亚", en: "Alexandria", category: "地名", alternatives: ["亚历山大城"], note: "希腊化与罗马时期重要的图书、科学和多宗教思想中心。" },
+  { id: "alexandria", zh: "亚历山大里亚", en: "Alexandria", category: "地名", alternatives: ["亚历山大城"], aliases: ["亚历山大城"], note: "希腊化与罗马时期重要的图书、科学和多宗教思想中心。" },
   { id: "rome", zh: "罗马", en: "Rome", category: "地名", note: "既指城市，也常指共和国或帝国制度；语境需分别判断。" },
 
   { id: "milesian", zh: "米利都学派", en: "Milesian School", category: "学派", note: "用自然本原而非神话谱系解释世界的早期哲学传统。" },
   { id: "cynicism", zh: "犬儒派", en: "Cynics / Cynicism", category: "学派", note: "以减少需要和反习俗生活追求不受外物支配的自由。" },
-  { id: "scepticism", zh: "怀疑派", en: "Sceptics / Scepticism", category: "学派", alternatives: ["怀疑主义"], note: "通过为相反判断提供理由并悬置断言，降低精神扰动。" },
+  { id: "scepticism", zh: "怀疑派", en: "Sceptics / Scepticism", category: "学派", alternatives: ["怀疑主义"], aliases: ["怀疑主义"], note: "通过为相反判断提供理由并悬置断言，降低精神扰动。" },
   { id: "epicureanism", zh: "伊壁鸠鲁派", en: "Epicureans / Epicureanism", category: "学派", alternatives: ["伊壁鸠鲁主义"], note: "把快乐理解为无痛与宁静，以自然知识解除恐惧。" },
-  { id: "stoicism", zh: "斯多葛主义", en: "Stoicism", category: "学派", alternatives: ["斯多葛派"], note: "强调德性、自然秩序、判断训练和内在自由。" },
+  { id: "stoicism", zh: "斯多葛主义", en: "Stoicism", category: "学派", alternatives: ["斯多葛派"], aliases: ["斯多葛派"], note: "强调德性、自然秩序、判断训练和内在自由。" },
   { id: "neoplatonism", zh: "新柏拉图主义", en: "Neoplatonism", category: "学派", note: "以太一、精神和灵魂的层级重新解释柏拉图传统。" },
   { id: "scholasticism", zh: "经院哲学", en: "Scholasticism", category: "学派", aliases: ["中世纪经院哲学"], note: "中世纪大学中以问题、反对、回答和反驳组织知识的专业传统。" },
   { id: "rationalism", zh: "理性主义", en: "Rationalism", category: "学派", note: "以理性原则和演绎体系作为知识的重要基础。" },
@@ -126,7 +140,7 @@ const seedTerminology: TermEntry[] = [
   { id: "christianity-modern-natural-law", zh: "基督教与近代自然法", en: "Christian and early modern natural-law traditions", category: "学派", note: "斯多葛关于共同理性、自然秩序和世界公民的语言，经罗马作者、教父与法学传统进入基督教和近代权利讨论。", context: "罗马帝国至近代欧洲 · 多重接受链", distinction: "后世继承经过创造论、人格伦理和法律制度的深刻改写，不能把近代自然权利直接归给古代斯多葛派。", related: ["斯多葛主义", "自然法", "洛克"] },
   { id: "modern-state-reformation-constitutionalism", zh: "近代国家、宗教改革与宪政", en: "modern state, Reformation, and constitutionalism", category: "学派", note: "中世纪关于教皇、会议、世俗统治与共同体授权的争论，为近代主权、宗教分裂和有限政府提供了一部分问题语言。", context: "14—18 世纪 · 欧洲政教制度转型", distinction: "这不是单一路线：宗教改革、绝对主权和宪政对中世纪资源作出相互冲突的选择。", related: ["中世纪政教权力思想", "宗教改革与新教思想", "机械论政治哲学"] },
 
-  { id: "arche", zh: "本原", en: "archē / first principle", category: "概念", alternatives: ["始基"], note: "早期希腊哲学中万物由之生成或得到统一解释的根本原则。" },
+  { id: "arche", zh: "本原", en: "archē / first principle", category: "概念", alternatives: ["始基"], aliases: ["始基"], note: "早期希腊哲学中万物由之生成或得到统一解释的根本原则。" },
   { id: "logos", zh: "逻各斯", en: "logos", category: "概念", alternatives: ["理则", "道"], note: "可指言说、理由或秩序；在赫拉克利特和基督教语境中含义不同。" },
   { id: "non-being", zh: "非存在", en: "what-is-not / non-being", category: "概念", note: "巴门尼德认为它不能被认识或充当生成来源；原子论则以虚空重新处理“无”的地位。" },
   { id: "four-roots", zh: "四根", en: "four roots", category: "概念", note: "恩培多克勒所说火、气、水、土四种不生不灭的基本成分；后世常称四元素。" },
@@ -138,7 +152,7 @@ const seedTerminology: TermEntry[] = [
   { id: "man-measure", zh: "人是尺度", en: "man-measure thesis", category: "概念", note: "普罗泰戈拉命题的简写；既可讨论感知相对性，也可能扩展到价值判断和公共论辩。" },
   { id: "elenchus", zh: "反诘", en: "elenchus / refutation", category: "概念", note: "苏格拉底式问答中通过追问一个人的承诺，显露其信念之间矛盾的方法。" },
   { id: "maieutic", zh: "助产术", en: "maieutic method", category: "概念", note: "柏拉图作品用助产比喻描述苏格拉底帮助对话者检验并产生思想；不等于直接传授结论。" },
-  { id: "ideas-forms", zh: "理念", en: "Ideas / Forms", category: "概念", alternatives: ["形式", "理型"], note: "柏拉图语境中可知、稳定且作为具体事物标准的存在；英译常用 Forms。" },
+  { id: "ideas-forms", zh: "理念", en: "Ideas / Forms", category: "概念", alternatives: ["形式", "理型"], aliases: ["理型"], note: "柏拉图语境中可知、稳定且作为具体事物标准的存在；英译常用 Forms。" },
   { id: "philosopher-ruler", zh: "哲学王", en: "philosopher-ruler", category: "概念", note: "《理想国》中把关于善的知识与统治责任结合的政治角色，并非现代意义上由学者直接执政。" },
   { id: "matter-form", zh: "质料与形式", en: "matter and form / hylomorphism", category: "概念", note: "亚里士多德用以分析具体实体的成分与组织原则；两者通常不能作为独立物简单拼接。" },
   { id: "potential-actual", zh: "潜能与现实", en: "potentiality and actuality", category: "概念", note: "说明一个能力或可能结构如何在适当条件下实现，也是亚里士多德解释变化的核心区分。" },
@@ -154,25 +168,33 @@ const seedTerminology: TermEntry[] = [
   { id: "atomic-swerve", zh: "原子偏斜", en: "clinamen / atomic swerve", category: "概念", note: "伊壁鸠鲁传统中原子运动的微小无定时偏离，用来解释碰撞及行动不被严格机械必然性穷尽。" },
   { id: "substance", zh: "实体", en: "substance", category: "概念", note: "能独立存在或作为属性承担者的东西；亚里士多德、笛卡尔和斯宾诺莎定义不同。" },
   { id: "soul", zh: "灵魂", en: "soul / psychē", category: "概念", note: "古希腊可指生命原则，基督教和近代语境则更强调人格与不朽。" },
-  { id: "the-one", zh: "太一", en: "the One", category: "概念", alternatives: ["一者"], note: "普罗提诺体系中超越存在与思想、万物由之流出的最高原则。" },
+  { id: "the-one", zh: "太一", en: "the One", category: "概念", alternatives: ["一者"], aliases: ["一者"], note: "普罗提诺体系中超越存在与思想、万物由之流出的最高原则。" },
   { id: "natural-law", zh: "自然法", en: "natural law", category: "概念", note: "依据共同理性或人性而成立、并非只由地方成文法创造的规范。" },
   { id: "free-will", zh: "自由意志", en: "free will", category: "概念", note: "人是否能成为行动来源；在奥古斯丁那里与罪、预知和恩典相连。" },
-  { id: "grace", zh: "恩典", en: "grace", category: "概念", alternatives: ["恩宠"], note: "来自上帝、使堕落者能够得救或行善的非应得帮助。" },
+  { id: "grace", zh: "恩典", en: "grace", category: "概念", alternatives: ["恩宠"], aliases: ["恩宠"], note: "来自上帝、使堕落者能够得救或行善的非应得帮助。" },
   { id: "salvation", zh: "救赎", en: "salvation / redemption", category: "概念", note: "从罪、死亡或与上帝分离状态中被拯救；两个英文词侧重点可能不同。" },
-  { id: "universals", zh: "共相", en: "universals", category: "概念", alternatives: ["普遍概念"], note: "多个个体共同具有的种类或性质是否真实存在，是经院哲学核心争论。" },
+  { id: "universals", zh: "共相", en: "universals", category: "概念", alternatives: ["普遍者"], aliases: ["普遍者"], note: "可由多个个体共同例示或共同谓述的种类、性质或关系，如‘人’或‘红’；共相以何种方式存在，是中世纪及当代形而上学的重要争论。" },
   { id: "faith", zh: "信仰", en: "faith", category: "概念", note: "宗教信赖与接受；并不总等同于缺乏证据的普通相信。" },
   { id: "reason", zh: "理性", en: "reason", category: "概念", note: "推理、原则判断或把握秩序的能力；不同传统对其范围评价不同。" },
   { id: "revelation", zh: "启示", en: "revelation", category: "概念", note: "被认为由上帝主动揭示、不能仅凭自然理性获得的真理。" },
   { id: "experience", zh: "经验", en: "experience", category: "概念", note: "感觉、反省或实践经历的材料；经验主义内部也有不同定义。" },
-  { id: "induction", zh: "归纳", en: "induction", category: "概念", note: "从有限观察推广到一般规律；休谟追问这种推广如何获得正当性。" },
-  { id: "causation", zh: "因果", en: "causation", category: "概念", alternatives: ["因果性"], note: "事件间是否存在必然联系，而不仅是持续相继发生。" },
+  { id: "induction", zh: "归纳", en: "induction", category: "概念", note: "由已观察事例支持尚未观察的事例、一般化结论或预测的非演绎推理；前提即使为真也通常不保证结论必然为真。休谟追问这种推理如何获得正当性。" },
+  { id: "causation", zh: "因果", en: "causation", category: "概念", alternatives: ["因果性"], aliases: ["因果性"], note: "一个事件、状态或过程使另一者发生或改变的关系。因果是否要求必然联系、规律、反事实依赖或机制，是彼此竞争的理论问题，不能写进通用定义本身。" },
+  { id: "necessary-connection", zh: "必然联系", en: "necessary connection", category: "概念", note: "不只是两类事件经常相继，而是前者以某种非偶然方式使后者必定发生的联系。休谟的问题正是：经验呈现事件的恒常结合，却不直接呈现这种必然性。" },
+  { id: "teleology", zh: "目的论", en: "teleology", category: "概念", note: "用某个过程、结构或行动所指向的目的或功能解释它为何如此。目的性不必都预设一位外在设计者；亚里士多德可把目的因理解为内在于自然。" },
+  { id: "mechanism", zh: "机械论", en: "mechanism / mechanical philosophy", category: "概念", note: "近代语境中，主要尝试用物质部分的尺寸、形状、运动与接触作用解释自然变化。它不等同于当代科学哲学中以组件和活动组织解释现象的所有‘机制’理论。" },
+  { id: "determinism", zh: "决定论", en: "determinism", category: "概念", note: "若给定世界在某一时刻的状态和自然律，其后状态便已由此确定的主张。它不等于人们实际能预测未来，也不等于无论行动如何结果都不变的宿命论。" },
+  { id: "idealism", zh: "观念论", en: "idealism", category: "概念", alternatives: ["唯心主义"], aliases: ["唯心主义"], note: "一组将心灵、思想或经验对现实的构成作用置于核心的立场。贝克莱、康德与黑格尔的版本差异很大，不能统一成‘否认外界’。" },
+  { id: "materialism", zh: "唯物主义", en: "materialism", category: "概念", note: "把物质或物理存在视为现实的基本层次，并要求心灵和社会现象不能脱离物质条件说明的一类立场。古代原子论、近代唯物论与马克思的历史唯物主义不是同一套理论。" },
+  { id: "relations-of-production", zh: "生产关系", en: "relations of production", category: "概念", note: "人们在社会生产中形成的制度性关系，包括谁控制生产条件、如何组织劳动及分配产品。在马克思语境中，它与生产力共同构成具体的生产方式。" },
   { id: "social-contract", zh: "社会契约", en: "social contract", category: "概念", note: "从个人同意或假想协议说明政治权威如何形成及受何限制。" },
   { id: "sovereignty", zh: "主权", en: "sovereignty", category: "概念", note: "政治共同体中最高且最终的公共决定权。" },
   { id: "natural-rights", zh: "自然权利", en: "natural rights", category: "概念", note: "被认为先于政府、政府应当保护而不能任意取消的个人权利。" },
   { id: "transcendental", zh: "先验", en: "transcendental / a priori", category: "概念", note: "康德语境中 transcendental 研究经验何以可能；a priori 指不依赖具体经验，两者不能简单混同。" },
   { id: "general-will", zh: "公意", en: "general will", category: "概念", note: "卢梭所说面向共同利益的公共意志，不等同于所有私人意见的简单总和。" },
+  { id: "amour-propre", zh: "自然自爱与社会性自爱", en: "amour de soi / amour-propre", category: "概念", alternatives: ["自爱与虚荣"], aliases: ["自爱与虚荣", "社会性自爱"], note: "卢梭区分自然的自我保存关切与依赖比较和他人评价的社会性自爱；后者可造成虚荣和竞争，却不在所有语境中都等于虚荣。" },
   { id: "dialectic", zh: "辩证法", en: "dialectic", category: "概念", note: "可指问答检验、矛盾推进或历史运动；柏拉图与黑格尔用法差异很大。" },
-  { id: "genealogy", zh: "谱系", en: "genealogy", category: "概念", note: "通过价值和制度的生成历史揭示其生命需要与权力来源。" },
+  { id: "genealogy", zh: "谱系学", en: "genealogy", category: "概念", aliases: ["谱系"], note: "通过历史、语言和心理分析追踪价值与制度如何形成、改变并取得权威；尼采式谱系不把当下形态预设为必然终点。" },
   { id: "logical-analysis", zh: "逻辑分析", en: "logical analysis", category: "概念", note: "通过揭示命题的逻辑形式澄清、重构或消除哲学问题。" },
   { id: "freedom", zh: "自由", en: "freedom / liberty", category: "概念", note: "英文两词常可互换，但政治自由、意志自由和内在自由需要按语境区分。" },
   { id: "modern-science", zh: "近代科学", en: "early modern science", category: "概念", note: "16—17 世纪以数学模型、实验、仪器观察和协作研究重组自然知识的多条实践，不是一套单一方法突然取代旧知识。", context: "哥白尼、开普勒、伽利略、培根等人的不同研究路线", distinction: "它既改造也继承古代和中世纪资源；不应只写成反对亚里士多德的一个事件。", related: ["科学革命与经验方法", "亚里士多德"] },
@@ -227,27 +249,46 @@ const schoolTerms: TermEntry[] = schoolProfiles.map((school) => {
   };
 });
 
-const conceptUses = new Map<string, Array<{ profileId: string; profileName: string; en: string; definition: string }>>();
+const conceptUses = new Map<string, TermSense[]>();
 philosopherProfiles.forEach((profile) => {
   profile.concepts.forEach((concept) => {
     const uses = conceptUses.get(concept.zh) || [];
-    uses.push({ profileId: profile.id, profileName: profile.nameZh, en: concept.en, definition: concept.definition });
+    uses.push({
+      id: `${profile.id}::${concept.zh}`,
+      ownerId: profile.id,
+      ownerName: profile.nameZh,
+      en: concept.en,
+      definition: concept.definition,
+    });
     conceptUses.set(concept.zh, uses);
   });
 });
 
 const seedTermNames = new Set(seedTerminology.map((term) => term.zh));
+const conceptAliasOverrides: Record<string, string[]> = {
+  "现象与物自身": ["物自身", "自在之物"],
+  "第一与第二性质": ["第一性质", "第二性质", "第一性质与第二性质"],
+  "综合先天判断": ["先验综合判断"],
+  "绝对命令": ["定言命令", "定言令式"],
+  "本体论论证": ["存在论论证"],
+  "充足理由原则": ["充足理由律"],
+  "预定和谐": ["先定和谐"],
+  "历史唯物主义": ["唯物史观"],
+  "摹状词理论": ["摹状词"],
+};
 const generatedConceptTerms: TermEntry[] = [...conceptUses]
   .filter(([zh]) => !seedTermNames.has(zh))
   .map(([zh, uses]) => ({
-    id: `concept-${uses[0].profileId}-${zh}`,
+    id: `concept-${uses[0].ownerId}-${zh}`,
     zh,
     en: unique(uses.map((use) => use.en)).join(" / "),
     category: "概念",
-    note: uses.length === 1 ? uses[0].definition : uses.map((use) => `${use.profileName}：${use.definition}`).join("；"),
-    context: `见于${unique(uses.map((use) => use.profileName)).slice(0, 5).join("、")}页面`,
+    note: uses.length === 1 ? uses[0].definition : `这个中文术语在 ${uses.length} 位哲学家的论证中承担不同功能，需结合下列人物语境理解。`,
+    context: `见于${unique(uses.map((use) => use.ownerName)).slice(0, 5).join("、")}页面`,
     distinction: uses.length > 1 ? "同一中译在不同人物处承担的论证功能可能不同；卡片分别保留各页面的定义，不能只按字面合并。" : undefined,
-    related: unique(uses.map((use) => use.profileName)).slice(0, 6),
+    related: unique(uses.map((use) => use.ownerName)).slice(0, 6),
+    senses: uses,
+    aliases: conceptAliasOverrides[zh],
   }));
 
 const placeUses = new Map<string, Array<{ profileName: string; dates: string }>>();
@@ -278,12 +319,13 @@ const generatedPlaceTerms: TermEntry[] = [...placeUses]
 const enrichedSeedTerms = seedTerminology
   .filter((term) => !canonicalSeedIds.has(term.id))
   .map((term) => {
-    const uses = term.category === "概念" ? conceptUses.get(term.zh) : undefined;
+    const uses = conceptUses.get(term.zh);
     if (!uses?.length) return term;
     return {
       ...term,
-      context: term.context || `见于${unique(uses.map((use) => use.profileName)).slice(0, 5).join("、")}页面`,
-      related: unique([...(term.related || []), ...uses.map((use) => use.profileName)]).slice(0, 6),
+      context: term.context || `见于${unique(uses.map((use) => use.ownerName)).slice(0, 5).join("、")}页面`,
+      related: unique([...(term.related || []), ...uses.map((use) => use.ownerName)]).slice(0, 6),
+      senses: uses,
     };
   });
 

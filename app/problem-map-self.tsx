@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import type { ProblemNode, ProblemPhase } from "./problem-map-data";
 import {
   collectSelfSummaryNodeIds,
@@ -56,6 +56,7 @@ export function SelfSummaryGraph({
   onUnitSelect,
   onDrillDown,
   onAtomicNode,
+  renderText = (text) => text,
 }: {
   topicIds?: ReadingTopicId[];
   level: SelfSummaryLevel;
@@ -66,6 +67,7 @@ export function SelfSummaryGraph({
   onUnitSelect: (id: string) => void;
   onDrillDown: (unit: SelfSummaryUnit) => void;
   onAtomicNode: (nodeId: string) => void;
+  renderText?: (text: string) => ReactNode;
 }) {
   const visibleNodeIdSet = useMemo(() => visibleNodeIds ? new Set(visibleNodeIds) : null, [visibleNodeIds]);
   const fullUnitsByTopic = useMemo(() => topicIds.map((id) => flattenTopicLevel(id, level)), [topicIds, level]);
@@ -259,13 +261,13 @@ export function SelfSummaryGraph({
         <div><span>{visibleNodeIdSet ? "全局争论背景" : "总结节点"}</span><em>本站学习重构</em></div>
         {visibleNodeIdSet && <p className="knowledge-scope-note">下文解释这组问题的全局分歧，不代表本页人物或流派接受全部回答；图中与下方成员仅显示本页相关部分。</p>}
         <small>{topicLabel(selectedTopic)} · 每主题 {level} 组 · 覆盖 {selectedMemberNodes.length} 个原子节点</small>
-        <h3>{selectedUnit.title}</h3>
-        <p>{selectedUnit.thesis}</p>
+        <h3>{renderText(selectedUnit.title)}</h3>
+        <p>{renderText(selectedUnit.thesis)}</p>
       </header>
 
       <div className="problem-node-detail-logic">
-        <section><span>这一层在追问什么</span><p>{selectedUnit.question}</p></section>
-        <section><span>继续追问 · 本站阅读建议</span><p>{selectedUnit.transition}</p></section>
+        <section><span>这一层在追问什么</span><p>{renderText(selectedUnit.question)}</p></section>
+        <section><span>继续追问 · 本站阅读建议</span><p>{renderText(selectedUnit.transition)}</p></section>
       </div>
 
       <div className="problem-node-detail-links">
@@ -274,7 +276,7 @@ export function SelfSummaryGraph({
           {connections.filter((link) => link.from === selectedUnit.id || link.to === selectedUnit.id).map((link) => {
             const other = units.find((unit) => unit.id === (link.from === selectedUnit.id ? link.to : link.from))!;
             return <details key={`${link.from}-${link.to}`}><summary>{other.title}</summary>
-              {link.edges.map((edge) => <p key={edge.id}><b>{edge.connection}</b> · {edge.label}<button type="button" onClick={() => onAtomicNode(edge.from)}>核对起点 →</button><button type="button" onClick={() => onAtomicNode(edge.to)}>核对问题 →</button></p>)}
+              {link.edges.map((edge) => <p key={edge.id}><b>{edge.connection}</b> · {renderText(edge.label)}<button type="button" onClick={() => onAtomicNode(edge.from)}>核对起点 →</button><button type="button" onClick={() => onAtomicNode(edge.to)}>核对问题 →</button></p>)}
               {link.sharedNodeIds.map((id) => <button type="button" key={id} onClick={() => onAtomicNode(id)}>共享节点 · {allNodes.find((node) => node.id === id)?.title}</button>)}
               <button type="button" onClick={() => { onUnitSelect(other.id); document.getElementById(`self-summary-${other.id}`)?.scrollIntoView({ block: "center" }); }}>定位到相接卡片 →</button>
             </details>;

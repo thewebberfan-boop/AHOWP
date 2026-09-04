@@ -103,7 +103,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "因信称义", en: "justification by faith", definition: "人因信接受基督的应许而被称义，不以功德交换恩典。" },
-      { zh: "唯独圣经", en: "sola scriptura", definition: "经文是教义的最高规范；实际解释仍发生在语言、讲道与共同体中。" },
+      { zh: "唯独圣经", en: "sola scriptura", definition: "“唯独圣经”是后世概括宗教改革立场的公式：圣经是教义的最高规范，而非声称解释可以脱离语言、讲道、信条和共同体。不能把这句拉丁口号当作路德在所有时期使用的固定术语。" },
       { zh: "意志受缚", en: "bondage of the will", definition: "人在得救问题上不能靠自主选择先行转向上帝，是他反驳伊拉斯谟的核心。" },
     ],
     lineage: { inherited: "承接奥古斯丁恩典论、晚期中世纪经文研究与个人牧灵危机。", school: "新教宗教改革和路德宗神学的奠基人物。", influenced: "改变欧洲教会、教育、政治和语言，也推动良心、权威和个人判断成为近代问题。", parallel: "与伊拉斯谟都反对教会弊端；路德追求救赎确定性，伊拉斯谟则维护解释谨慎和有限自由。" },
@@ -182,7 +182,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "数学化自然", en: "mathematization of nature", definition: "用形状、数量、速度和比例表达可检验的自然规律。" },
       { zh: "理想化", en: "idealization", definition: "有意识忽略摩擦等因素，以揭示在现实中被干扰的结构关系。" },
-      { zh: "惯性倾向", en: "inertial tendency", definition: "物体若无阻碍将保持运动的思想，为完整惯性定律准备条件。" },
+      { zh: "惯性倾向", en: "inertial tendency", definition: "伽利略以运动的相对性、斜面和理想化思想实验说明：共同运动可以保存，物体不因缺少持续推动便立即静止。这为后来直线惯性定律铺路，但不能直接等同牛顿式完整表述。" },
       { zh: "伽利略相对性", en: "Galilean relativity", definition: "在匀速运动的封闭系统内，局部机械现象不能单凭自身判断系统是否整体运动。" },
     ],
     lineage: { inherited: "承接阿基米德数学物理、哥白尼地动体系和文艺复兴工程实践。", school: "科学革命中的数学实验与仪器观察传统。", influenced: "运动研究进入笛卡尔和牛顿物理；审判也成为知识权威边界的长期象征。", parallel: "与弗朗西斯·培根都反对空洞权威；伽利略通过理想化与数学实验，培根提出系统归纳和协作研究纲领。" },
@@ -296,8 +296,8 @@ export const modernProfiles: PhilosopherProfile[] = [
       { zh: "上帝或自然", en: "Deus sive Natura", definition: "唯一无限实体的两种称呼；自然不是人格之外的受造物。" },
       { zh: "属性与样态", en: "attributes and modes", definition: "属性表达实体本质，具体事物则是实体在确定方式中的样态。" },
       { zh: "努力", en: "conatus", definition: "每一事物保存并增强自身存在的倾向，是情绪和德性的自然基础。" },
-      { zh: "充分观念", en: "adequate idea", definition: "由共同原因和内部结构理解对象，而非只承受零散结果；充分理解会增加主动性。" },
-      { zh: "被动情绪", en: "passive affects", definition: "当行动主要由不能充分理解的外因决定时产生的情绪；它可借更完整的因果认识被重新组织，而非靠压抑消失。" },
+      { zh: "充分观念", en: "adequate idea", definition: "就观念自身考察，具有真观念的一切内在性质；在人类有限心灵中，一个观念若可由该心灵中的充分原因完整说明，就是充分的。它不等于任何关于“共同原因”的概括。" },
+      { zh: "被动情绪", en: "passive affects", definition: "当人只是某种情绪或行动的部分原因，不能单凭自身本性充分说明它时，这一情绪是被动的；增加充分认识可提高主动性，但不是简单压抑感受。" },
     ],
     lineage: { inherited: "承接笛卡尔的实体、机械自然和几何方法，也回应犹太经文解释与荷兰共和政治。", school: "大陆理性主义和激进启蒙的独特一元论路线。", influenced: "影响德国观念论、圣经批判、自然主义伦理和当代情绪哲学。", parallel: "与霍布斯都把人放回因果自然；斯宾诺莎反对用恐惧维系统治，并更重思想自由与民主。" },
     comparisons: [
@@ -324,7 +324,7 @@ export const modernProfiles: PhilosopherProfile[] = [
       { zh: "单子", en: "monad", definition: "无物理部分、由内在知觉和欲求活动构成的简单实体。" },
       { zh: "充足理由原则", en: "principle of sufficient reason", definition: "任何事实为何如此而非彼样，都必须存在足够理由，即使有限者未必知道。" },
       { zh: "预定和谐", en: "pre-established harmony", definition: "各实体依自身法则展开，却由世界整体安排保持对应，不需直接因果输入。" },
-      { zh: "可能世界", en: "possible worlds", definition: "彼此可相容的完整可能秩序；现实世界被解释为上帝在可能世界中依充分理由选择的一项。" },
+      { zh: "可能世界", en: "possible worlds", definition: "由彼此共可能的个体及相应自然法则构成的完整可能秩序；不同可能世界之间常含不相容选择。现实世界被解释为上帝依其智慧与善选择实现的一项。" },
       { zh: "不可分辨者同一原则", en: "identity of indiscernibles", definition: "若两个对象在一切性质上都无差别，就没有充分理由把它们视为两个不同个体。" },
     ],
     lineage: { inherited: "承接笛卡尔理性主义、经院个体实体问题和新数学科学。", school: "大陆理性主义中多元、逻辑与可能性路线。", influenced: "影响德国哲学、现代逻辑、模态形而上学和计算思想。", parallel: "与斯宾诺莎都追求全体可理解性；斯宾诺莎只有一个实体，莱布尼茨则保留无限多个个体中心。" },
@@ -376,7 +376,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "存在就是被感知", en: "esse est percipi", definition: "感性对象的存在方式是被感知，并非所有存在都只是被动观念。" },
-      { zh: "非物质主义", en: "immaterialism", definition: "否认独立物质实体是说明经验世界所必需的存在者。" },
+      { zh: "非物质主义", en: "immaterialism", definition: "否认物质实体这种独立于心灵、作为性质基底的存在者；贝克莱并不否认苹果、树木等普通对象，而把它们解释为有秩序的观念集合。" },
       { zh: "观念与精神", en: "ideas and spirits", definition: "观念是被感知的被动内容，精神则是感知、意愿和行动的主体。" },
     ],
     lineage: { inherited: "承接洛克的观念论和第一／第二性质区分，也回应笛卡尔外部世界问题。", school: "英国经验主义内部的非物质主义。", influenced: "迫使休谟更彻底审查实体、自我和因果，也长期刺激知觉哲学和观念论。", parallel: "与斯宾诺莎都拒绝传统物质概念，却分别保留心灵—观念结构与唯一实体的一元自然。" },
@@ -437,7 +437,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "公意", en: "general will", definition: "公民作为共同体成员指向公共利益的意志，不等于所有私人偏好的简单多数。" },
       { zh: "可完善性", en: "perfectibility", definition: "人能学习和改变的开放能力，既使文明、自由可能，也使比较、虚荣和不平等扩张。" },
-      { zh: "自爱与虚荣", en: "amour de soi / amour-propre", definition: "保存自身的自然关切与依赖他人评价的社会性自我价值之间的区分。" },
+      { zh: "自然自爱与社会性自爱", en: "amour de soi / amour-propre", definition: "卢梭区分自然的自爱（amour de soi）与依赖比较和他人评价的社会性自爱（amour-propre）；后者可造成虚荣和竞争，却不能在所有语境中直接等同“虚荣”。" },
     ],
     lineage: { inherited: "承接社会契约论、古代共和德性和启蒙自然状态问题。", school: "启蒙内部的文明批判，也是浪漫主义与民主理论的共同来源。", influenced: "深刻影响康德、法国革命、浪漫主义、民主与民族政治。", parallel: "与洛克都从自由个人出发；卢梭更担心财产依赖和代表制度使公民失去共同立法。" },
     comparisons: [
@@ -548,7 +548,7 @@ export const modernProfiles: PhilosopherProfile[] = [
       { date: "1851", place: "法兰克福", title: "《附录与补遗》带来晚年名声", detail: "短论和随笔使其思想进入更广读者。", certainty: "较可靠" },
     ],
     concepts: [
-      { zh: "作为表象的世界", en: "world as representation", definition: "对象总在主体的空间、时间和因果形式中被经验。" },
+      { zh: "作为表象的世界", en: "world as representation", definition: "世界作为表象，首先意味着对象总是相对于认识主体而成为对象；感知中的个别对象由空间、时间与因果性组织，抽象概念则不能简单说成占据空间。" },
       { zh: "意志", en: "will", definition: "不依赖理性目的、在身体与自然中表现的盲目冲动，是世界内在本性。" },
       { zh: "同情", en: "compassion", definition: "越过个体化表象直接感受他者痛苦，是道德行动的非利己基础。" },
     ],
@@ -576,7 +576,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "谱系学", en: "genealogy", definition: "通过历史、语言和心理机制追踪价值如何形成及取得权威。" },
       { zh: "权力意志", en: "will to power", definition: "生命解释、组织和扩展能力的多义概念，不是单纯政治统治欲。" },
-      { zh: "永恒轮回", en: "eternal recurrence", definition: "设想同一生命无限重复，用以测试一个人能否彻底肯定自身生活。" },
+      { zh: "永恒轮回", en: "eternal recurrence", definition: "设想同一生命的一切细节永远重复。它可作为检验生命肯定程度的实践思想实验，也有宇宙论解释；不能把前一种读法写成无争议的唯一含义。" },
     ],
     lineage: { inherited: "承接叔本华的非理性动力诊断、希腊悲剧研究和法国道德心理学。", school: "谱系学、生命哲学和价值批判的核心人物。", influenced: "影响存在主义、精神分析、谱系批判、文学和后结构主义，也被多种政治运动争夺。", parallel: "与马克思都揭示观念背后的历史力量；马克思强调生产与阶级，尼采强调情感、身体和价值类型。" },
     comparisons: [
@@ -626,7 +626,7 @@ export const modernProfiles: PhilosopherProfile[] = [
       { date: "1865—1868", place: "英国议会", title: "任议员并支持妇女选举权", detail: "提出以“person”替代选举法中的“man”等修正。", certainty: "较可靠" },
     ],
     concepts: [
-      { zh: "伤害原则", en: "harm principle", definition: "对有能力成年人施加强制的正当目的，是防止其行为伤害他人，而非单纯使本人更好。" },
+      { zh: "伤害原则", en: "harm principle", definition: "《论自由》主张：对共同体中具有成熟能力的成员施加强制，正当目的在于防止伤害他人，而非只为使本人更好。密尔原文还带有如今不能接受的文明等级限制，应用时须与核心原则区分。" },
       { zh: "较高快乐", en: "higher pleasures", definition: "运用智力、情感和道德能力的满足具有质量差异，不能只按强度求和。" },
       { zh: "生活实验", en: "experiments in living", definition: "多样生活方式让个人发展，也为社会发现错误和新可能。" },
     ],
@@ -655,7 +655,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "历史唯物主义", en: "historical materialism", definition: "从生产方式、社会关系与实践解释制度和观念变化，不是经济因素机械单因决定一切。" },
       { zh: "异化", en: "alienation", definition: "劳动者的产品、活动、共同能力和人与人关系以外在力量反过来支配劳动者。" },
-      { zh: "剩余价值", en: "surplus value", definition: "劳动力在生产中创造的价值超过其再生产成本，构成利润等收入的基础。" },
+      { zh: "剩余价值", en: "surplus value", definition: "劳动者在工作日中创造的价值超过劳动力自身的价值，差额被资本占有并构成利润等收入的基础。劳动力的价值与维持和再生产劳动力所需资料相关，但不等同实际工资。" },
       { zh: "生产方式", en: "mode of production", definition: "生产力与生产关系的历史组合，包括劳动组织、技术、财产和支配结构。" },
       { zh: "商品拜物教", en: "commodity fetishism", definition: "生产者之间的社会关系在市场中表现为商品仿佛天然具有的价值关系；不是单指消费崇拜。" },
       { zh: "意识形态", en: "ideology", definition: "观念怎样在特定社会关系中形成并使其显得自然；它不等于任何错误思想或简单谎言。" },
@@ -713,7 +713,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "实用主义准则", en: "pragmatic maxim", definition: "通过一个观念可能造成的具体经验与行动差异澄清其意义。" },
       { zh: "意识流", en: "stream of consciousness", definition: "意识持续变化、带有边缘和选择，不是彼此孤立状态的机械串联。" },
-      { zh: "信念意志", en: "will to believe", definition: "在证据未决但选择真实而重大的情境中，允许情感与实践需要参与承诺。" },
+      { zh: "信念意志", en: "will to believe", definition: "当一个选项对当事人是切实的、不可回避的且重大的，而理智证据又不能预先裁决时，詹姆斯允许情感本性参与承诺；这不是任意相信任何有用主张的许可证。" },
     ],
     lineage: { inherited: "承接皮尔士实用方法、休谟经验自然主义、达尔文进化和心理学。", school: "美国实用主义与彻底经验主义的主要代表。", influenced: "影响杜威、宗教哲学、心理学、过程思想和多元主义。", parallel: "与柏格森互相欣赏，都反对静态智性压平经验；詹姆斯更强调选择、验证与多元世界。" },
     comparisons: [
@@ -764,7 +764,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "概念文字", en: "Begriffsschrift / concept-script", definition: "为纯思想设计的形式语言，是现代谓词逻辑的重要起点。" },
-      { zh: "意义与指称", en: "sense and reference", definition: "表达式给出对象的呈现方式并指向对象，二者解释同一性陈述的认知差异。" },
+      { zh: "意义与指称", en: "sense and reference", definition: "意义是表达式呈现其所指的方式，指称是表达式所指向的对象；二者解释同一性陈述的认知差异。表达式可以有意义而缺少指称，间接语境中的指称也会变化。" },
       { zh: "逻辑主义", en: "logicism", definition: "算术真理可由纯逻辑定义和原则推出的计划。" },
     ],
     lineage: { inherited: "承接莱布尼茨普遍语言理想、十九世纪数学严格化与函数概念。", school: "现代逻辑和分析哲学的奠基人物。", influenced: "直接影响罗素、维特根斯坦、卡尔纳普以及现代语言哲学和数学基础。", parallel: "与黑格尔都试图揭示思想结构；弗雷格以可检查的形式分析反对从含混整体运动推出结论。" },
@@ -797,7 +797,7 @@ export const modernProfiles: PhilosopherProfile[] = [
       { zh: "亲知与描述知识", en: "knowledge by acquaintance and description", definition: "区分直接呈现的对象与通过性质、关系和推论被认识的对象。" },
       { zh: "外在关系", en: "external relations", definition: "关系不必由对象各自的内在性质完全决定；这一立场支撑罗素对观念论整体主义的反驳。" },
       { zh: "逻辑构造", en: "logical construction", definition: "用较清楚、可检验的关系结构替代未经说明的推定实体，而不是另造一种隐藏对象。" },
-      { zh: "可错论", en: "fallibilism", definition: "除少数形式命题外，理性认识应允许证据修正；承认可错不等于认为所有意见同样可靠。" },
+      { zh: "可错论", en: "fallibilism", definition: "本站用“可错论”概括罗素长期强调的认识态度：经验信念应按证据保留可修正性，而逻辑和数学命题另需区分讨论。它不是罗素在全部时期以同一方式建立的单一学说。" },
     ],
     lineage: { inherited: "承接弗雷格逻辑、皮亚诺符号、英国经验主义和摩尔反观念论。", school: "二十世纪逻辑分析哲学的重要奠基者，也是自由社会主义公共知识分子。", influenced: "影响维特根斯坦、逻辑实证主义、语言分析、数学哲学和现代公共理性。", parallel: "与杜威都支持教育、民主和反教条；罗素更坚持独立事实与形式逻辑，杜威更强调问题情境和探究过程。" },
     comparisons: [

@@ -43,7 +43,7 @@ export const laterAncientProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "同意", en: "assent / synkatathesis", definition: "心灵对印象作出认可的环节。外部刺激可以强迫印象出现，却不等于已经证明它真实或值得追随。" },
-      { zh: "认知印象", en: "cognitive impression / katalēptikē phantasia", definition: "被设想为由真实对象以足够清楚方式造成、可以成为知识基础的印象；学院怀疑派后来集中攻击这一标准。" },
+      { zh: "认知印象", en: "cognitive impression / katalēptikē phantasia", definition: "斯多葛派把认知印象定义为：来自真实对象，依该对象本身留下准确印记，并具有不可能来自虚假对象的性质；学院怀疑派集中攻击第三项能否满足。" },
       { zh: "逻各斯", en: "logos / cosmic reason", definition: "贯穿物质世界、组织因果与目的的理性原则；在早期斯多葛主义中它不是脱离世界的非物质存在。" },
       { zh: "合乎自然生活", en: "living according to nature", definition: "使人的理性能力与整体自然秩序一致。该公式由早期学派逐步定型，不应只理解成服从本能。" },
       { zh: "德性是唯一的善", en: "virtue as the only good", definition: "健康、财富、地位本身不决定生活好坏；真正的善在于理性选择的品质。后来的斯多葛派用“可取的无差别物”处理现实选择。" },
@@ -89,7 +89,7 @@ export const laterAncientProfiles: PhilosopherProfile[] = [
       { zh: "《宙斯颂》", en: "Hymn to Zeus", definition: "现存最完整的早期斯多葛文本，以宗教诗形式把宙斯、逻各斯、共同法和命运联系起来。" },
       { zh: "自愿同行", en: "willing agreement with fate", definition: "不能取消必然性，但可以让自己的愿望与必然秩序一致；这比简单的被动忍耐多出理解与意愿层。" },
       { zh: "宇宙自然", en: "cosmic nature", definition: "克里安西斯把“合乎自然”主要解释为合乎整体宇宙秩序；克律西波斯后来更明确加入人的理性本性。" },
-      { zh: "宇宙大火", en: "cosmic conflagration / ekpyrōsis", definition: "世界周期性归于神性之火再重新展开的学说；罗素用它凸显斯多葛决定论与永恒重复。" },
+      { zh: "宇宙大火", en: "cosmic conflagration / ekpyrōsis", definition: "世界周期性归于神性之火并重新展开，是早期斯多葛学派的宇宙循环学说；克里安西斯接受这一框架，但现存材料不足以重建其全部版本。" },
     ],
     lineage: {
       inherited: "直接继承季蒂昂的芝诺，将赫拉克利特式的火与逻各斯、苏格拉底式德性和犬儒式坚忍，转化为更具宗教情感的宇宙伦理。",
@@ -128,7 +128,7 @@ export const laterAncientProfiles: PhilosopherProfile[] = [
       { date: "前 207", place: "雅典", title: "去世", detail: "具体死因有饮酒或大笑等互相冲突的轶事；只宜保留大致年代。", certainty: "较可靠" },
     ],
     concepts: [
-      { zh: "可说之物", en: "lekton / sayable", definition: "话语所表达、可以为真或假的意义内容；它既不是声音，也不是外部物体，是斯多葛语义学的重要非物体对象。" },
+      { zh: "可说之物", en: "lekton / sayable", definition: "话语所表达的意义内容，既不是声音，也不是外部物体。完整的可说之物包括陈述、疑问、命令等多种；其中只有断言才可真或假。" },
       { zh: "不可证明式", en: "indemonstrables", definition: "无需由其他形式证明的基本有效推理模式，例如肯定前件和否定后件式；复杂论证可由规则归约到它们。" },
       { zh: "共命运", en: "co-fated events", definition: "结果与实现它的行动条件共同属于因果链；“命定会康复”并不排除必须找医生，借此反驳宿命论式不行动。" },
       { zh: "气息", en: "pneuma", definition: "由火与气构成、贯穿物质并赋予组织和张力的主动原则；在人身上承担灵魂和认知活动。" },
@@ -223,7 +223,7 @@ export const laterAncientProfiles: PhilosopherProfile[] = [
       { zh: "宇宙同感", en: "cosmic sympathy / sympatheia", definition: "宇宙各部分因共同的神性气息和整体组织而相互关联；可支撑自然研究，也曾被用于占星与占卜。" },
       { zh: "非理性运动", en: "non-rational movements", definition: "灵魂中不能完全化约为理性判断的欲望和意气倾向；对其确切理论应避免仅据盖伦的批评性转述下结论。" },
       { zh: "跨尺度解释", en: "cross-scale explanation", definition: "把天文周期、海潮、气候、地理与人类生活放进一个相互作用的宇宙；是本站对其研究方法的压缩标签。" },
-      { zh: "灵魂升降", en: "ascent and descent of soul", definition: "灵魂死后依其纯净程度在宇宙层级中上升或滞留的理论；罗素强调它吸收了柏拉图、俄耳甫斯和新毕达哥拉斯成分。" },
+      { zh: "灵魂升降", en: "ascent and descent of soul", definition: "若干后期证言把灵魂死后的升降、净化与波塞多尼奥斯联系起来；材料零散且受柏拉图主义和后世重构影响，不能当作可确定复原的完整教义。" },
       { zh: "历史的自然条件", en: "natural conditions of history", definition: "用地理、气候、资源和社会性格的关联解释历史差异；不是现代决定论模型，却扩大了古代史学的解释范围。" },
     ],
     lineage: {
@@ -421,7 +421,7 @@ export const laterAncientProfiles: PhilosopherProfile[] = [
       { zh: "本体层级", en: "hypostases", definition: "太一、精神、灵魂三种根本实在的现代常用总称；它们不是平等的三位，也不是彼此分离的空间区域。" },
       { zh: "流溢", en: "procession / emanation", definition: "较低层由较高层的充盈活动产生而不耗损来源；不是在某个时刻发生的自愿制造。" },
       { zh: "回归", en: "return / epistrophē", definition: "所产生者转向其来源而获得形式和完善；在人身上表现为由感性分散回到精神与太一。" },
-      { zh: "恶是缺失", en: "evil as privation", definition: "恶没有与善对等的独立实体性，而是形式、秩序和善的极端缺乏；这一结构后来深刻影响奥古斯丁。" },
+      { zh: "恶是缺失", en: "evil as privation", definition: "恶不是与善对等的独立原则，而是形式与善的彻底匮乏；普罗提诺把无形式的质料称为首要的恶。奥古斯丁后来保留缺失论，却不接受质料本身为恶。" },
       { zh: "合一", en: "union / henōsis", definition: "灵魂超越主客区分与太一接触的最高经验；不能用普通知识命题完整描述，也不意味着个体被简单物理消灭。" },
     ],
     lineage: {

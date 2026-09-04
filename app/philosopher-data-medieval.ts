@@ -25,7 +25,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
     ],
     concepts: [
       { zh: "逻各斯", en: "Logos", definition: "上帝的理性、话语与创造范型；斐洛的用法并不总是一致，不能简单等同于后来基督教的第二位格。" },
-      { zh: "寓意解释", en: "allegorical interpretation", definition: "在不取消字面叙事的前提下，把经文人物与事件读作灵魂、德性和宇宙结构。" },
+      { zh: "寓意解释", en: "allegorical interpretation", definition: "把经文人物与事件读作灵魂、德性或宇宙结构。斐洛有时同时保留字面律法与寓意层，有时则认为某些叙事不宜按字面接受，不能概括为一律保留字面义。" },
       { zh: "神圣能力", en: "divine powers", definition: "上帝作用于世界的可理解方式，如创造与治理；用于维护神的超越性。" },
     ],
     lineage: { inherited: "继承犹太经文传统，也吸收柏拉图的可知范型、斯多葛的逻各斯和希腊寓意释经。", school: "希腊化犹太哲学的代表，系统说明一神经文怎样能用希腊形而上学解释。", influenced: "其语言和释经方法进入奥利金、教父传统与中世纪负神学，但具体传递路径并非处处可证。", parallel: "与新约《约翰福音》都使用逻各斯语言，但二者关系与直接影响仍有争论。" },
@@ -241,7 +241,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 862—866", place: "西法兰克", title: "写作《论自然的区分》", detail: "以师生对话组织创造、认识与复归。", certainty: "推定" },
     ],
     concepts: [
-      { zh: "自然四分", en: "four divisions of nature", definition: "按创造／受造关系组织上帝、理念、具体世界与终极复归的辩证结构。" },
+      { zh: "自然四分", en: "four divisions of nature", definition: "按“创造／受造”划分四类自然：不受造而创造的上帝、受造而创造的原初原因、受造而不创造的可见世界，以及既不受造也不创造、作为万物终点的上帝。" },
       { zh: "神显", en: "theophany", definition: "受造物是不可见上帝以有限方式呈现自身，不意味着每个有限物就是神的全部。" },
       { zh: "否定神学", en: "negative theology", definition: "上帝超越‘善、存在、智慧’等范畴；肯定之后必须以否定和超越修正。" },
     ],
@@ -375,7 +375,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { zh: "本质与存在", en: "essence and existence", definition: "事物是什么与它是否现实存在在可能者中可概念区分。" },
       { zh: "必然存在者", en: "Necessary Existent", definition: "不可能不存在、且是其他一切可能存在者的最终原因。" },
       { zh: "悬浮人", en: "Flying Man", definition: "隔离所有感觉的自我意识思想实验，用于论证灵魂对自身的直接把握。" },
-      { zh: "意向", en: "intention / maʿnā", definition: "感官不仅接收形式，也把握羊对狼的敌意等不直接等同于颜色形状的意义。" },
+      { zh: "意向", en: "intention / maʿnā", definition: "估量能力把握感官形式之外、却与具体对象相关的意义，例如羊在狼身上把握危险或敌意；不是羊对狼发出的敌意。" },
     ],
     lineage: { inherited: "承接亚里士多德逻辑、自然哲学与形而上学，也吸收新柏拉图式因果层级和伊斯兰一神论问题。", school: "伊斯兰东方逍遥学派的体系高峰。", influenced: "影响安萨里、苏赫拉瓦迪、伊斯兰神学，也经拉丁译本深刻塑造大阿尔伯特和阿奎那。", parallel: "与迈蒙尼德都在亚伯拉罕一神论中吸收亚里士多德，但阿维森纳的必然存在与宇宙因果结构更具体系自主性。" },
     comparisons: [
@@ -399,7 +399,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { date: "约 1106", place: "内沙布尔／图斯", title: "短暂复教并退居", detail: "完成自传与晚期教学，1111 年去世。", certainty: "较可靠" },
     ],
     concepts: [
-      { zh: "哲学家的不一致", en: "Incoherence of the Philosophers", definition: "针对法拉比—阿维森纳传统二十项形而上学主张的技术批评，不是反对一切理性学科。" },
+      { zh: "哲学家的不一致", en: "Incoherence of the Philosophers", definition: "《哲学家的不一致》逐项批评法拉比—阿维森纳传统的二十个问题，其中十六项属形而上学、四项属自然学；它不是反对一切哲学或理性学科。" },
       { zh: "偶因论问题", en: "occasionalism", definition: "事件联系是否完全由上帝每次直接创造；安萨里文本也容纳二级因解释，标签需谨慎。" },
       { zh: "确定性危机", en: "crisis of certainty", definition: "自传中对感官、理性、权威和内在动机的层层审查，最终把知识与灵性实践联系。" },
     ],
@@ -507,7 +507,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { zh: "五路", en: "Five Ways", definition: "从运动、有效因、可能与必然、程度和目的秩序出发的五种后验论证。" },
       { zh: "存在之实现", en: "act of being / esse", definition: "事物不仅有本质形式，还实际存在；阿奎那用存在活动说明受造参与和神圣根源。" },
       { zh: "类比语言", en: "analogical predication", definition: "‘善、智慧、存在’用于神和受造物时既非完全同义也非毫无关系。" },
-      { zh: "自然法", en: "natural law", definition: "实践理性对共同善秩序的参与，需要德性和审慎完成具体判断。" },
+      { zh: "自然法", en: "natural law", definition: "理性受造者对永恒法的参与：实践理性从“行善避恶”等首要原则出发，面向共同善判断行动；具体结论仍需要德性、审慎和情境判断。" },
     ],
     lineage: { inherited: "承接亚里士多德、大阿尔伯特、奥古斯丁、阿维森纳、阿威罗伊与迈蒙尼德。", school: "十三世纪多明我会经院哲学和托马斯主义的中心。", influenced: "影响天主教神学、自然法、德性伦理与当代分析托马斯主义，也长期受到方济各会和唯名论批评。", parallel: "与波那文图拉都在巴黎处理信仰和理性，但阿奎那更信任亚里士多德自然知识的稳定自主性。" },
     comparisons: [
@@ -559,7 +559,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
     concepts: [
       { zh: "痕迹与形象", en: "vestige and image", definition: "万物以因果秩序留下上帝痕迹，理性心灵则以记忆、理解、意志更直接地成为形象。" },
       { zh: "神圣照明", en: "divine illumination", definition: "确定真理依赖心灵参与不变的神圣规则，不只是自然抽象。" },
-      { zh: "心灵旅程", en: "journey of the mind", definition: "由世界、内在心灵到超越上帝的认识—爱之路径。" },
+      { zh: "心灵旅程", en: "journey of the mind", definition: "心灵由外在世界中的上帝痕迹，转向自身作为上帝形象，再超越有限受造层次而趋向对上帝的认识与爱；终点是与上帝的默观结合，不是“超越上帝”。" },
     ],
     lineage: { inherited: "继承奥古斯丁照明论、伪狄奥尼修上升结构、伯尔纳修院灵修和方济各贫穷理想。", school: "十三世纪方济各会经院哲学的系统代表。", influenced: "影响方济各会神学、神秘主义与后来关于知识照明和创造范型的争论。", parallel: "与阿奎那同时把大学哲学纳入神学，但对亚里士多德自足性与照明需要评价不同。" },
     comparisons: [

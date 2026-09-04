@@ -97,7 +97,9 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(styles, /app-mode-history \.sidebar/);
   assert.match(styles, /app-mode-problems \.sidebar/);
   assert.match(problemMap, /function ProblemMapView/);
-  assert.match(problemMap, /为什么进入图谱/);
+  assert.match(problemMap, /这项观察揭示什么/);
+  assert.match(problemMap, /问题为何出现/);
+  assert.match(problemMap, /它回应什么困难/);
   assert.match(problemMap, /ProblemGraphControls/);
   assert.match(problemControls, /图谱阅读控制与图例/);
   assert.match(problemMap, /局部聚焦 · 前后/);
@@ -111,9 +113,10 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(problemViewData, /id: "research"/);
   assert.match(problemViewData, /世界、变化与因果/);
   assert.match(problemViewData, /how-live-uncontrollable-world/);
-  assert.match(problemMap, /对应哲学家/);
-  assert.match(problemMap, /观察范围/);
-  assert.match(problemMap, /关联历史概览/);
+  assert.match(problemMap, /本节点的思想家/);
+  assert.match(problemMap, /相邻论证的思想家/);
+  assert.match(problemMap, /观察口径/);
+  assert.match(problemMap, /可核对的历史背景/);
   assert.match(page, /activeNodeId=\{problemNodeId\}/);
   assert.match(page, /problemHistoryOrigin/);
   assert.match(page, /返回问题图谱中的节点/);
@@ -256,7 +259,7 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
   assert.match(graph, /findSchoolProfilesByPhilosopher/);
   assert.match(schoolGraph, /D3\.js 多类型节点力导向网络图/);
   assert.doesNotMatch(schoolGraph, /D3\.js 力导向流派关系图/);
-  assert.match(spec, /流派星级按 12／9／5／4／2 的近似对数金字塔分布/);
+  assert.match(spec, /流派星级按全局证据门槛独立评定/);
   assert.match(spec, /系统复刻说明/);
   assert.match(status, /82 位人物/);
   assert.match(status, /32 个流派/);
@@ -270,8 +273,8 @@ test("keeps the complete philosopher, school, and problem graphs in the project"
       .reduce((counts, rating) => ({ ...counts, [rating]: (counts[rating] ?? 0) + 1 }), {});
   };
 
-  assert.deepEqual(starCounts(philosopherData, "philosopherStarsById"), { 1: 34, 2: 24, 3: 14, 4: 7, 5: 3 });
-  assert.deepEqual(starCounts(schoolData, "schoolStarsById"), { 1: 12, 2: 9, 3: 5, 4: 4, 5: 2 });
+  assert.deepEqual(starCounts(philosopherData, "philosopherStarsById"), { 1: 23, 2: 30, 3: 17, 4: 8, 5: 4 });
+  assert.deepEqual(starCounts(schoolData, "schoolStarsById"), { 1: 9, 2: 10, 3: 6, 4: 5, 5: 2 });
 
   const { figures } = JSON.parse(figuresText);
   assert.equal(figures.find((figure) => figure.id === "philo-alexandria")?.status, "ready");
