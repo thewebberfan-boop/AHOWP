@@ -1214,7 +1214,7 @@ function LandingPage({ session, storageReady, onBegin, onResume }: { session: Le
       <div><span>01</span><p>历史阶段</p><b>{historyStages.length}</b><small>以时代变化建立主骨架</small></div>
       <div><span>02</span><p>哲学流派</p><b>{schoolProfiles.length}</b><small>比较共同问题与内部张力</small></div>
       <div><span>03</span><p>哲学家</p><b>{philosopherProfiles.length}</b><small>下钻概念、推导与影响关系</small></div>
-      <div><span>04</span><p>原书章节</p><b>{chapters.length}</b><small>随时接回罗素的叙述顺序</small></div>
+      <div><span>04</span><p>原书章节</p><b>{chapters.length}</b><small>结构入口 {chapters.length} 章 · 精读卡片 {Object.keys(notes).length} 章</small></div>
     </section>
 
     <footer className="landing-footer"><span>骨架：罗素目录＋历史</span><span>阅读不是直线 · 返回始终保留来路</span></footer>
@@ -1503,7 +1503,7 @@ function ChapterView({ chapter, note, starred, onStar, copied, onCopy, onTheme, 
     <button className="context-back" onClick={onBack}><span>←</span><small>{originLabel ? "返回刚才的阅读位置" : "返回历史地图"}</small><b>{originLabel || "历史阶段总览"}</b></button>
     <div className="chapter-kicker"><span>{bookNumber[chapter.book]} · {chapter.part}</span><button className={starred ? "selected" : ""} onClick={onStar}>{starred ? "★ 已收藏" : "☆ 收藏章节"}</button></div>
     <section className={chapterFigures.length ? "chapter-hero with-portraits" : "chapter-hero"}>
-      <header className="chapter-header"><p className="eyebrow">CHAPTER {chapter.roman}</p><h2><TermText text={chapter.title} showEnglish={showEnglish} onTerm={onTerm} interactive={false} /></h2><p>{chapter.english}</p><div className="theme-row">{chapter.themes.map((theme) => <button key={theme} onClick={() => onTheme(theme)}>#{termText(theme)}</button>)}</div></header>
+      <header className="chapter-header"><p className="eyebrow">CHAPTER {chapter.roman}</p><h2><TermText text={chapter.title} showEnglish={showEnglish} onTerm={onTerm} interactive={false} /></h2><p>{chapter.english}</p>{["b2-07", "b2-10"].includes(chapter.id) && <p className="chapter-title-caution">原书章名提示：这里保留罗素 1945 年版本的历史措辞；“黑暗时代”与英文 “Mohammedan” 不作为本站的中性时代分类或现代规范称谓。</p>}<div className="theme-row">{chapter.themes.map((theme) => <button key={theme} onClick={() => onTheme(theme)}>#{termText(theme)}</button>)}</div></header>
       {chapterFigures.length > 0 && <aside className={`chapter-portraits count-${Math.min(chapterFigures.length, 2)}`} aria-label="本章人物图像">{chapterFigures.slice(0, 2).map((figure) => <PortraitCard key={figure.id} figure={figure} />)}</aside>}
     </section>
     {note ? <>

@@ -20,8 +20,8 @@ const relationDescriptions: Record<PhilosopherGraphRelation, string> = {
   "承接前人": "从接收者一端阅读直接传承；与“影响后继”共用同一条有向边。",
   "影响后继": "从给予者一端阅读直接传承；箭头由较早人物指向较晚人物。",
   "同题比较": "两位人物处理相近问题，但不预设谱系关系。",
-  "批评关系": "人物之间存在明确的论争、反驳或立场张力。",
-  "后世重构": "后来的阅读把前人重新解释为某种思想资源。",
+  "批评关系": "箭头从批评者指向被批评者；未单独标方向时，按较晚人物回应较早立场处理。",
+  "后世重构": "箭头从后来的阅读者指向被重新解释的前人。",
 };
 const relationColors: Record<PhilosopherGraphRelation, string> = {
   "承接前人": "#314b3d",
@@ -32,14 +32,18 @@ const relationColors: Record<PhilosopherGraphRelation, string> = {
 };
 const directRelations = new Set<PhilosopherGraphRelation>(["承接前人", "影响后继"]);
 
-const buildPhilosopherGraphEdges = () => {
+export const buildPhilosopherGraphEdges = () => {
   const edgeMap = new Map<string, PhilosopherGraphEdge>();
   philosopherProfiles.forEach((profile) => {
     profile.comparisons.forEach((comparison) => {
       findPhilosopherProfilesByTarget(comparison.target).forEach((target) => {
         if (target.id === profile.id) return;
-        const reciprocal = comparison.relation === "同题比较" || comparison.relation === "批评关系";
-        const [from, to] = profile.order <= target.order ? [profile, target] : [target, profile];
+        const reciprocal = comparison.relation === "同题比较" || comparison.direction === "双向论争";
+        const [earlier, later] = profile.order <= target.order ? [profile, target] : [target, profile];
+        let [from, to] = [earlier, later];
+        if (comparison.direction === "本人物指向对方") [from, to] = [profile, target];
+        else if (comparison.direction === "对方指向本人物") [from, to] = [target, profile];
+        else if (comparison.relation === "批评关系" || comparison.relation === "后世重构") [from, to] = [later, earlier];
         const fromId = from.id;
         const toId = to.id;
         const keyParts = [fromId, toId].sort();

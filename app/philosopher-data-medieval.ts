@@ -167,7 +167,7 @@ export const medievalProfiles: PhilosopherProfile[] = [
       { zh: "永恒", en: "eternity", definition: "对无限生命的完整、同时占有，不只是持续无限长时间。" },
       { zh: "共相问题", en: "problem of universals", definition: "其波菲利导论译注把种属究竟独立存在、存在于事物或只在思想中的问题传给拉丁中世纪。" },
     ],
-    lineage: { inherited: "继承柏拉图主义、亚里士多德逻辑和晚期古代自由技艺教育。", school: "晚期古代向拉丁中世纪的关键中介，兼具哲学翻译、逻辑和基督教神学。", influenced: "其逻辑教材和《慰藉》长期成为中世纪学校核心文本，并启动共相与先知自由争论。", parallel: "与奥古斯丁都从时间与永恒处理神知，但波爱修斯用更技术化的模态区分。" },
+    lineage: { inherited: "继承柏拉图主义、亚里士多德逻辑和晚期古代自由技艺教育。", school: "晚期古代向拉丁中世纪的关键中介，兼具哲学翻译、逻辑和基督教神学。", influenced: "其逻辑译注推动了共相争论；《哲学的慰藉》长期影响神圣预知、天意与自由意志的讨论。", parallel: "与奥古斯丁都从时间与永恒处理神知，但波爱修斯用更技术化的模态区分。" },
     comparisons: [
       { target: "亚里士多德", relation: "承接前人", shared: "逻辑范畴、命题与论证是哲学教育基础。", difference: "波爱修斯通过翻译注释把部分亚里士多德转入拉丁基督教世界。" },
       { target: "彼得·阿伯拉尔", relation: "影响后继", shared: "共相、语言与逻辑推理问题。", difference: "阿伯拉尔在十二世纪扩展语义与辩证法，拥有更丰富的拉丁逻辑材料。" },

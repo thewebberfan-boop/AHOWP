@@ -4,7 +4,7 @@ import { topicReadingEdges } from "./topic-reading-edges";
 
 export type ProblemNodeKind = "观察" | "问题" | "答案";
 export type ProblemAnswerRole = "提出" | "区分" | "反驳" | "修复" | "转向" | "综合";
-export type ProblemRelationKind = "提出问题" | "回应问题" | "产生问题";
+export type ProblemRelationKind = "提出问题" | "回应问题" | "产生问题" | "阅读跳转";
 export type ProblemConnectionKind = "原书线索" | "历史回应" | "同题并列" | "本站推演" | "后世重构";
 export type ProblemObservationDomain = "自然经验" | "个体体验" | "社会与制度" | "历史变化" | "知识实践";
 
@@ -33,6 +33,12 @@ export type ProblemGraphPosition = {
   lane: number;
 };
 
+export type ProblemSourceReference = {
+  sourceLabel: string;
+  locator: string;
+  evidenceNote?: string;
+};
+
 export type ProblemNode = {
   id: string;
   kind: ProblemNodeKind;
@@ -44,6 +50,7 @@ export type ProblemNode = {
   consequence: string;
   participants: ProblemParticipant[];
   chapterIds: string[];
+  sourceRefs?: ProblemSourceReference[];
   graph: ProblemGraphPosition;
 };
 
@@ -54,6 +61,7 @@ export type ProblemEdge = {
   relation: ProblemRelationKind;
   label: string;
   connection: ProblemConnectionKind;
+  sourceRefs?: ProblemSourceReference[];
 };
 
 export type ProblemPhase = {
@@ -96,6 +104,7 @@ export const problemRelationNotes: Record<ProblemRelationKind, string> = {
   提出问题: "观察使一个尚未由既有答案产生的困难变得可追问。",
   回应问题: "答案尝试回应问题；同一问题可以有多个并列答案。",
   产生问题: "答案解决部分困难，同时留下限制、矛盾或新的解释负担。",
+  阅读跳转: "本站为比较或组织阅读次序建立的跨节点连接，不表示前项在历史上或逻辑上产生后项。",
 };
 
 export const ancientDifferenceProblemMap: ProblemMap = {
@@ -104,7 +113,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
   english: "OBSERVATION → QUESTION → ANSWER → NEW QUESTION",
   period: "全书三卷、七十六章 · 泰勒斯至罗素",
   thesis: "从自然中的多样、变化和秩序出发，经由知识、实体、因果与好生活，追踪城邦、帝国、经文共同体、教会、大学、国家、科学和工业社会怎样反复重组自由、律法、证明与纠错。近代部分由科学方法、主体奠基和经验主义进入康德，再经历史体系、意志与价值重估，转向功利改革、资本批判、生活时间、实用探究，最后以现代逻辑和语言分析重新检验命题结构。",
-  scopeNote: "这不是一条被历代作者共同承认的师承路线，也不是把原书改写成单线进步史。图中只有观察、问题和答案三类节点；人物作为参与者附着其上。历史变化只在确实改变问题条件时进入观察层，连线同时说明逻辑作用与证据性质。当前已经覆盖原书三卷全部七十六章。图谱既保留黑格尔、马克思、柏格森、詹姆斯和罗素各自有争议的体系承诺，也明确限制常见误读：功利不等于任意牺牲少数，历史唯物主义不等于机械经济决定论，直觉不等于神秘猜测，实用真理不等于主观有用，逻辑分析也不能独自裁决全部历史与价值问题。",
+  scopeNote: "这不是一条被历代作者共同承认的师承路线，也不是把原书改写成单线进步史。图中只有观察、问题和答案三类节点；人物作为参与者附着其上。历史变化只在确实改变问题条件时进入观察层。‘提出／回应／产生问题’描述论证结构，‘阅读跳转’只组织比较次序；证据性质另以原书线索、历史回应、同题并列、本站推演或后世重构标示。当前结构入口覆盖原书三卷全部七十六章，不等于七十六章都已完成精读或逐句校勘。图谱既保留黑格尔、马克思、柏格森、詹姆斯和罗素各自有争议的体系承诺，也明确限制常见误读：功利不等于任意牺牲少数，历史唯物主义不等于机械经济决定论，直觉不等于神秘猜测，实用真理不等于主观有用，逻辑分析也不能独自裁决全部历史与价值问题。",
   phases: [
     {
       id: "encounter-difference",
@@ -937,6 +946,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
             { name: "克律西波斯", philosopherId: "chrysippus", role: "系统化逻辑、决定论、同意与责任" },
           ],
           chapterIds: ["b1-28"],
+          sourceRefs: [{ sourceLabel: "SEP · Stoicism", locator: "条目关于伦理、行动理论与外在事物的说明", evidenceNote: "用于区分早期学派的德性—同意结构与爱比克泰德后来突出的控制区分。" }],
           graph: { row: 26, lane: 4 },
         },
         {
@@ -1462,12 +1472,13 @@ export const ancientDifferenceProblemMap: ProblemMap = {
           id: "created-time-and-two-cities",
           kind: "答案",
           answerRole: "综合",
-          title: "时间属于受造心灵的记忆—注意—期待，历史则由两种爱的共同体交织展开",
-          summary: "奥古斯丁把过去、现在和未来放进心灵的记忆、注意与期待，避免把永恒理解成无限延长的时间；又以爱上帝与爱支配自身的两种方向区分两座城，使罗马命运不再等于救赎史。",
+          title: "时间与可变的受造世界一同开始，心灵以记忆—注意—期待经验时间",
+          summary: "奥古斯丁认为时间不是先于创造而流逝的容器，而与可变的受造世界一同开始；《忏悔录》又把过去、现在和未来的经验分析为心灵的记忆、注意与期待，避免把永恒理解成无限延长的时间。他并以爱上帝与爱支配自身的两种方向区分两座城，使罗马命运不再等于救赎史。",
           pressure: "两座城在现实中交织，不能被简化成教会与国家两种可见机构；恩典与历史终点也仍留下权威、强制和预定问题。",
           consequence: "本阶段在此闭合：古代的最高真实已经转成创造者，伦理自我训练转成受恩典医治的意志，循环宇宙转成有起点与终点的救赎历史。",
           participants: [{ name: "奥古斯丁", philosopherId: "augustine", role: "以时间意识、两座城与爱的秩序连接内在生命和帝国历史" }],
           chapterIds: ["b2-04"],
+          sourceRefs: [{ sourceLabel: "SEP · Augustine", locator: "条目关于创造、时间以及《忏悔录》第十一卷的说明", evidenceNote: "用于区分时间的受造地位与心灵对时间的第一人称经验。" }],
           graph: { row: 49, lane: 2.1 },
         },
         {
@@ -4720,7 +4731,7 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     ...topicReadingEdges,
   ],
   sources: [
-    { label: "罗素《西方哲学史》第一卷", url: "", note: "本站主叙述骨架；覆盖希腊文明兴起、前苏格拉底自然哲学、雅典体系、希腊化学派、罗马文化与普罗提诺三十章。" },
+    { label: "罗素《西方哲学史》第一卷", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "本站主叙述骨架；覆盖希腊文明兴起、前苏格拉底自然哲学、雅典体系、希腊化学派、罗马文化与普罗提诺三十章。" },
     { label: "SEP · Presocratic Philosophy", url: "https://plato.stanford.edu/archives/sum2024/entries/presocratics/", note: "用于校正米利都学派、多元论与原子论之间的关系，以及前苏格拉底材料的证据边界。" },
     { label: "SEP · Heraclitus", url: "https://plato.stanford.edu/entries/heraclitus/", note: "用于避免把赫拉克利特简化成无差别的“万物流变”。" },
     { label: "SEP · Parmenides", url: "https://plato.stanford.edu/entries/parmenides/", note: "用于标示严格一元论只是重要解释之一，并保留其宇宙论部分的解释困难。" },
@@ -4731,22 +4742,22 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     { label: "SEP · Ancient Skepticism", url: "https://plato.stanford.edu/entries/skepticism-ancient/", note: "用于区分皮浪式传统与学院怀疑主义，并校正悬置、认知印象和实践标准的争论。" },
     { label: "SEP · Stoicism", url: "https://plato.stanford.edu/entries/stoicism/", note: "用于校正逻辑—物理—伦理一体结构、兼容论、世界城邦及罗马实践转译。" },
     { label: "SEP · Plotinus", url: "https://plato.stanford.edu/entries/plotinus/", note: "用于校正太一、精神、灵魂、双重活动与流溢—回归结构。" },
-    { label: "罗素《西方哲学史》第二卷第一至四章", url: "", note: "用于从犹太宗教发展、早期基督教、三位教会博士推进到奥古斯丁的时间、恶、意志、恩典与历史问题。" },
+    { label: "罗素《西方哲学史》第二卷第一至四章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于从犹太宗教发展、早期基督教、三位教会博士推进到奥古斯丁的时间、恶、意志、恩典与历史问题。" },
     { label: "SEP · Philo of Alexandria", url: "https://plato.stanford.edu/entries/philo/", note: "用于校正斐洛的犹太思想语境、逻各斯多重用法、创造论与哲学作为释经工具的边界。" },
     { label: "SEP · Origen", url: "https://plato.stanford.edu/entries/origen/", note: "用于校正奥利金的多层释经、自由受造物、基督—逻各斯与后世奥利金主义之间的差异。" },
     { label: "SEP · Augustine", url: "https://plato.stanford.edu/entries/augustine/", note: "用于校正恶的缺失、分裂意志、恩典、时间与两个城，并保留奥古斯丁早晚期思想变化。" },
     { label: "SEP · Philosophy and Christian Theology", url: "https://plato.stanford.edu/entries/christiantheology-philosophy/", note: "用于区分哲学概念、教会会议与基督教教义形成的不同作用，避免把教父传统写成单一学派。" },
-    { label: "罗素《西方哲学史》第二卷第五至七章", url: "", note: "用于从波爱修斯、第五与第六世纪、本尼狄克和大格列高利推进到黑暗时代教皇制的制度问题。" },
+    { label: "罗素《西方哲学史》第二卷第五至七章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于从波爱修斯、第五与第六世纪、本尼狄克和大格列高利推进到黑暗时代教皇制的制度问题。" },
     { label: "SEP · Anicius Manlius Severinus Boethius", url: "https://plato.stanford.edu/entries/boethius/", note: "用于校正波爱修斯的逻辑传输、最高善、天意、永恒与自由问题，以及其方案仍存的解释争议。" },
     { label: "Library of Congress · Rule of Saint Benedict", url: "https://www.loc.gov/item/2021667984/", note: "作为《本尼狄克规程》的原始文本入口，用于核对共同生活、作息、劳动与阅读的制度背景。" },
     { label: "Gregory the Great · Pastoral Rule", url: "https://sourcebooks.web.fordham.edu/source/590greg1-pastoralrule2.asp", note: "作为《牧灵规则》文本入口，用于核对差别施教、内外兼顾、职位资格与反对个人野心的结构。" },
     { label: "SEP · Medieval Philosophy（早期中世纪载体）", url: "https://plato.stanford.edu/entries/medieval-philosophy/", note: "用于校正修院、宫廷和学校等多种知识载体，避免把拉丁知识保存简化为单一路线。" },
-    { label: "罗素《西方哲学史》第二卷第八至九章", url: "", note: "用于从爱留根纳的理性、自然四分与神显问题推进到十一世纪教会改革、授职冲突及精神—世俗权威边界。" },
+    { label: "罗素《西方哲学史》第二卷第八至九章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于从爱留根纳的理性、自然四分与神显问题推进到十一世纪教会改革、授职冲突及精神—世俗权威边界。" },
     { label: "SEP · John Scottus Eriugena", url: "https://plato.stanford.edu/entries/scottus-eriugena/", note: "用于校正爱留根纳的理性—权威关系、自然四分、神显、否定神学与回归结构，并保留其文本的解释争议。" },
     { label: "SEP · Medieval Political Philosophy", url: "https://plato.stanford.edu/entries/medieval-political/", note: "用于区分中世纪精神与世俗权力的多种关系，避免把授职冲突直接等同于现代政教分离。" },
     { label: "Gregory VII · Dictatus Papae", url: "https://sourcebooks.web.fordham.edu/source/g7-dictpap.asp", note: "作为改革教皇权力主张的一手材料入口；文本归属、编纂背景与规范地位存在争议，不把它当作单一完整政策纲领。" },
     { label: "Gregory VII and Henry IV · Letters on the Investiture Conflict", url: "https://sourcebooks.web.fordham.edu/source/1075GregoryVIIlettersandconflict1.asp", note: "作为授职冲突双方如何陈述任命、服从与正当性的文本入口，用于核对冲突语言而非裁定一方立场。" },
-    { label: "罗素《西方哲学史》第二卷第十章", url: "", note: "用于推进伊斯兰文化、阿维森纳、安萨里、阿威罗伊、迈蒙尼德与拉丁知识回流主线；罗素的‘保存—传递’叙述不作为现代学界共识。" },
+    { label: "罗素《西方哲学史》第二卷第十章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进伊斯兰文化、阿维森纳、安萨里、阿威罗伊、迈蒙尼德与拉丁知识回流主线；罗素的‘保存—传递’叙述不作为现代学界共识。" },
     { label: "SEP · Greek Sources in Arabic and Islamic Philosophy", url: "https://plato.stanford.edu/entries/arabic-islamic-greek/", note: "用于校正希腊—叙利亚—阿拉伯翻译的多阶段结构，避免把法尔萨法简化为被动保管古代文本。" },
     { label: "SEP · Ibn Sina's Metaphysics", url: "https://plato.stanford.edu/entries/ibn-sina-metaphysics/", note: "用于校正阿维森纳的本质—存在、可能—必然、依赖与必然存在者之间的关系。" },
     { label: "SEP · Ibn Sina", url: "https://plato.stanford.edu/entries/ibn-sina/", note: "用于校正阿维森纳的证明科学体系、灵魂论与悬空人思想实验，避免只以拉丁接受反推其原问题。" },
@@ -4755,27 +4766,27 @@ export const ancientDifferenceProblemMap: ProblemMap = {
     { label: "SEP · Maimonides", url: "https://plato.stanford.edu/entries/maimonides/", note: "用于校正迈蒙尼德的否定神学、行动属性、创造谨慎、隐微写作与律法的身体—灵魂双重目标。" },
     { label: "SEP · Medieval Philosophy（跨语言课程）", url: "https://plato.stanford.edu/entries/medieval-philosophy/", note: "用于核对希腊语、阿拉伯语、希伯来语和拉丁语之间的多次翻译及课程改组，并保留各宗教传统的自身问题语境。" },
     { label: "SEP · Influence of Arabic and Islamic Philosophy on the Latin West", url: "https://plato.stanford.edu/entries/arabic-islamic-influence/", note: "用于核对阿维森纳、阿威罗伊及阿拉伯语哲学在拉丁自然学、心理学、形而上学和逻辑中的具体转化，不把‘影响’写成原义完整搬运。" },
-    { label: "罗素《西方哲学史》第二卷第十一章", url: "", note: "用于推进十二世纪学校、安瑟伦、共相争论、阿伯拉尔与伯尔纳的叙事骨架；罗素以理性对权威概括人物冲突的方式不作为唯一解释框架。" },
+    { label: "罗素《西方哲学史》第二卷第十一章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进十二世纪学校、安瑟伦、共相争论、阿伯拉尔与伯尔纳的叙事骨架；罗素以理性对权威概括人物冲突的方式不作为唯一解释框架。" },
     { label: "SEP · Anselm of Canterbury", url: "https://plato.stanford.edu/entries/anselm/", note: "用于校正‘信仰寻求理解’、安瑟伦神学论证的目的、本体论论证结构及其与普通概念造物论证的差异。" },
     { label: "SEP · Peter Abelard", url: "https://plato.stanford.edu/entries/abelard/", note: "用于校正阿伯拉尔的旧逻辑课程、共相语义、《是与否》的权威辨析、意图伦理及其对辩证法适用范围的限制。" },
     { label: "SEP · The Medieval Problem of Universals", url: "https://plato.stanford.edu/entries/universals-medieval/", note: "用于把共相保留为逻辑、语义、本体与认识问题的历史可变组合，避免把罗瑟林、阿伯拉尔和后期唯名论压成同一立场。" },
     { label: "SEP · Medieval Philosophy（十二世纪学校）", url: "https://plato.stanford.edu/entries/medieval-philosophy/", note: "用于核对十二世纪巴黎竞争学校、旧逻辑课程和概念分析调和表面冲突权威的教学背景，不把形成中的学校直接称作成熟大学。" },
-    { label: "罗素《西方哲学史》第二卷第十二章", url: "", note: "用于推进十三世纪大学、教廷、托钵修会、新亚里士多德课程与大阿尔伯特的叙事骨架；罗素的总体评价与现代大学史、科学史校正分开。" },
+    { label: "罗素《西方哲学史》第二卷第十二章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进十三世纪大学、教廷、托钵修会、新亚里士多德课程与大阿尔伯特的叙事骨架；罗素的总体评价与现代大学史、科学史校正分开。" },
     { label: "SEP · Medieval Philosophy（大学哲学）", url: "https://plato.stanford.edu/entries/medieval-philosophy/", note: "用于核对文学院与神学院分工、十三世纪大学中的亚里士多德课程、拉丁阿威罗伊主义及哲学—神学边界。" },
     { label: "Gregory IX · Parens scientiarum（1231）", url: "https://medieval.ucdavis.edu/120B/Paris.html", note: "作为巴黎大学团体特权、停课、许可与教会管辖关系的一手材料入口；不把教廷承认误写成现代意义的完全学术独立。" },
     { label: "SEP · Albert the Great", url: "https://plato.stanford.edu/entries/albert-great/", note: "用于校正大阿尔伯特的百科释义计划、学科区分、自然学中的感觉证据及其相对阿奎那的独立贡献。" },
-    { label: "罗素《西方哲学史》第二卷第十三章", url: "", note: "用于推进阿奎那的上帝存在、信仰与理性、灵魂、伦理、法律和总体综合；罗素对正统预设的批评保留为原书评价而非唯一解释。" },
+    { label: "罗素《西方哲学史》第二卷第十三章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进阿奎那的上帝存在、信仰与理性、灵魂、伦理、法律和总体综合；罗素对正统预设的批评保留为原书评价而非唯一解释。" },
     { label: "SEP · Thomas Aquinas", url: "https://plato.stanford.edu/entries/aquinas/", note: "用于校正五路的后验结构、神圣属性与类比、理智抽象、个人灵魂、自然法、德性及自然理性的限度。" },
     { label: "SEP · Aquinas's Moral, Political, and Legal Philosophy", url: "https://plato.stanford.edu/entries/aquinas-moral-political/", note: "用于校正实践理性、德性与审慎、共同善、人法强制范围及政治共同体的限度。" },
     { label: "Thomas Aquinas · Summa contra Gentiles I.1–9", url: "https://www.corpusthomisticum.org/scg1001.html", note: "作为理性可知神圣真理、超越理性的启示内容以及真理不能彼此矛盾等区分的拉丁原典入口。" },
     { label: "SEP · Condemnation of 1277", url: "https://plato.stanford.edu/entries/condemnation/", note: "用于约束终端问题对十三世纪谴责的描述：对象、动机和长期影响均有争议，不采用‘1277 年直接诞生现代科学’的目的论叙事。" },
-    { label: "罗素《西方哲学史》第二卷第十四章", url: "", note: "用于推进波那文图拉、罗杰·培根、邓斯·司各脱和奥卡姆的原书叙事骨架；罗素把方济各会路线写成经院哲学解体过程的评价不作为唯一历史框架。" },
+    { label: "罗素《西方哲学史》第二卷第十四章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进波那文图拉、罗杰·培根、邓斯·司各脱和奥卡姆的原书叙事骨架；罗素把方济各会路线写成经院哲学解体过程的评价不作为唯一历史框架。" },
     { label: "SEP · Bonaventure", url: "https://plato.stanford.edu/entries/bonaventure/", note: "用于校正波那文图拉的温和照明论、受造认知原因、确定性条件及诸学归向智慧与爱的结构，避免把他写成反理性主义者。" },
     { label: "SEP · Roger Bacon", url: "https://plato.stanford.edu/entries/roger-bacon/", note: "用于校正罗杰·培根的语言、数学、光学与经验认证方案，并标明这些方法仍处于道德—神学及基督教共同体改革目的内，不追认成现代实验科学。" },
     { label: "SEP · John Duns Scotus", url: "https://plato.stanford.edu/entries/duns-scotus/", note: "用于校正司各脱的存在单义、无限—有限方式、共同本性与此性、意志及同时性偶然，不把这些区分简化为单纯反阿奎那。" },
     { label: "SEP · William of Ockham", url: "https://plato.stanford.edu/entries/ockham/", note: "用于校正奥卡姆对实在共相的反驳、剃刀的证据条件、直观与抽象认知、贫穷争论、教皇可错性及精神—世俗权力边界。" },
     { label: "SEP · Mental Representation in Medieval Philosophy", url: "https://plato.stanford.edu/entries/representation-medieval/", note: "用于核对奥卡姆心理语言中概念由直观认知自然引起、作为外物符号并先于约定口语和文字的因果—指称结构。" },
-    { label: "罗素《西方哲学史》第二卷第十五章", url: "", note: "用于推进波尼法爵八世、阿维尼翁教廷、马西略、西方大分裂、会议主义与威克里夫的原书叙事骨架；罗素的教皇衰落—现代自由进步线索不作为唯一历史解释。" },
+    { label: "罗素《西方哲学史》第二卷第十五章", url: "https://www.russell-j.com/cool/HWP_1945.pdf", note: "用于推进波尼法爵八世、阿维尼翁教廷、马西略、西方大分裂、会议主义与威克里夫的原书叙事骨架；罗素的教皇衰落—现代自由进步线索不作为唯一历史解释。" },
     { label: "Boniface VIII · Unam Sanctam（1302）", url: "https://sourcebooks.web.fordham.edu/source/B8-unam.asp", note: "作为教皇权力圆满、两剑秩序与服从罗马教宗主张的一手文本入口；具体争论背景与执行能力另由现代研究校正。" },
     { label: "SEP · Marsilius of Padua", url: "https://plato.stanford.edu/entries/marsilius-padua/", note: "用于校正人类立法者、公民整体或较有分量部分、教士无独立强制权和普遍会议结构，并避免把马西略直接等同现代民主或政教分离。" },
     { label: "Indiana University · Avignon and Its Papacy 书评", url: "https://scholarworks.iu.edu/journals/index.php/tmr/article/view/22341", note: "用于校正把阿维尼翁教廷简化为完全受法国控制的旧叙事，同时保留法国压力、行政集中与普世可信度之间的张力。" },

@@ -19,6 +19,7 @@ export type PhilosopherConcept = {
 export type PhilosopherComparison = {
   target: string;
   relation: "影响后继" | "承接前人" | "同题比较" | "批评关系" | "后世重构";
+  direction?: "本人物指向对方" | "对方指向本人物" | "双向论争";
   shared: string;
   difference: string;
 };

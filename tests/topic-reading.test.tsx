@@ -31,6 +31,7 @@ test("curated networks can be traversed, with explicit editorial evidence rather
   assert.equal(new Set(map.edges.map((edge) => `${edge.from}:${edge.to}`)).size, map.edges.length);
   for (const edge of topicReadingEdges) {
     assert.ok(["同题并列", "本站推演"].includes(edge.connection));
+    assert.equal(edge.relation, "阅读跳转");
     assert.equal(knowledgeNodeById.get(edge.from)?.kind, "答案");
     assert.equal(knowledgeNodeById.get(edge.to)?.kind, "问题");
   }
@@ -45,6 +46,30 @@ test("curated networks can be traversed, with explicit editorial evidence rather
     assert.equal(seen.size, ids.size, topic);
   }
   assert.ok(map.edges.some((edge) => edge.from === "fallible-individuals-need-bounded-knowledge-and-power" && edge.to === "how-do-consent-and-majority-create-government"));
+});
+
+test("editorial reading links stay separate from the acyclic argument graph", () => {
+  const nodes = map.phases.flatMap((phase) => phase.nodes);
+  const argumentEdges = map.edges.filter((edge) => edge.relation !== "阅读跳转");
+  const incoming = new Map(nodes.map((node) => [node.id, 0]));
+  const outgoing = new Map(nodes.map((node) => [node.id, [] as string[]]));
+  argumentEdges.forEach((edge) => {
+    incoming.set(edge.to, (incoming.get(edge.to) || 0) + 1);
+    outgoing.get(edge.from)?.push(edge.to);
+  });
+  const queue = nodes.filter((node) => incoming.get(node.id) === 0).map((node) => node.id);
+  let visited = 0;
+  for (const id of queue) {
+    visited += 1;
+    for (const target of outgoing.get(id) || []) {
+      const next = (incoming.get(target) || 0) - 1;
+      incoming.set(target, next);
+      if (next === 0) queue.push(target);
+    }
+  }
+  assert.equal(visited, nodes.length, "Argument relations should remain acyclic; recurrence belongs to reading links.");
+  assert.ok(map.edges.some((edge) => edge.relation === "阅读跳转" && edge.connection === "同题并列"));
+  assert.ok(map.edges.some((edge) => edge.relation === "阅读跳转" && edge.connection === "本站推演"));
 });
 
 test("cross-topic comparisons reuse stable nodes and coarse connections have actual witnesses", () => {

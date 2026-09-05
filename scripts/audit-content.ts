@@ -47,12 +47,21 @@ problemMaps.forEach((map) => {
   duplicates(map.phases.map((phase) => phase.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复阶段 ID：${id}`));
   const nodes = map.phases.flatMap((phase) => phase.nodes);
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  const sourceLabels = new Set(map.sources.map((source) => source.label));
+  const argumentEdges = map.edges.filter((edge) => edge.relation !== "阅读跳转");
   duplicates(nodes.map((node) => node.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复节点 ID：${id}`));
   duplicates(nodes.map((node) => node.title)).forEach((title) => error(`问题图谱“${map.title}”存在重复节点标题：${title}`));
   (["summary", "pressure", "consequence"] as const).forEach((field) => duplicates(nodes.map((node) => node[field])).forEach((text) => warn(`问题图谱“${map.title}”的 ${field} 重复，请确认是共享表述而非重复节点：${text}`)));
   duplicates(map.edges.map((edge) => edge.id)).forEach((id) => error(`问题图谱“${map.title}”存在重复连线 ID：${id}`));
   duplicates(map.edges.map((edge) => `${edge.from}:${edge.to}`)).forEach((id) => error(`问题图谱存在重复端点关系：${id}`));
   duplicates(map.sources.map((source) => source.label)).forEach((label) => error(`问题图谱“${map.title}”存在重复来源标签：${label}`));
+  map.sources.forEach((source) => {
+    if (!source.url.trim()) error(`问题图谱来源“${source.label}”缺少可点击地址`);
+    else {
+      try { new URL(source.url); } catch { error(`问题图谱来源“${source.label}”的地址无效：${source.url}`); }
+    }
+    if (!source.note.trim()) error(`问题图谱来源“${source.label}”缺少用途说明`);
+  });
   map.phases.forEach((phase) => {
     if (!phase.nodes.length) error(`问题阶段“${phase.title}”没有思想节点`);
     phase.nodes.forEach((node) => {
@@ -75,6 +84,10 @@ problemMaps.forEach((map) => {
       });
       node.chapterIds.filter((id) => !chapterIds.has(id)).forEach((id) => error(`问题节点“${node.title}”引用不存在的章节 ${id}`));
       node.participants.filter((participant) => participant.philosopherId && !philosopherIds.has(participant.philosopherId)).forEach((participant) => error(`问题节点“${node.title}”引用不存在的人物 ${participant.philosopherId}`));
+      node.sourceRefs?.forEach((reference) => {
+        if (!sourceLabels.has(reference.sourceLabel)) error(`问题节点“${node.title}”引用不存在的来源：${reference.sourceLabel}`);
+        if (!reference.locator.trim()) error(`问题节点“${node.title}”的命题级来源缺少页码、章节或段落定位`);
+      });
     });
   });
   map.edges.forEach((edge) => {
@@ -83,6 +96,14 @@ problemMaps.forEach((map) => {
     if (!source) error(`问题连线“${edge.label}”引用不存在的来源节点 ${edge.from}`);
     if (!target) error(`问题连线“${edge.label}”引用不存在的目标节点 ${edge.to}`);
     if (!source || !target) return;
+    edge.sourceRefs?.forEach((reference) => {
+      if (!sourceLabels.has(reference.sourceLabel)) error(`问题连线“${edge.label}”引用不存在的来源：${reference.sourceLabel}`);
+      if (!reference.locator.trim()) error(`问题连线“${edge.label}”的命题级来源缺少页码、章节或段落定位`);
+    });
+    if (edge.relation === "阅读跳转") {
+      if (!new Set(["同题并列", "本站推演"]).has(edge.connection)) error(`阅读跳转“${edge.label}”不得冒充历史影响或原书论证：${edge.connection}`);
+      return;
+    }
     const expectedRelation = source.kind === "观察" && target.kind === "问题"
       ? "提出问题"
       : source.kind === "问题" && target.kind === "答案"
@@ -94,8 +115,8 @@ problemMaps.forEach((map) => {
     else if (edge.relation !== expectedRelation) error(`问题连线“${edge.label}”应标为“${expectedRelation}”，实际为“${edge.relation}”`);
   });
   nodes.forEach((node) => {
-    const incoming = map.edges.filter((edge) => edge.to === node.id);
-    const outgoing = map.edges.filter((edge) => edge.from === node.id);
+    const incoming = argumentEdges.filter((edge) => edge.to === node.id);
+    const outgoing = argumentEdges.filter((edge) => edge.from === node.id);
     if (node.kind === "观察" && incoming.length) error(`观察节点“${node.title}”不应由其他节点推出`);
     if (node.kind === "答案" && !incoming.length) error(`答案节点“${node.title}”没有对应问题`);
     if (node.kind === "问题" && !incoming.length) error(`问题节点“${node.title}”既不来自观察，也不来自答案`);

@@ -38,7 +38,9 @@ export const enlightenmentProblemPhases: ProblemPhase[] = [
         pressure: "属性究竟只是认识方式还是实体自身结构存在解释争议；有限个体的统一和持续也仍需关系说明。",
         consequence: "心与身体可被理解为同一有限事物在思维与广延下的两种表达。",
         participants: [{ name: "巴鲁赫·斯宾诺莎", philosopherId: "spinoza", role: "以属性—样态结构保存同一自然内部的有限差异" }],
-        chapterIds: ["b3-10"], graph: { row: 274, lane: 2.8 },
+        chapterIds: ["b3-10"],
+        sourceRefs: [{ sourceLabel: "SEP · Baruch Spinoza", locator: "条目关于实体、属性与样态的说明", evidenceNote: "用于区分实体的属性与具体个体的有限样态。" }],
+        graph: { row: 274, lane: 2.8 },
       },
       {
         id: "if-mind-and-body-do-not-interact-how-correspond",
@@ -58,7 +60,9 @@ export const enlightenmentProblemPhases: ProblemPhase[] = [
         pressure: "平行表达避免跨实体碰撞，却使个人控制、责任和第一人称能动性需要新的自然主义说明。",
         consequence: "自由问题不再是意志脱离原因，而是一个有限样态在多大程度上理解并组织自身原因。",
         participants: [{ name: "巴鲁赫·斯宾诺莎", philosopherId: "spinoza", role: "用心身同一与平行表达替代笛卡尔式互动" }],
-        chapterIds: ["b3-10"], graph: { row: 276, lane: 2.2 },
+        chapterIds: ["b3-10"],
+        sourceRefs: [{ sourceLabel: "SEP · Baruch Spinoza", locator: "条目关于思维、广延及心身平行的说明", evidenceNote: "用于核对心与身是同一有限事物在不同属性下的表达。" }],
+        graph: { row: 276, lane: 2.2 },
       },
       {
         id: "affects-shift-capacity-observation",
@@ -821,9 +825,9 @@ export const enlightenmentProblemPhases: ProblemPhase[] = [
 export const enlightenmentProblemEdges: ProblemEdge[] = [
   { id: "e001", from: "can-two-created-substances-fit-one-intelligible-nature", to: "one-substance-god-or-nature", relation: "回应问题", label: "以唯一实体取消两个有限实体的独立地位", connection: "原书线索" },
   { id: "e002", from: "one-substance-god-or-nature", to: "how-can-finite-things-differ-within-one-substance", relation: "产生问题", label: "实体唯一性要求保存有限差异", connection: "原书线索" },
-  { id: "e003", from: "how-can-finite-things-differ-within-one-substance", to: "attributes-and-modes-articulate-one-nature", relation: "回应问题", label: "以属性和样态区分无限本质与有限方式", connection: "原书线索" },
+  { id: "e003", from: "how-can-finite-things-differ-within-one-substance", to: "attributes-and-modes-articulate-one-nature", relation: "回应问题", label: "以属性和样态区分无限本质与有限方式", connection: "原书线索", sourceRefs: [{ sourceLabel: "SEP · Baruch Spinoza", locator: "条目关于实体、属性与样态的说明" }] },
   { id: "e004", from: "attributes-and-modes-articulate-one-nature", to: "if-mind-and-body-do-not-interact-how-correspond", relation: "产生问题", label: "同一实体的两种属性仍需说明对应", connection: "原书线索" },
-  { id: "e005", from: "if-mind-and-body-do-not-interact-how-correspond", to: "mind-body-parallel-expression", relation: "回应问题", label: "把心身写成同一秩序的两种表达", connection: "原书线索" },
+  { id: "e005", from: "if-mind-and-body-do-not-interact-how-correspond", to: "mind-body-parallel-expression", relation: "回应问题", label: "把心身写成同一秩序的两种表达", connection: "原书线索", sourceRefs: [{ sourceLabel: "SEP · Baruch Spinoza", locator: "条目关于思维、广延及心身平行的说明" }] },
   { id: "e006", from: "mind-body-parallel-expression", to: "what-can-freedom-mean-in-necessary-nature", relation: "产生问题", label: "心身自然化重新提出能动自由", connection: "原书线索" },
   { id: "e007", from: "affects-shift-capacity-observation", to: "what-can-freedom-mean-in-necessary-nature", relation: "提出问题", label: "情感能力差异使自由呈现为程度问题", connection: "原书线索" },
   { id: "e008", from: "what-can-freedom-mean-in-necessary-nature", to: "conatus-and-adequate-understanding-increase-agency", relation: "回应问题", label: "以努力和充分理解重写自由", connection: "原书线索" },

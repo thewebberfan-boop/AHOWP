@@ -2,7 +2,7 @@ import type { ProblemEdge } from "./problem-map-data";
 
 // Editorial questions and comparisons, not claims of direct historical influence.
 const reading = (from: string, to: string, label: string): ProblemEdge => ({
-  id: `topic-reading:${from}:${to}`, from, to, label, relation: "产生问题", connection: "本站推演",
+  id: `topic-reading:${from}:${to}`, from, to, label, relation: "阅读跳转", connection: "本站推演",
 });
 const compare = (from: string, to: string, label: string): ProblemEdge => ({ ...reading(from, to, label), connection: "同题并列" });
 

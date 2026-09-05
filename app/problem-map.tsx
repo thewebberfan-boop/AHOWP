@@ -164,7 +164,8 @@ function buildDegreeMaps(nodes: ProblemNode[], edges: ProblemEdge[]) {
 }
 
 function buildChainGroups(nodes: ProblemNode[], edges: ProblemEdge[], phaseIdByNodeId: Map<string, string>) {
-  const { incoming, outgoing } = buildDegreeMaps(nodes, edges);
+  const argumentEdges = edges.filter((edge) => edge.relation !== "阅读跳转");
+  const { incoming, outgoing } = buildDegreeMaps(nodes, argumentEdges);
   const candidateIds = new Set(nodes
     .filter((node) => incoming.get(node.id)?.length === 1 && outgoing.get(node.id)?.length === 1)
     .map((node) => node.id));
@@ -640,6 +641,10 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
   const selectedHistoryStageId = problemPhaseHistoryStageIds[selectedPhase.id];
   const selectedFamily = familyByAnchorNodeId.get(selectedNode.id);
   const selectedBoundaryNotes = problemBoundaryNotes[selectedNode.id] || [];
+  const selectedClaimSources = (selectedNode.sourceRefs || []).map((reference) => ({
+    reference,
+    source: map.sources.find((source) => source.label === reference.sourceLabel),
+  }));
   const selectedComparisonFan = problemComparisonFans.find((fan) => fan.questionId === selectedNode.id || fan.answerIds.includes(selectedNode.id));
   const comparisonNodeIds = new Set(selectedComparisonFan ? [selectedComparisonFan.questionId, ...selectedComparisonFan.answerIds] : []);
   const connectedDisplayEdges = displayEdges.filter((edge) => edge.from === selectedNode.id || edge.to === selectedNode.id);
@@ -939,6 +944,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
 
         <div className="problem-node-detail-links">
           {selectedBoundaryNotes.length > 0 && <section className="problem-explanation-boundary"><span>解释边界</span>{selectedBoundaryNotes.map((boundary) => <article key={`${selectedNode.id}-${boundary.label}`}><b>{renderText(boundary.label)}</b><p>{renderText(boundary.note)}</p></article>)}</section>}
+          {selectedClaimSources.length > 0 && <section className="problem-claim-sources"><span>命题级依据</span>{selectedClaimSources.map(({ reference, source }) => <article key={`${selectedNode.id}-${reference.sourceLabel}-${reference.locator}`}><small>{renderText(reference.locator)}</small>{source?.url ? <a href={source.url} target="_blank" rel="noreferrer">{renderText(source.label)} <i aria-hidden="true">↗</i></a> : <b>{renderText(reference.sourceLabel)}</b>}{reference.evidenceNote && <p>{renderText(reference.evidenceNote)}</p>}</article>)}</section>}
           {selectedFamily && <section className="problem-family-context"><span>问题家族</span><b>{renderText(selectedFamily.label)}</b><small>{selectedFamily.english}</small><p>{renderText(selectedFamily.description)}</p></section>}
           {selectedNode.observation && <section className="problem-observation-context">
             <span>观察口径</span>
@@ -959,7 +965,7 @@ export function ProblemMapView({ activePhaseId, activeNodeId, onPhaseChange, onN
           })}</div></section>}
           {(topicMode || density === "research") && <details className="problem-edge-audit"><summary><span>关系与证据</span><small>{incomingEdges.length + outgoingEdges.length} 条直接关系</small></summary><div>{[...incomingEdges.map((edge) => ({ edge, adjacentId: edge.from, direction: "来路" })), ...outgoingEdges.map((edge) => ({ edge, adjacentId: edge.to, direction: "后续" }))].map(({ edge, adjacentId, direction }) => {
             const adjacent = nodesById.get(adjacentId);
-            return <article className="problem-edge-entry" key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{renderText(adjacent?.title || "未知节点")}</b><p>{renderText(edge.label)}</p><button type="button" onClick={() => selectNode(adjacentId)}>定位相邻节点 →</button></article>;
+            return <article className="problem-edge-entry" key={edge.id}><small>{direction} · {edge.relation} · {edge.connection}</small><b>{renderText(adjacent?.title || "未知节点")}</b><p>{renderText(edge.label)}</p>{edge.sourceRefs?.map((reference) => { const source = map.sources.find((item) => item.label === reference.sourceLabel); return <a className="problem-edge-source" href={source?.url} target="_blank" rel="noreferrer" key={`${edge.id}-${reference.sourceLabel}-${reference.locator}`}>{renderText(reference.sourceLabel)} · {renderText(reference.locator)} <i aria-hidden="true">↗</i></a>; })}<button type="button" onClick={() => selectNode(adjacentId)}>定位相邻节点 →</button></article>;
           })}</div></details>}
 
           <section className="problem-history-links"><span>跨层定位</span>

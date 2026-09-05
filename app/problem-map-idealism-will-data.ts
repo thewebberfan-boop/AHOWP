@@ -191,7 +191,9 @@ export const idealismWillProblemPhases: ProblemPhase[] = [
         pressure: "‘内在’检验仍需读者判断哪些承诺真正属于对象、哪种后继规定足以回应失败。",
         consequence: "方法问题进一步转向思想结构与现实结构为何相通。",
         participants: [{ name: "格奥尔格·威廉·弗里德里希·黑格尔", philosopherId: "hegel", role: "以扬弃和具体普遍性反对外在折中" }],
-        chapterIds: ["b3-22"], graph: { row: 382, lane: 1.8 },
+        chapterIds: ["b3-22"],
+        sourceRefs: [{ sourceLabel: "SEP · Hegel’s Dialectics", locator: "条目关于规定性否定、扬弃与固定三段式误读的说明", evidenceNote: "用于限制把辩证法压缩成可机械套用的正反合公式。" }],
+        graph: { row: 382, lane: 1.8 },
       },
       {
         id: "can-conceptual-dialectic-describe-objective-world",
@@ -940,7 +942,7 @@ export const idealismWillProblemEdges: ProblemEdge[] = [
 
   { id: "ik013", from: "can-reason-transform-fixed-oppositions-from-within", to: "determinate-negation-transforms-opposition", relation: "回应问题", label: "以规定性否定让对立从内部转化", connection: "原书线索" },
   { id: "ik014", from: "determinate-negation-transforms-opposition", to: "is-dialectic-fixed-thesis-antithesis-synthesis", relation: "产生问题", label: "内在否定要求清除机械三段式误读", connection: "后世重构" },
-  { id: "ik015", from: "is-dialectic-fixed-thesis-antithesis-synthesis", to: "dialectic-is-immanent-not-fixed-triad", relation: "回应问题", label: "把辩证法限定为对象依赖的内在检验", connection: "后世重构" },
+  { id: "ik015", from: "is-dialectic-fixed-thesis-antithesis-synthesis", to: "dialectic-is-immanent-not-fixed-triad", relation: "回应问题", label: "把辩证法限定为对象依赖的内在检验", connection: "后世重构", sourceRefs: [{ sourceLabel: "SEP · Hegel’s Dialectics", locator: "条目关于规定性否定、扬弃与固定三段式误读的说明" }] },
   { id: "ik016", from: "dialectic-is-immanent-not-fixed-triad", to: "can-conceptual-dialectic-describe-objective-world", relation: "产生问题", label: "概念方法仍须取得现实效力", connection: "本站推演" },
   { id: "ik017", from: "can-conceptual-dialectic-describe-objective-world", to: "objective-idealism-reason-immanent-in-world", relation: "回应问题", label: "以主客共享理性结构建立客观观念论", connection: "原书线索" },
   { id: "ik017a", from: "objective-idealism-reason-immanent-in-world", to: "why-self-consciousness-needs-mutual-recognition", relation: "产生问题", label: "主客关系进入主体间承认结构", connection: "本站推演" },

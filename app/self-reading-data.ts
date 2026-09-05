@@ -128,7 +128,7 @@ export const selfReadingNodeIds: Record<string, string[]> = {
 // These are explicitly editorial comparisons, not new claims of historical influence.
 // Labels state the question being carried across; both endpoints remain canonical nodes.
 const compare = (from: string, to: string, label: string): ProblemEdge => ({
-  id: `self-reading:${from}:${to}`, from, to, relation: "产生问题", connection: "同题并列", label,
+  id: `self-reading:${from}:${to}`, from, to, relation: "阅读跳转", connection: "同题并列", label,
 });
 const reading = (from: string, to: string, label: string): ProblemEdge => ({
   ...compare(from, to, label), connection: "本站推演",

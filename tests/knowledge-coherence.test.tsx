@@ -35,6 +35,7 @@ test("self retains the doubt-cogito argument and forms a traversable network wit
   for (const id of queue) for (const next of adjacent.get(id)!) if (!seen.has(next)) { seen.add(next); queue.push(next); }
   assert.equal(seen.size, ids.size, "Continuity includes explicit comparisons, not a claim of a single historical lineage.");
   assert.ok(selfReadingEdges.every((edge) => ["同题并列", "本站推演"].includes(edge.connection)));
+  assert.ok(selfReadingEdges.every((edge) => edge.relation === "阅读跳转"));
   assert.equal(new Set(map.edges.map((edge) => `${edge.from}:${edge.to}`)).size, map.edges.length);
 });
 

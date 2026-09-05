@@ -271,7 +271,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     lineage: { inherited: "承接奥古斯丁式内省、经院形而上学和新数学—机械科学。", school: "近代大陆理性主义与主体哲学的起点。", influenced: "直接塑造斯宾诺莎、莱布尼茨和整个心物问题，也迫使经验主义与康德重新界定主体。", parallel: "与弗朗西斯·培根都反传统方法；笛卡尔从个体确定性和演绎出发，培根从协作经验与排除出发。" },
     comparisons: [
       { target: "奥古斯丁", relation: "后世重构", shared: "即使受欺骗，内在思考的发生仍指向存在。", difference: "笛卡尔把内省放进普遍怀疑和科学奠基工程，功能不同于奥古斯丁的神学自知。" },
-      { target: "斯宾诺莎", relation: "影响后继", shared: "用定义、实体和演绎追求整体可理解性。", difference: "斯宾诺莎拒绝两个实体，把心与身视为唯一实体的两种属性。" },
+      { target: "斯宾诺莎", relation: "影响后继", shared: "用定义、实体和演绎追求整体可理解性。", difference: "斯宾诺莎拒绝心物两个实体：思维与广延是唯一实体的属性，具体心灵与身体则是同一有限个体在两种属性下的表达。" },
       { target: "洛克", relation: "批评关系", shared: "都要说明心灵如何获得观念和知识。", difference: "洛克拒绝天赋内容，从经验追踪观念来源；笛卡尔保留理性可把握的先天结构。" },
       { target: "伽利略", relation: "承接前人", shared: "自然现象应通过数学、运动与机械过程解释，而不是只引述古代权威。", difference: "伽利略从受控现象和局部定律推进；笛卡尔更大胆地由形而上学原则演绎整体自然体系。" },
       { target: "康德", relation: "影响后继", shared: "主体并非被动接收材料，认识结构参与对象如何被经验。", difference: "康德拒绝由我思直接证明灵魂实体，也限制纯理性对上帝和世界整体的知识要求。" },
@@ -610,10 +610,10 @@ export const modernProfiles: PhilosopherProfile[] = [
       { target: "约翰·斯图亚特·密尔", relation: "影响后继", shared: "幸福后果是伦理和制度评价核心。", difference: "密尔加入快乐质量、个性、自由和少数保护，修正简单数量图景。" },
       { target: "康德", relation: "同题比较", shared: "伦理原则应能从私人偏好上升为公共标准。", difference: "边沁聚合幸福后果；康德拒绝把人格只当作总体福利的投入项。" },
     ],
-    stars: 5, culturalNotes: [{ kind: "生活印象", title: "至今仍“出席”会议的自动圣像", text: "边沁遗体按遗愿制成“自动圣像”，保存在伦敦大学学院。这个奇特安排延续了他希望制度与教育在身后继续发挥公共作用的形象。" }],
+    stars: 5, culturalNotes: [{ kind: "生活印象", title: "陈列于伦敦大学学院的自动圣像", text: "边沁遗体按遗愿制成“自动圣像”，保存在伦敦大学学院。它曾被移至少数纪念活动现场，但所谓定期“出席”学院会议并被记作“在场但不投票”是后来的都市传说。", caveat: "UCL 明确否认自动圣像定期出席学院会议；不要把流行轶事写成持续惯例。" }],
     russellView: "罗素把边沁写成缺少诗意却极有公共用途的改革者，赞赏其清楚、反迷信和对刑法制度的实际影响，同时承认简单快乐计算会低估复杂价值。",
     modernCorrection: "功利主义并非只问短期多数满意。边沁重视每人计为一人、动物痛苦和制度激励；但幸福可比较性、少数权利和监督技术仍是根本难题。",
-    sources: [russellSource("第三卷第二十六章〈功利主义者〉"), sepSource("Jeremy Bentham", "bentham")],
+    sources: [russellSource("第三卷第二十六章〈功利主义者〉"), sepSource("Jeremy Bentham", "bentham"), { label: "UCL · Jeremy Bentham Auto-Icon", kind: "补充", url: "https://www.ucl.ac.uk/laws/research/research-projects/bentham-project/about-jeremy-bentham/auto-icon" }],
   },
   {
     id: "mill", order: 76, nameZh: "约翰·斯图亚特·密尔", aliases: ["穆勒"], nameEn: "John Stuart Mill", greekName: "John Stuart Mill", dates: "1806—1873", active: "1820 年代—1873", places: ["伦敦", "阿维尼翁", "英国议会"], school: "功利主义／自由主义", figureId: "mill", chapterIds: ["b3-26"],
@@ -771,7 +771,7 @@ export const modernProfiles: PhilosopherProfile[] = [
     comparisons: [
       { target: "莱布尼茨", relation: "后世重构", shared: "希望以普遍符号和逻辑原则澄清推理与数学。", difference: "弗雷格建立量词逻辑的技术系统，并严格区分心理过程与客观思想。" },
       { target: "罗素", relation: "影响后继", shared: "逻辑可揭示语言表面之下的命题结构，并服务数学基础。", difference: "罗素以类型论和摹状词分析回应悖论，改写弗雷格体系。" },
-      { target: "黑格尔", relation: "批评关系", shared: "逻辑被赋予超出教科书推理规则的哲学任务。", difference: "弗雷格要求形式明确与真值保存，分析传统由此反对黑格尔式辩证整体。" },
+      { target: "黑格尔", relation: "后世重构", shared: "逻辑被赋予超出教科书推理规则的哲学任务。", difference: "后来的分析哲学史常以弗雷格的形式明确性对照黑格尔式辩证整体；这不是本站已经证明的弗雷格对黑格尔的直接批评。" },
     ],
     stars: 5, culturalNotes: [{ kind: "例子", title: "晨星就是昏星", text: "两个名称都指金星，但发现二者同一仍有知识价值。意义与指称的区分由此进入日常可见的天文例子。" }],
     russellView: "罗素在逻辑分析章把弗雷格视为现代逻辑的决定性先驱，承认自己许多方向受其启发；同时以悖论说明不受限制的逻辑主义基础无法成立。",

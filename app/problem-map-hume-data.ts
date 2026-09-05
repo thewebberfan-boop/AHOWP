@@ -225,6 +225,7 @@ export const humeProblemPhases: ProblemPhase[] = [
         consequence: "知觉束论自身产生统一、所有权和责任持续问题。",
         participants: [{ name: "大卫·休谟", philosopherId: "hume", role: "以知觉束和联想关系反对不可经验的简单自我实体" }],
         chapterIds: ["b3-17"],
+        sourceRefs: [{ sourceLabel: "SEP · David Hume", locator: "条目关于人格同一与《人性论》附录的讨论", evidenceNote: "用于保留知觉束说明未解决的统一与所有权困难。" }],
         graph: { row: 331, lane: 4.2 },
       },
       {
@@ -248,6 +249,7 @@ export const humeProblemPhases: ProblemPhase[] = [
         consequence: "怀疑必须说明理论保留与日常归责如何同时存在。",
         participants: [{ name: "大卫·休谟", philosopherId: "hume", role: "以联想说明同一信念，同时在附录中保留自我批评" }],
         chapterIds: ["b3-17"],
+        sourceRefs: [{ sourceLabel: "SEP · David Hume", locator: "条目关于人格同一与《人性论》附录的讨论", evidenceNote: "用于防止把知觉束写成无代价完成的主体理论。" }],
         graph: { row: 333, lane: 4.2 },
       },
       {
@@ -400,7 +402,7 @@ export const humeProblemEdges: ProblemEdge[] = [
   { id: "h016", from: "does-custom-explain-or-justify-induction", to: "custom-naturally-sustains-calibrated-expectation", relation: "回应问题", label: "以自然倾向、概率和经验校准给出有限回答", connection: "历史回应" },
   { id: "h017", from: "simple-ideas-copy-impressions-source-test", to: "what-unifies-person-without-self-impression", relation: "产生问题", label: "来源原则转向恒常自我印象检验", connection: "原书线索" },
   { id: "h018", from: "stream-of-perceptions-no-constant-self-observation", to: "what-unifies-person-without-self-impression", relation: "提出问题", label: "内省只呈现变化知觉而非恒常实体", connection: "原书线索" },
-  { id: "h019", from: "what-unifies-person-without-self-impression", to: "self-as-bundle-and-succession-of-perceptions", relation: "回应问题", label: "以知觉束和序列替代简单实体", connection: "原书线索" },
+  { id: "h019", from: "what-unifies-person-without-self-impression", to: "self-as-bundle-and-succession-of-perceptions", relation: "回应问题", label: "以知觉束和序列替代简单实体", connection: "原书线索", sourceRefs: [{ sourceLabel: "SEP · David Hume", locator: "条目关于人格同一与《人性论》附录的讨论" }] },
   { id: "h020", from: "self-as-bundle-and-succession-of-perceptions", to: "can-association-explain-one-mind-and-responsibility", relation: "产生问题", label: "知觉复数留下束的统一与边界", connection: "原书线索" },
   { id: "h021", from: "can-association-explain-one-mind-and-responsibility", to: "association-explains-identity-fiction-not-full-unity", relation: "回应问题", label: "以联想说明同一信念并保留理论缺口", connection: "历史回应" },
   { id: "h022", from: "extraordinary-testimony-conflicts-experience-observation", to: "how-weigh-miracle-testimony-without-dogmatism", relation: "提出问题", label: "异常见证与稳定经验形成证据竞争", connection: "原书线索" },

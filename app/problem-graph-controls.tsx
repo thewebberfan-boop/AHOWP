@@ -15,6 +15,7 @@ const relationEnglish: Record<ProblemRelationKind, string> = {
   提出问题: "RAISES",
   回应问题: "ANSWERS",
   产生问题: "GENERATES",
+  阅读跳转: "READING LINK",
 };
 
 export function ProblemGraphControls({
